@@ -63,7 +63,7 @@ public class ApplicationController {
 
     @RequestMapping(value="/", method= RequestMethod.GET)
     public String list(final RedirectAttributes redirect){
-        return "redirect:list.jsp";
+        return "redirect:list";
     }
 
     @RequestMapping(value="/index", method= RequestMethod.GET)
@@ -94,7 +94,7 @@ public class ApplicationController {
         return "redirect:list.jsp";
     }
 
-    @RequestMapping(value="/list.jsp", method=RequestMethod.GET)
+    @RequestMapping(value="/list", method=RequestMethod.GET)
     public String list(ModelMap model,
                        HttpServletRequest request,
                        final RedirectAttributes redirect,
@@ -136,7 +136,7 @@ public class ApplicationController {
 
     }
 
-    @RequestMapping(value="/krnws/list.jsp", method=RequestMethod.GET)
+    @RequestMapping(value="/krnwh/list", method=RequestMethod.GET)
     public String krnws(ModelMap model,
                        HttpServletRequest request,
                        final RedirectAttributes redirect,
@@ -174,7 +174,7 @@ public class ApplicationController {
 
         model.addAttribute("krnwhsLinkActive", "active");
 
-        return "krnwh/list.jsp";
+        return "krnwh/list";
 
     }
 

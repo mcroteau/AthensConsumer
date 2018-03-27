@@ -6,6 +6,7 @@ public class KRNWH {
 
 	public KRNWH(){}
 
+	private BigDecimal id;
 	private BigDecimal fpempn;
   	private BigDecimal fppunc;
   	private String fptype;
@@ -26,6 +27,15 @@ public class KRNWH {
 	fppcod decimal(15,3),
 	fstatus varchar(1)		
 **/
+	public void setId(BigDecimal id){
+		this.id = id;
+	}
+
+	public BigDecimal getId(){
+		return this.id;
+	}
+
+
 
 	public void setFpempn(BigDecimal fpempn){
 		this.fpempn = fpempn;
@@ -118,7 +128,8 @@ public class KRNWH {
 **/
 	
 	public String toString(){
-		return  "\nfpempn: " + this.getFpempn() +
+		return  "\nid: " + this.getId() +
+				" fpempn: " + this.getFpempn() +
 				" fppunc: " + this.getFppunc() +
 				" fptype: " + this.getFptype() +
 				" fpclck: " + this.getFpclck() +

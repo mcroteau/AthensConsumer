@@ -26,6 +26,45 @@
 
         <a href="${pageContext.request.contextPath}/index" title="Run Job" class="btn btn-default">Run Todays</a>
 
+        <div class="btn-toolbar">
+            <div class="btn-group">
+
+                <%  int total = Integer.parseInt(request.getAttribute("total").toString());
+                    int resultsPerPage = Integer.parseInt(request.getAttribute("resultsPerPage").toString());
+                    int activePage = Integer.parseInt(request.getAttribute("activePage").toString());
+
+                    int currentPage = 1;
+                    int numberPages = 0;
+                    int nextPage = 2;
+                    int nextPageOffset = 10;
+                    for(int m = 0; m < total; m++){
+                        if(m % resultsPerPage == 0){%>
+                            <%if(currentPage == 1 && numberPages == 0){%>
+                                <%int n = m - 10;%>
+                                <%=m%>
+                                <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=n%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn"><<</a>
+                                <%numberPages++;%>
+                            <%}%>
+                            <%if(currentPage - activePage  <= 3 && activePage - currentPage <= 3){%>
+                                <%if(activePage == currentPage){%>
+                                    <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn active"><%=currentPage%></a>
+                                <%}else{%>
+                                    <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn"><%=currentPage%></a>
+                                <%}%>
+                                <%nextPage = currentPage + 1;%>
+                                <%nextPageOffset = m + 10;%>
+                            <%}%>
+                        <%
+                            currentPage++;
+                        }%>
+                        <%if(total == m + 1){%>
+                            <%=nextPageOffset%>
+                            <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=nextPageOffset%>&max=<%=resultsPerPage%>&page=<%=nextPage%>" class="btn">>></a>
+                        <%}%>
+                <%}%>
+
+            </div>
+        </div>
         <div class="span12">
 
             <table class="table table-condensed">
@@ -58,7 +97,7 @@
                         <td>${krnwh.id}</td>
                         <td>${krnwh.fpempn}</td>
                         <td>${krnwh.fppunc}</td>
-                        <td>${krnwh.fpclck}</td>
+                        <td>${krnwh.fptype}</td>
                         <td>${krnwh.fpclck}</td>
                         <td>${krnwh.fpbadg}</td>
                         <td>${krnwh.fpfkey}</td>
