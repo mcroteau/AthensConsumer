@@ -48,12 +48,12 @@
                                     <%previousPage = currentPage -1;%>
                                 <%}%>
                                 <%previousPageOffset = m - 10;%>
-                                <%if((currentPage -1) == 1 && numberPages == 0){%>
+                            <%}%>
+                            <%if(currentPage - activePage  <= 3 && activePage - currentPage <= 3){%>
+                                <%if(numberPages == 0){%>
                                     <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=previousPageOffset%>&max=<%=resultsPerPage%>&page=<%=previousPage%>" class="btn"><<</a>
                                     <%numberPages++;%>
                                 <%}%>
-                            <%}%>
-                            <%if(currentPage - activePage  <= 3 && activePage - currentPage <= 3){%>
                                 <%if(activePage == currentPage){%>
                                     <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn active"><%=currentPage%></a>
                                 <%}else{%>
