@@ -37,13 +37,18 @@
                     int numberPages = 0;
                     int nextPage = 2;
                     int nextPageOffset = 10;
+                    int previousPage = 1;
+                    int previousPageOffset = 0;
+
                     for(int m = 0; m < total; m++){
                         if(m % resultsPerPage == 0){%>
-                            <%if(currentPage == 1 && numberPages == 0){%>
-                                <%int n = m - 10;%>
-                                <%=m%>
-                                <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=n%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn"><<</a>
-                                <%numberPages++;%>
+                            <%if(m - 10 >= 0){%>
+                                <%previousPage = currentPage -1;%>
+                                <%previousPageOffset = m - 10;%>
+                                <%if(currentPage == 1 && numberPages == 0){%>
+                                    <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=previousPageOffset%>&max=<%=resultsPerPage%>&page=<%=previousPage%>" class="btn"><<</a>
+                                    <%numberPages++;%>
+                                <%}%>
                             <%}%>
                             <%if(currentPage - activePage  <= 3 && activePage - currentPage <= 3){%>
                                 <%if(activePage == currentPage){%>
@@ -58,7 +63,6 @@
                             currentPage++;
                         }%>
                         <%if(total == m + 1){%>
-                            <%=nextPageOffset%>
                             <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=nextPageOffset%>&max=<%=resultsPerPage%>&page=<%=nextPage%>" class="btn">>></a>
                         <%}%>
                 <%}%>
