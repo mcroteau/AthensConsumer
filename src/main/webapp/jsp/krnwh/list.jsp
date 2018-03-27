@@ -42,10 +42,13 @@
 
                     for(int m = 0; m < total; m++){
                         if(m % resultsPerPage == 0){%>
+
                             <%if(m - 10 >= 0){%>
-                                <%previousPage = currentPage -1;%>
+                                <%if(currentPage > 1){%>
+                                    <%previousPage = currentPage -1;%>
+                                <%}%>
                                 <%previousPageOffset = m - 10;%>
-                                <%if(currentPage == 1 && numberPages == 0){%>
+                                <%if((currentPage -1) == 1 && numberPages == 0){%>
                                     <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=previousPageOffset%>&max=<%=resultsPerPage%>&page=<%=previousPage%>" class="btn"><<</a>
                                     <%numberPages++;%>
                                 <%}%>
