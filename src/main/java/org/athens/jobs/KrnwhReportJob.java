@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.athens.domain.KrnwhJobSettings;
 import org.athens.dao.impl.KrnwhDaoImpl;
@@ -25,15 +26,17 @@ import org.athens.dao.impl.KrnwhLogDaoImpl;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.DisallowConcurrentExecution;
 
+import java.util.concurrent.TimeUnit;
 
+@DisallowConcurrentExecution
 public class KrnwhReportJob implements Job {
 
 	final static Logger log = Logger.getLogger(KrnwhReportJob.class);
 
 	private String token = "";
-
-	private boolean running =false;
 
 	private KrnwhDaoImpl krnwhDao;
 
@@ -41,93 +44,90 @@ public class KrnwhReportJob implements Job {
 
 	private KrnwhJobSettings krnwhJobSettings;
 
-//5 is bad
+
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 
-		if(running){
-			return;
-		}
-
 		try {
-			running = true;
 
-			DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-			Date date = new Date();
-			String formattedDate = dateFormat.format(date);
-			log.info("executing report : " + formattedDate.toString());
+			//if(!currentlyRunning(context)) {
 
-			JobKey jobKey = new JobKey("krnwhJob", "atns");
-			JobDetail jobDetail = context.getScheduler().getJobDetail(jobKey);
+				DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+				Date date = new Date();
+				String formattedDate = dateFormat.format(date);
 
-			setKrnwhReportResources(jobDetail);
+				log.info("executing report : " + formattedDate.toString());
 
-			log.info(krnwhJobSettings.getCompany() + " : " + krnwhJobSettings.getReport() + " : " + krnwhJobSettings.getApiKey() );
+				JobKey jobKey = new JobKey("krnwhJob", "atns");
+				JobDetail jobDetail = context.getScheduler().getJobDetail(jobKey);
 
+				setKrnwhReportResources(jobDetail);
+			TimeUnit.MINUTES.sleep(1);
+				/**
+				 //log.info(krnwhJobSettings.getCompany() + " : " + krnwhJobSettings.getReport() + " : " + krnwhJobSettings.getApiKey());
+				 KrnwhLog todaysKrnwhLog = krnwhLogDao.findByDate(new BigDecimal(formattedDate));
 
+				if (todaysKrnwhLog != null) {
+					todaysKrnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+					todaysKrnwhLog.setKtot(new BigDecimal(124));
+					todaysKrnwhLog.setKaudit("g");
+					todaysKrnwhLog.setKadtcnt(new BigDecimal(3));
+					todaysKrnwhLog.setKdate(new BigDecimal(20180323));
+					krnwhLogDao.update(todaysKrnwhLog);
+				}
 
-			 KrnwhLog todaysKrnwhLog = krnwhLogDao.findByDate(new BigDecimal(formattedDate));
+				KrnwhLog krnwhLog = new KrnwhLog();
+				krnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
+				krnwhLog.setKtot(new BigDecimal(0));
+				krnwhLog.setKadtcnt(new BigDecimal(0));
+				krnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+				krnwhLog.setKdate(new BigDecimal(formattedDate));
+				KrnwhLog savedKrnwhLog = krnwhLogDao.save(krnwhLog);
 
-			 if(todaysKrnwhLog != null){
-				 todaysKrnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
-				 todaysKrnwhLog.setKtot(new BigDecimal(124));
-				 todaysKrnwhLog.setKaudit("g");
-				 todaysKrnwhLog.setKadtcnt(new BigDecimal(3));
-				 todaysKrnwhLog.setKdate(new BigDecimal(20180323));
-				 krnwhLogDao.update(todaysKrnwhLog);
-			 }
+				log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
+				log.info("apiKey: " + krnwhJobSettings.getApiKey());
 
-			 KrnwhLog krnwhLog = new KrnwhLog();
-			 krnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
-			 krnwhLog.setKtot(new BigDecimal(0));
-			 krnwhLog.setKadtcnt(new BigDecimal(0));
-			 krnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-			 krnwhLog.setKdate(new BigDecimal(formattedDate));
-			 KrnwhLog savedKrnwhLog = krnwhLogDao.save(krnwhLog);
+				String authuri = "https://secure4.saashr.com/ta/rest/v1/login";
 
-			 log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
-			 log.info("apiKey: " + krnwhJobSettings.getApiKey());
-
-			 String authuri = "https://secure4.saashr.com/ta/rest/v1/login";
-
-			 JsonObject innerObject = new JsonObject();
-			 innerObject.addProperty("username", krnwhJobSettings.getUsername());
-			 innerObject.addProperty("password", krnwhJobSettings.getPassword());
-			 innerObject.addProperty("company", krnwhJobSettings.getCompany());
-
-
-			 JsonObject jsonObject = new JsonObject();
-			 jsonObject.add("credentials", innerObject);
-
-			 WebResource resource = Client.create(new DefaultClientConfig())
-			 .resource(authuri);
-
-			 WebResource.Builder builder = resource.accept("application/json");
-			 builder.type("application/json");
-			 builder.header("api-key", krnwhJobSettings.getApiKey());
+				JsonObject innerObject = new JsonObject();
+				innerObject.addProperty("username", krnwhJobSettings.getUsername());
+				innerObject.addProperty("password", krnwhJobSettings.getPassword());
+				innerObject.addProperty("company", krnwhJobSettings.getCompany());
 
 
-			 ClientResponse cresponse  = builder.post(ClientResponse.class, jsonObject.toString());
+				JsonObject jsonObject = new JsonObject();
+				jsonObject.add("credentials", innerObject);
 
-			 String jsonOutput = cresponse.getEntity(String.class);
+				WebResource resource = Client.create(new DefaultClientConfig())
+						.resource(authuri);
 
-			 if (cresponse.getStatus() != 200) {
-			 	log.info(cresponse.toString());
-			 	throw new RuntimeException("Failed : HTTP error code : " + cresponse.getStatus());
-			 }
-
-			 System.out.println("Token json response from server .... \n");
-			 //log.info(jsonOutput);
-
-			 JsonParser jsonParser = new JsonParser();
-			 JsonObject tokenObj = (JsonObject)jsonParser.parse(jsonOutput);
+				WebResource.Builder builder = resource.accept("application/json");
+				builder.type("application/json");
+				builder.header("api-key", krnwhJobSettings.getApiKey());
 
 
-			 this.token = tokenObj.get("token").toString();
-			 this.token = token.replaceAll("^\"|\"$", "");
+				ClientResponse cresponse = builder.post(ClientResponse.class, jsonObject.toString());
 
-			 processReportDataFromRequest(savedKrnwhLog);
+				String jsonOutput = cresponse.getEntity(String.class);
 
+				if (cresponse.getStatus() != 200) {
+					log.info(cresponse.toString());
+					throw new RuntimeException("Failed : HTTP error code : " + cresponse.getStatus());
+				}
+
+				System.out.println("Token json response from server .... \n");
+				//log.info(jsonOutput);
+
+				JsonParser jsonParser = new JsonParser();
+				JsonObject tokenObj = (JsonObject) jsonParser.parse(jsonOutput);
+
+
+				this.token = tokenObj.get("token").toString();
+				this.token = token.replaceAll("^\"|\"$", "");
+
+				processReportDataFromRequest(savedKrnwhLog);
+				**/
+		//}
 
 		}catch (Exception e){
 			log.warn("log error..");
@@ -232,7 +232,7 @@ public class KrnwhReportJob implements Job {
 
 					try {
 
-						if(count == 7){
+						if(count == 19){
 
 							break;
 						}
@@ -256,7 +256,6 @@ public class KrnwhReportJob implements Job {
 		log.info("count: " + count);
 		log.info("error count: " + errorCount);
 
-		running = false;
 	}
 
 
@@ -280,6 +279,35 @@ public class KrnwhReportJob implements Job {
 				//errorCount++;
 			}
 		}
+	}
+
+	public boolean currentlyRunning(JobExecutionContext context){
+		try {
+			Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+			List<JobExecutionContext> runningJobs = scheduler.getCurrentlyExecutingJobs();
+			for (JobExecutionContext jobCtx : runningJobs) {
+				String thisJobName = jobCtx.getJobDetail().getKey().getName();
+				String thisGroupName = jobCtx.getJobDetail().getKey().getGroup();
+				if ("krnwhJob".equalsIgnoreCase(thisJobName) && "atns".equalsIgnoreCase(thisGroupName)
+					//&& !jobCtx.getFireTime().equals(context.getFireTime())
+						) {
+					if(jobCtx.getJobDetail().getJobDataMap().getBooleanFromString("running")){
+						log.info("running detail..");
+						jobCtx.getJobDetail().getJobDataMap().put("running", false);
+					}else{
+						log.info("not running detail...");
+						jobCtx.getJobDetail().getJobDataMap().put("running", true);
+					}
+					log.info("instance running...");
+					return true;
+				}
+			}
+			log.info("not running...");
+		}catch (Exception e){
+			log.warn("something went wrong currently running?");
+			return false;
+		}
+		return false;
 	}
 
 }

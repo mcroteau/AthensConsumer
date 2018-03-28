@@ -11,6 +11,14 @@ import org.athens.dao.KrnwhLogDao;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+viewing ingest/saved
+comparison logic
+authorization
+style guide
+ **/
+
+
 public class KrnwhLogDaoImpl implements KrnwhLogDao  {
 
     final static Logger log = Logger.getLogger(KrnwhLogDaoImpl.class);

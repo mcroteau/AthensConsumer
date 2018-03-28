@@ -7,6 +7,8 @@
 
 <body>
 
+<img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
+
 <div class="span12">
     <h1>Punches</h1>
 </div>
@@ -19,6 +21,17 @@
         </div>
     </div>
 </c:if>
+
+<style type="text/css">
+#container{
+
+}
+
+table{
+
+}
+
+</style>
 
 
 <c:choose>

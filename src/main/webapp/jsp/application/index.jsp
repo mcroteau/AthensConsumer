@@ -7,6 +7,8 @@
 
 <body>
 
+    <img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
+
 	<div class="span12">
 		<h1>Punch Report Logs</h1>
 	</div>
@@ -50,7 +52,7 @@
 
 						<c:forEach var="krnwhLog" items="${krnwhLogs}">
 							<tr>
-								<td>${krnwhLog.id}</td>
+								<td></td>
 								<td>${krnwhLog.kdate}</td>
 								<td>${krnwhLog.ktot}</td>
 								<td>${krnwhLog.kadtcnt}</td>

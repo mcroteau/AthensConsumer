@@ -38,7 +38,7 @@ import org.quartz.JobKey;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
-
+import org.quartz.JobExecutionContext;
 import org.athens.domain.KrnwhLog;
 
 import java.util.List;
@@ -60,7 +60,9 @@ public class ApplicationController {
     @Autowired
     private KrnwhLogDaoImpl logDao;
 
-	final static Logger log = Logger.getLogger(ApplicationRunner.class);
+	final static Logger log = Logger.getLogger(ApplicationController.class);
+
+    boolean running = false;
 
     @RequestMapping(value="/", method= RequestMethod.GET)
     public String list(final RedirectAttributes redirect){
@@ -71,18 +73,27 @@ public class ApplicationController {
     public String index(final RedirectAttributes redirect){
         String message = "";
         try {
-            //log.info(dataSource);
+                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+                List<JobExecutionContext> runningJobs = scheduler.getCurrentlyExecutingJobs();
+                for (JobExecutionContext jobCtx : runningJobs) {
+                    String thisJobName = jobCtx.getJobDetail().getKey().getName();
+                    String thisGroupName = jobCtx.getJobDetail().getKey().getGroup();
+                    if ("krnwhJob".equalsIgnoreCase(thisJobName) && "atns".equalsIgnoreCase(thisGroupName)
+                            //&& !jobCtx.getFireTime().equals(ctx.getFireTime())
+                            ) {
+                        running = true;
+                    }
+                }
 
-            //log.info(logDao.list.jsp(10, 0));
+                if(!running) {
+                    log.info("Running report");
+                    JobKey jobKey = new JobKey("krnwhJob", "atns");
+                    scheduler.triggerJob(jobKey); //trigger a job by jobkey
 
-            //log.info(dao.list.jsp());
-            log.info("Running report");
-            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-            JobKey jobKey = new JobKey("krnwhJob", "atns");
-            scheduler.triggerJob(jobKey); //trigger a job by jobkey
+                    message = "Successfully ran report...";
 
-            message = "Successfully ran report...";
-
+                    running = false;
+                }
         }catch (Exception e){
             message = "Something went wrong";
             log.warn("unable to get connection");
@@ -122,9 +133,6 @@ public class ApplicationController {
             }
 
             int count = logDao.count();
-
-            System.out.println("count : " + count);
-
             model.addAttribute("krnwhLogs", krnwhLogs);
             model.addAttribute("total", count);
 
