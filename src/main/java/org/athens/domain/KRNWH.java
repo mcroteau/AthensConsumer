@@ -15,6 +15,7 @@ public class KRNWH {
   	private String fpfkey;
   	private BigDecimal fppcod;
   	private String fstatus;
+	private BigDecimal krnlogid;
 	
 	/**
 		
@@ -25,7 +26,9 @@ public class KRNWH {
 	fpbadg decimal(8,0),
 	fpfkey varchar(15),
 	fppcod decimal(15,3),
-	fstatus varchar(1)		
+	fstatus varchar(1)
+	 id numeric(8)
+	 krnlogId numeric(8)
 **/
 	public void setId(BigDecimal id){
 		this.id = id;
@@ -114,7 +117,20 @@ public class KRNWH {
 	public String getFstatus(){
 		return this.fstatus;
 	}
-	
+
+
+
+
+	public void setKrnlogid(BigDecimal krnlogid){
+		this.krnlogid = krnlogid;
+	}
+
+	public BigDecimal getKrnlogid(){
+		return this.krnlogid;
+	}
+
+
+
 	/**
 		
 	fpempn decimal(9,0),
@@ -124,7 +140,9 @@ public class KRNWH {
 	fpbadg decimal(8,0),
 	fpfkey varchar(15),
 	fppcod decimal(15,3),
-	fstatus varchar(1)		
+	fstatus varchar(1)
+	 id numeric(8)
+	 krnlogid numeric(8)
 **/
 	
 	public String toString(){
@@ -136,7 +154,8 @@ public class KRNWH {
 				" fpbadg: " + this.getFpbadg() +
 				" fpfkey: " + this.getFpfkey() +
 				" fppcod: " + this.getFppcod() +
-				" fstatus: " + this.getFstatus() + "\n";
+				" fstatus: " + this.getFstatus() +
+				" krnlogid: " + this.getKrnlogid() + "\n";
 	}
 	
 	

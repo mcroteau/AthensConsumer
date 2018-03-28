@@ -23,12 +23,17 @@ import org.athens.domain.KrnwhJobSettings;
 import org.athens.dao.impl.KrnwhDaoImpl;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 
 public class KrnwhReportJob implements Job {
 
 	final static Logger log = Logger.getLogger(KrnwhReportJob.class);
 
 	private String token = "";
+
+	private boolean running =false;
 
 	private KrnwhDaoImpl krnwhDao;
 
@@ -40,7 +45,12 @@ public class KrnwhReportJob implements Job {
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 
+		if(running){
+			return;
+		}
+
 		try {
+			running = true;
 
 			DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 			Date date = new Date();
@@ -76,70 +86,59 @@ public class KrnwhReportJob implements Job {
 			 KrnwhLog savedKrnwhLog = krnwhLogDao.save(krnwhLog);
 
 			 log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
+			 log.info("apiKey: " + krnwhJobSettings.getApiKey());
+
+			 String authuri = "https://secure4.saashr.com/ta/rest/v1/login";
+
+			 JsonObject innerObject = new JsonObject();
+			 innerObject.addProperty("username", krnwhJobSettings.getUsername());
+			 innerObject.addProperty("password", krnwhJobSettings.getPassword());
+			 innerObject.addProperty("company", krnwhJobSettings.getCompany());
+
+
+			 JsonObject jsonObject = new JsonObject();
+			 jsonObject.add("credentials", innerObject);
+
+			 WebResource resource = Client.create(new DefaultClientConfig())
+			 .resource(authuri);
+
+			 WebResource.Builder builder = resource.accept("application/json");
+			 builder.type("application/json");
+			 builder.header("api-key", krnwhJobSettings.getApiKey());
+
+
+			 ClientResponse cresponse  = builder.post(ClientResponse.class, jsonObject.toString());
+
+			 String jsonOutput = cresponse.getEntity(String.class);
+
+			 if (cresponse.getStatus() != 200) {
+			 	log.info(cresponse.toString());
+			 	throw new RuntimeException("Failed : HTTP error code : " + cresponse.getStatus());
+			 }
+
+			 System.out.println("Token json response from server .... \n");
+			 //log.info(jsonOutput);
+
+			 JsonParser jsonParser = new JsonParser();
+			 JsonObject tokenObj = (JsonObject)jsonParser.parse(jsonOutput);
+
+
+			 this.token = tokenObj.get("token").toString();
+			 this.token = token.replaceAll("^\"|\"$", "");
+
+			 processReportDataFromRequest(savedKrnwhLog);
+
+
 		}catch (Exception e){
-			log.warn("error executing job");
+			log.warn("log error..");
+			//TODO: log error
 		}
 
-		 /**
-
-		 List<KrnwhLog> krnwhLogs = logDao.list.jsp(10, 0);
-
-		 log.info("krnwhLogs : " + krnwhLogs.size());
-
-		 for (KrnwhLog klog : krnwhLogs) {
-		 log.info(klog);
-		 }
-
-		 return;
-
-		 log.info("apiKey: " + apiKey);
-		 String authuri = "https://secure4.saashr.com/ta/rest/v1/login";
-
-
-		 JsonObject innerObject = new JsonObject();
-		 innerObject.addProperty("username", username);
-		 innerObject.addProperty("password", password);
-		 innerObject.addProperty("company", company);
-
-
-		 JsonObject jsonObject = new JsonObject();
-		 jsonObject.add("credentials", innerObject);
-
-		 WebResource resource = Client.create(new DefaultClientConfig())
-		 .resource(authuri);
-
-		 WebResource.Builder builder = resource.accept("application/json");
-		 builder.type("application/json");
-		 builder.header("api-key", apiKey);
-
-
-		 ClientResponse cresponse  = builder.post(ClientResponse.class, jsonObject.toString());
-
-		 String jsonOutput = cresponse.getEntity(String.class);
-
-		 if (cresponse.getStatus() != 200) {
-		 log.info(cresponse.toString());
-		 throw new RuntimeException("Failed : HTTP error code : "
-		 + cresponse.getStatus());
-		 }
-
-		 System.out.println("Token json response from server .... \n");
-		 log.info(jsonOutput);
-
-		 JsonParser jsonParser = new JsonParser();
-		 JsonObject tokenObj = (JsonObject)jsonParser.parse(jsonOutput);
-
-
-		 this.token = tokenObj.get("token").toString();
-		 this.token = token.replaceAll("^\"|\"$", "");
-
-		 processReportDataFromRequest();
-		 **/
 	}
 
 
 
-	public void processReportDataFromRequest(){
+	public void processReportDataFromRequest(KrnwhLog savedKrnwhLog){
 		System.out.println("running report using jersey ...");
 
 		String url = "https://secure4.saashr.com/ta/rest/v1/report/saved/70165985";
@@ -155,14 +154,14 @@ public class KrnwhReportJob implements Job {
 		ClientResponse response  = builder.get(ClientResponse.class);
 		String csvData = response.getEntity(String.class);
 
-		log.info(csvData);
-		readCsvDataString(csvData.toString());
+		//log.info(csvData);
+		readCsvDataString(csvData.toString(), savedKrnwhLog);
 	}
 
 
 
 
-	public void readCsvDataString(String csvData){
+	public void readCsvDataString(String csvData, KrnwhLog savedKrnwhLog){
 		String line = "";
 		int count = 0;
 		int errorCount = 0;
@@ -225,6 +224,7 @@ public class KrnwhReportJob implements Job {
 					krnwh.setFpfkey("843");//*
 					krnwh.setFppcod(new BigDecimal(0));//*
 					krnwh.setFstatus("m");
+					krnwh.setKrnlogid(savedKrnwhLog.getId());
 
 					if (count == 3) krnwh.setFstatus("aa");
 
@@ -255,6 +255,8 @@ public class KrnwhReportJob implements Job {
 
 		log.info("count: " + count);
 		log.info("error count: " + errorCount);
+
+		running = false;
 	}
 
 

@@ -55,8 +55,9 @@
 								<td>${krnwhLog.ktot}</td>
 								<td>${krnwhLog.kadtcnt}</td>
 								<td>${krnwhLog.kstatus}</td>
-								<td><a href="${pageContext.request.contextPath}/krnwh/list" title="View Ingest" class="btn btn-default">View Ingest</a></td>
-							</tr>
+								<!--<td><a href="${pageContext.request.contextPath}/krnwh/list_ingest?ingest=${krnwhLog.id}" title="View Ingest" class="btn btn-default">View Ingest</a></td>-->
+                            	<td><a href="${pageContext.request.contextPath}/krnwh/list" title="View Ingest" class="btn btn-default">View Ingest</a></td>
+                            </tr>
 						</c:forEach>
 					</tbody>
 				</table>

@@ -24,6 +24,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -160,6 +161,51 @@ public class ApplicationController {
             krnwhs = dao.list(m, o);
         }else{
             krnwhs = dao.list(10, 0);
+        }
+
+        int count = dao.count();
+
+        System.out.println("count : " + count);
+
+        model.addAttribute("krnwhs", krnwhs);
+        model.addAttribute("total", count);
+
+        model.addAttribute("resultsPerPage", 10);
+        model.addAttribute("activePage", page);
+
+        model.addAttribute("krnwhsLinkActive", "active");
+
+        return "krnwh/list";
+
+    }
+
+
+
+    @RequestMapping(value="/krnwh/list_ingest", method=RequestMethod.GET)
+    public String krnwsIngest(ModelMap model,
+                        HttpServletRequest request,
+                        final RedirectAttributes redirect,
+                        @RequestParam(value="ingest", required = true ) BigDecimal ingest,
+                        @RequestParam(value="admin", required = false ) String admin,
+                        @RequestParam(value="offset", required = false ) String offset,
+                        @RequestParam(value="max", required = false ) String max,
+                        @RequestParam(value="page", required = false ) String page){
+
+        if(page == null){
+            page = "1";
+        }
+
+        List<KRNWH> krnwhs;
+
+        if(offset != null) {
+            int m = 10;
+            if(max != null){
+                m = Integer.parseInt(max);
+            }
+            int o = Integer.parseInt(offset);
+            krnwhs = dao.listByIngest(m, o, ingest);
+        }else{
+            krnwhs = dao.listByIngest(10, 0, ingest);
         }
 
         int count = dao.count();

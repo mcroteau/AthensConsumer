@@ -85,18 +85,21 @@
                     <th>Badge Id</th>
                     <th>Key</th>
                     <th>COD</th>
+                    <th>Ingest #</th>
                 </tr>
                 </thead>
                 <tbody>
                 <!--
-		        "\nfpempn: " + this.getFpempn() +
+		        "\nid: " + this.getId() +
+				" fpempn: " + this.getFpempn() +
 				" fppunc: " + this.getFppunc() +
 				" fptype: " + this.getFptype() +
 				" fpclck: " + this.getFpclck() +
 				" fpbadg: " + this.getFpbadg() +
 				" fpfkey: " + this.getFpfkey() +
 				" fppcod: " + this.getFppcod() +
-				" fstatus: " + this.getFstatus() + "\n";
+				" fstatus: " + this.getFstatus() +
+				" krnlogid: " + this.getKrnlogid() + "\n";
                 -->
 
                 <c:forEach var="krnwh" items="${krnwhs}">
@@ -109,6 +112,7 @@
                         <td>${krnwh.fpbadg}</td>
                         <td>${krnwh.fpfkey}</td>
                         <td>${krnwh.fstatus}</td>
+                        <td>${krnwh.krnlogid}</td>
                     </tr>
                 </c:forEach>
                 </tbody>

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.athens.dao.KrnwhDao;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -49,6 +50,22 @@ public class KrnwhDaoImpl implements KrnwhDao {
 		}	
 		return null;	
 	}
+
+
+	public List<KRNWH> listByIngest(int max, int offset, BigDecimal ingest){
+		try{
+
+			String sql = "select * from QGPL.KRNWH where krnlogid = " + ingest + " limit " + max + " offset " + offset;
+			System.out.println("find all " + sql);
+			List<KRNWH> krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KRNWH.class));
+
+			return krnwhs;
+
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
 /**
 	fpempn decimal(9,0),
 	fppunc decimal(14,0),
@@ -65,14 +82,14 @@ public class KrnwhDaoImpl implements KrnwhDao {
 		//int id = getJdbcTemplate().queryForObject(countSql, new Object[0], Integer.class);
 
 		String saveSql = "insert into QGPL.KRNWH " +
-				"( fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus ) " +
+				"( id, fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus, krnlogid ) " +
 				"values " +
-				"(?, ?, ?, ?, ?, ?, ?, ?)";
+				"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		jdbcTemplate.update(saveSql, new Object[] {
-				krnwh.getFpempn(), krnwh.getFppunc(), krnwh.getFptype(),
+				0, krnwh.getFpempn(), krnwh.getFppunc(), krnwh.getFptype(),
 				krnwh.getFpclck(), krnwh.getFpbadg(), krnwh.getFpfkey(),
-				krnwh.getFppcod(), krnwh.getFstatus()
+				krnwh.getFppcod(), krnwh.getFstatus(), krnwh.getKrnlogid()
 		});
 
 		//KRNWH savedKrnwh = find(id);
