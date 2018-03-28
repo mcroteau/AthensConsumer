@@ -7,35 +7,23 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.athens.ApplicationContextProvider;
 import org.athens.ApplicationRunner;
 
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.util.Enumeration;
-import java.util.Properties;
 
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 import org.athens.dao.impl.KrnwhDaoImpl;
 
-import org.athens.jobs.KrnwhReportInitializer;
-
 import org.quartz.JobKey;
-import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.JobExecutionContext;

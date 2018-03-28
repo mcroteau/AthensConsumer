@@ -7,7 +7,6 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.domain.KRNWH;
 import org.athens.domain.KrnwhLog;
-import org.athens.common.ApplicationConstants;
 import org.quartz.*;
 
 import java.io.BufferedReader;
@@ -24,17 +23,15 @@ import org.athens.domain.KrnwhJobSettings;
 import org.athens.dao.impl.KrnwhDaoImpl;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.DisallowConcurrentExecution;
 
 import java.util.concurrent.TimeUnit;
 
 @DisallowConcurrentExecution
-public class KrnwhReportJob implements Job {
+public class KrnwhIngestJob implements Job {
 
-	final static Logger log = Logger.getLogger(KrnwhReportJob.class);
+	final static Logger log = Logger.getLogger(KrnwhIngestJob.class);
 
 	private String token = "";
 

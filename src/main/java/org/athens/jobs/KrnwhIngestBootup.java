@@ -15,9 +15,9 @@ import org.athens.dao.impl.KrnwhDaoImpl;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 
 
-public class KrnwhReportInitializer {
+public class KrnwhIngestBootup {
 
-    final static Logger log = Logger.getLogger(KrnwhReportInitializer.class);
+    final static Logger log = Logger.getLogger(KrnwhIngestBootup.class);
 
     private KrnwhDaoImpl krnwhDao;
 
@@ -25,7 +25,7 @@ public class KrnwhReportInitializer {
 
     private KrnwhJobSettings krnwhJobSettings;
 
-    public KrnwhReportInitializer(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
+    public KrnwhIngestBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
         log.info("about to setup krnwh report...");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;
@@ -38,7 +38,7 @@ public class KrnwhReportInitializer {
 
             //log.info(krnwhLogDao.list.jsp(10, 0));
 
-            JobDetail job = JobBuilder.newJob(KrnwhReportJob.class)
+            JobDetail job = JobBuilder.newJob(KrnwhIngestJob.class)
                     .withIdentity("krnwhJob", "atns").build();
 
             job.getJobDataMap().put("krnwhDao", krnwhDao);
