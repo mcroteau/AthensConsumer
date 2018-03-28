@@ -91,7 +91,7 @@ public class ApplicationController {
 
         redirect.addFlashAttribute("message", message);
         //return "application/index";
-        return "redirect:list.jsp";
+        return "redirect:list";
     }
 
     @RequestMapping(value="/list", method=RequestMethod.GET)

@@ -24,7 +24,7 @@
 <c:choose>
     <c:when test="${krnwhs.size() > 0}">
 
-        <a href="${pageContext.request.contextPath}/index" title="Run Job" class="btn btn-default">Run Todays</a>
+        <a href="${pageContext.request.contextPath}/list" title="Run Job" class="btn btn-default">Daily Ingests</a>
 
         <div class="btn-toolbar">
             <div class="btn-group">

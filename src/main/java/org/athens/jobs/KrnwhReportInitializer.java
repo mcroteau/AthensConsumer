@@ -49,7 +49,7 @@ public class KrnwhReportInitializer {
                     .newTrigger()
                     .withIdentity("krnTrigger", "atns")
                     .withSchedule(
-                            CronScheduleBuilder.cronSchedule("1 */1 * * * ?"))
+                            CronScheduleBuilder.cronSchedule("1 */3 * * * ?"))
                     .build();
 
             Scheduler scheduler = new StdSchedulerFactory().getScheduler();

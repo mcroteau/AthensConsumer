@@ -6,6 +6,8 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.domain.KRNWH;
+import org.athens.domain.KrnwhLog;
+import org.athens.common.ApplicationConstants;
 import org.quartz.*;
 
 import java.io.BufferedReader;
@@ -49,42 +51,36 @@ public class KrnwhReportJob implements Job {
 			JobDetail jobDetail = context.getScheduler().getJobDetail(jobKey);
 
 			setKrnwhReportResources(jobDetail);
-			/**
-			log.info("executing report..." + krnwhJobSettings.getCompany());
-
-			log.info(krnwhLogDao.list.jsp(10, 0));
 
 			log.info(krnwhJobSettings.getCompany() + " : " + krnwhJobSettings.getReport() + " : " + krnwhJobSettings.getApiKey() );
 
 
-			 **/
 
+			 KrnwhLog todaysKrnwhLog = krnwhLogDao.findByDate(new BigDecimal(formattedDate));
+
+			 if(todaysKrnwhLog != null){
+				 todaysKrnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+				 todaysKrnwhLog.setKtot(new BigDecimal(124));
+				 todaysKrnwhLog.setKaudit("g");
+				 todaysKrnwhLog.setKadtcnt(new BigDecimal(3));
+				 todaysKrnwhLog.setKdate(new BigDecimal(20180323));
+				 krnwhLogDao.update(todaysKrnwhLog);
+			 }
+
+			 KrnwhLog krnwhLog = new KrnwhLog();
+			 krnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
+			 krnwhLog.setKtot(new BigDecimal(0));
+			 krnwhLog.setKadtcnt(new BigDecimal(0));
+			 krnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+			 krnwhLog.setKdate(new BigDecimal(formattedDate));
+			 KrnwhLog savedKrnwhLog = krnwhLogDao.save(krnwhLog);
+
+			 log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
 		}catch (Exception e){
 			log.warn("error executing job");
 		}
 
-		/**
-		 KrnwhLog todaysKrnwhLog = logDao.findByDate(new BigDecimal(formattedDate));
-
-		 if(todaysKrnwhLog != null){
-		 todaysKrnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
-		 todaysKrnwhLog.setKtot(new BigDecimal(124));
-		 todaysKrnwhLog.setKaudit("g");
-		 todaysKrnwhLog.setKadtcnt(new BigDecimal(3));
-		 todaysKrnwhLog.setKdate(new BigDecimal(20180323));
-		 logDao.update(todaysKrnwhLog);
-		 }
-
-		 KrnwhLog krnwhLog = new KrnwhLog();
-		 krnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
-		 krnwhLog.setKtot(new BigDecimal(0));
-		 krnwhLog.setKadtcnt(new BigDecimal(0));
-		 krnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-		 krnwhLog.setKdate(new BigDecimal(formattedDate));
-		 KrnwhLog savedKrnwhLog = logDao.save(krnwhLog);
-
-		 log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
-
+		 /**
 
 		 List<KrnwhLog> krnwhLogs = logDao.list.jsp(10, 0);
 
