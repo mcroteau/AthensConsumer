@@ -15,9 +15,9 @@ import org.athens.dao.impl.KrnwhDaoImpl;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 
 
-public class KrnwhIngestBootup {
+public class KrnwJobBootup {
 
-    final static Logger log = Logger.getLogger(KrnwhIngestBootup.class);
+    final static Logger log = Logger.getLogger(KrnwJobBootup.class);
 
     private KrnwhDaoImpl krnwhDao;
 
@@ -25,7 +25,7 @@ public class KrnwhIngestBootup {
 
     private KrnwhJobSettings krnwhJobSettings;
 
-    public KrnwhIngestBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
+    public KrnwJobBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
         log.info("about to setup krnwh report...");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;

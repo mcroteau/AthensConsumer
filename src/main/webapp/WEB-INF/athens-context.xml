@@ -31,7 +31,7 @@
 	<bean id="krnwhLogDao" class="org.athens.dao.impl.KrnwhLogDaoImpl"/>
 
 
-	<bean id="krnwhReportInitializer" class="org.athens.jobs.KrnwhIngestBootup">
+	<bean id="krnwhReportInitializer" class="org.athens.jobs.KrnwJobBootup">
 		<constructor-arg>
 			<bean class="org.athens.domain.KrnwhJobSettings"/>
 		</constructor-arg>
