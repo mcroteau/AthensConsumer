@@ -96,7 +96,9 @@ public class ApplicationController {
                        @RequestParam(value="admin", required = false ) String admin,
                        @RequestParam(value="offset", required = false ) String offset,
                        @RequestParam(value="max", required = false ) String max,
-                       @RequestParam(value="page", required = false ) String page){
+                       @RequestParam(value="page", required = false ) String page,
+                       @RequestParam(value="sort", required = false ) String sort,
+                       @RequestParam(value="order", required = false ) String order){
 
             if(page == null){
                 page = "1";
@@ -124,6 +126,9 @@ public class ApplicationController {
             model.addAttribute("krnwhLogs", krnwhLogs);
             model.addAttribute("total", count);
 
+        model.addAttribute("sort", sort);
+        model.addAttribute("order", order);
+
             model.addAttribute("resultsPerPage", 10);
             model.addAttribute("activePage", page);
 
@@ -140,7 +145,9 @@ public class ApplicationController {
                        @RequestParam(value="admin", required = false ) String admin,
                        @RequestParam(value="offset", required = false ) String offset,
                        @RequestParam(value="max", required = false ) String max,
-                       @RequestParam(value="page", required = false ) String page){
+                       @RequestParam(value="page", required = false ) String page,
+                       @RequestParam(value="sort", required = false ) String sort,
+                       @RequestParam(value="order", required = false ) String order){
 
         if(page == null){
             page = "1";
@@ -169,6 +176,9 @@ public class ApplicationController {
         model.addAttribute("krnwhs", krnwhs);
         model.addAttribute("total", count);
 
+        model.addAttribute("sort", sort);
+        model.addAttribute("order", order);
+
         model.addAttribute("resultsPerPage", 10);
         model.addAttribute("activePage", page);
 
@@ -188,7 +198,9 @@ public class ApplicationController {
                         @RequestParam(value="admin", required = false ) String admin,
                         @RequestParam(value="offset", required = false ) String offset,
                         @RequestParam(value="max", required = false ) String max,
-                        @RequestParam(value="page", required = false ) String page){
+                        @RequestParam(value="page", required = false ) String page,
+                        @RequestParam(value="sort", required = false ) String sort,
+                        @RequestParam(value="order", required = false ) String order){
 
         if(page == null){
             page = "1";

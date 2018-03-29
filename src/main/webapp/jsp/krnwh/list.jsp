@@ -117,8 +117,24 @@
                 <table class="table table-condensed">
                     <thead>
                         <tr>
-                            <th>Id &blacktriangle;</th>
-                            <th>Employee Id &blacktriangledown;</th>
+                            <th>
+
+                                <c:choose>
+                                <c:when test="${sort == 'Id'}">
+                                    <a href="">Id
+                                        <c:choose>
+                                        <c:when test="${order == 'desc'}">
+                                            &blacktriangle;
+                                        </c:when>
+                                        <c:otherwise>
+                                            &blacktriangledown;
+                                        </c:otherwise>
+                                        </c:choose>
+                                    </a>
+                                </c:when>
+                                </c:choose>
+                            </th>
+                            <th>Employee Id</th>
                             <th>Punch</th>
                             <th>Type</th>
                             <th>Clock</th>
