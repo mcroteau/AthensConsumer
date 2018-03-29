@@ -10,7 +10,7 @@
 <img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
 
 <div class="span12">
-    <h1>Punches</h1>
+    <h1>Punches ${total}</h1>
 </div>
 
 
