@@ -45,10 +45,11 @@
 <div id="header-background"></div>
 
 <div id="container">
+
     <img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
 
     <div class="span12">
-        <h1>Punches ${total}</h1>
+        <h1>Daily Punches ${total}</h1>
     </div>
 
 
@@ -59,18 +60,6 @@
             </div>
         </div>
     </c:if>
-
-    <style type="text/css">
-    #container{
-
-    }
-
-    table{
-
-    }
-
-    </style>
-
 
     <c:choose>
         <c:when test="${krnwhs.size() > 0}">
@@ -128,8 +117,8 @@
                 <table class="table table-condensed">
                     <thead>
                         <tr>
-                            <th>Id</th>
-                            <th>Employee Id</th>
+                            <th>Id &blacktriangle;</th>
+                            <th>Employee Id &blacktriangledown;</th>
                             <th>Punch</th>
                             <th>Type</th>
                             <th>Clock</th>
