@@ -29,18 +29,13 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.JobExecutionContext;
 import org.athens.domain.KrnwhLog;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.athens.common.ApplicationConstants;
 
 @Controller
 public class ApplicationController {
-
-	@Autowired
-	private ApplicationRunner applicationRunner;
-
-    @Autowired
-    private DriverManagerDataSource dataSource;
-
 
     @Autowired
     private KrnwhDaoImpl dao;
@@ -115,12 +110,17 @@ public class ApplicationController {
                     m = Integer.parseInt(max);
                 }
                 int o = Integer.parseInt(offset);
-                krnwhLogs = logDao.list(m, o);
+                //krnwhLogs = logDao.list(m, o);
+                krnwhLogs = generateMockKrnwhLogs(m, o);
             }else{
-                krnwhLogs = logDao.list(10, 0);
+                //krnwhLogs = logDao.list(10, 0);
+                krnwhLogs = generateMockKrnwhLogs(10, 0);
             }
 
-            int count = logDao.count();
+            //int count = logDao.count();
+            int count = 304;
+
+
             model.addAttribute("krnwhLogs", krnwhLogs);
             model.addAttribute("total", count);
 
@@ -154,12 +154,15 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            krnwhs = dao.list(m, o);
+            //krnwhs = dao.list(m, o);
+            krnwhs = generateMockKrnwhs(m, o);
         }else{
-            krnwhs = dao.list(10, 0);
+            //krnwhs = dao.list(10, 0);
+            krnwhs = generateMockKrnwhs(10, 0);
         }
 
-        int count = dao.count();
+        //int count = dao.count();
+        int count = 2031;
 
         System.out.println("count : " + count);
 
@@ -199,13 +202,15 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            krnwhs = dao.listByIngest(m, o, ingest);
+            //krnwhs = dao.listByIngest(m, o, ingest);
+            krnwhs = generateMockKrnwhs(m, o);
         }else{
-            krnwhs = dao.listByIngest(10, 0, ingest);
+            //krnwhs = dao.listByIngest(10, 0, ingest);
+            krnwhs = generateMockKrnwhs(10, 0);
         }
 
-        int count = dao.count();
-
+        //int count = dao.count();
+        int count = 2031;
         System.out.println("count : " + count);
 
         model.addAttribute("krnwhs", krnwhs);
@@ -220,5 +225,37 @@ public class ApplicationController {
 
     }
 
+    public List<KRNWH> generateMockKrnwhs(int max, int offset){
+        List<KRNWH> krnwhs = new ArrayList<KRNWH>();
+        for(int n = offset; n < max + offset; n++){
+            KRNWH krnwh = new KRNWH();
+            krnwh.setFpempn(new BigDecimal(n));
+            krnwh.setFppunc(new BigDecimal(n));
+            krnwh.setFptype("t");
+            krnwh.setFpclck("");
+            krnwh.setFpbadg(new BigDecimal(n));
+            krnwh.setFpfkey("843");//*
+            krnwh.setFppcod(new BigDecimal(n));//*
+            krnwh.setFstatus("a");
+            krnwh.setKrnlogid(new BigDecimal(n));
+            krnwhs.add(krnwh);
+        }
+        return krnwhs;
+    }
+
+    public List<KrnwhLog> generateMockKrnwhLogs(int max, int offset){
+        List<KrnwhLog> logs = new ArrayList<KrnwhLog>();
+        for(int n = offset; n < max + offset; n++){
+            KrnwhLog log = new KrnwhLog();
+            log.setId(new BigDecimal(n));
+            log.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+            log.setKtot(new BigDecimal(124));
+            log.setKaudit("g");
+            log.setKadtcnt(new BigDecimal(3));
+            log.setKdate(new BigDecimal(20180323));
+            logs.add(log);
+        }
+        return logs;
+    }
 
 }

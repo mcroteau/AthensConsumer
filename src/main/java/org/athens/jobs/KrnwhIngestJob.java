@@ -5,6 +5,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
+import org.athens.common.ApplicationConstants;
 import org.athens.domain.KRNWH;
 import org.athens.domain.KrnwhLog;
 import org.quartz.*;
@@ -35,6 +36,12 @@ public class KrnwhIngestJob implements Job {
 
 	private String token = "";
 
+	private int totalSaved = 0;
+
+	private int errorCount = 0;
+
+	private KrnwhLog krnwhLog;
+
 	private KrnwhDaoImpl krnwhDao;
 
 	private KrnwhLogDaoImpl krnwhLogDao;
@@ -58,7 +65,15 @@ public class KrnwhIngestJob implements Job {
 				JobKey jobKey = new JobKey("krnwhJob", "atns");
 				JobDetail jobDetail = context.getScheduler().getJobDetail(jobKey);
 
-				setKrnwhReportResources(jobDetail);
+				KrnwhDaoImpl krnwhDao = (KrnwhDaoImpl)jobDetail.getJobDataMap().get("krnwhDao");
+				this.krnwhDao = krnwhDao;
+
+				KrnwhLogDaoImpl krnwhLogDao = (KrnwhLogDaoImpl)jobDetail.getJobDataMap().get("krnwhLogDao");
+				this.krnwhLogDao = krnwhLogDao;
+
+				KrnwhJobSettings krnwhJobSettings = (KrnwhJobSettings)jobDetail.getJobDataMap().get("krnwhJobSettings");
+				this.krnwhJobSettings = krnwhJobSettings;
+
 			TimeUnit.MINUTES.sleep(1);
 				/**
 				 //log.info(krnwhJobSettings.getCompany() + " : " + krnwhJobSettings.getReport() + " : " + krnwhJobSettings.getApiKey());
@@ -73,13 +88,15 @@ public class KrnwhIngestJob implements Job {
 					krnwhLogDao.update(todaysKrnwhLog);
 				}
 
-				KrnwhLog krnwhLog = new KrnwhLog();
-				krnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
-				krnwhLog.setKtot(new BigDecimal(0));
-				krnwhLog.setKadtcnt(new BigDecimal(0));
-				krnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-				krnwhLog.setKdate(new BigDecimal(formattedDate));
-				KrnwhLog savedKrnwhLog = krnwhLogDao.save(krnwhLog);
+				KrnwhLog klog = new KrnwhLog();
+				 klog.setKstatus(ApplicationConstants.STARTED_STATUS);
+				 klog.setKtot(new BigDecimal(0));
+				 klog.setKadtcnt(new BigDecimal(0));
+				 klog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+				 klog.setKdate(new BigDecimal(formattedDate));
+				KrnwhLog savedKrnwhLog = krnwhLogDao.save(klog);
+
+				 krnwhLog = savedKrnwhLog;
 
 				log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
 				log.info("apiKey: " + krnwhJobSettings.getApiKey());
@@ -122,7 +139,7 @@ public class KrnwhIngestJob implements Job {
 				this.token = tokenObj.get("token").toString();
 				this.token = token.replaceAll("^\"|\"$", "");
 
-				processReportDataFromRequest(savedKrnwhLog);
+				processReportDataFromRequest();
 				**/
 		//}
 
@@ -135,7 +152,7 @@ public class KrnwhIngestJob implements Job {
 
 
 
-	public void processReportDataFromRequest(KrnwhLog savedKrnwhLog){
+	public void processReportDataFromRequest(){
 		System.out.println("running report using jersey ...");
 
 		String url = "https://secure4.saashr.com/ta/rest/v1/report/saved/70165985";
@@ -152,13 +169,13 @@ public class KrnwhIngestJob implements Job {
 		String csvData = response.getEntity(String.class);
 
 		//log.info(csvData);
-		readCsvDataString(csvData.toString(), savedKrnwhLog);
+		readCsvDataString(csvData.toString());
 	}
 
 
 
 
-	public void readCsvDataString(String csvData, KrnwhLog savedKrnwhLog){
+	public void readCsvDataString(String csvData){
 		String line = "";
 		int count = 0;
 		int errorCount = 0;
@@ -219,9 +236,13 @@ public class KrnwhIngestJob implements Job {
 					krnwh.setFpclck(clockS);
 					krnwh.setFpbadg(badgeId);
 					krnwh.setFpfkey("843");//*
+
 					krnwh.setFppcod(new BigDecimal(0));//*
+
 					krnwh.setFstatus("m");
-					krnwh.setKrnlogid(savedKrnwhLog.getId());
+
+					krnwh.setKrnlogid(krnwhLog.getId());
+
 
 					if (count == 3) krnwh.setFstatus("aa");
 
@@ -253,27 +274,24 @@ public class KrnwhIngestJob implements Job {
 		log.info("count: " + count);
 		log.info("error count: " + errorCount);
 
+		krnwhLog.setKtot(new BigDecimal(totalSaved));
+		krnwhLog.setKadtcnt(new BigDecimal(errorCount));
+		krnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+		krnwhLogDao.update(krnwhLog);
+
 	}
 
-
-	public void setKrnwhReportResources(JobDetail jobDetail){
-		KrnwhDaoImpl krnwhDao = (KrnwhDaoImpl)jobDetail.getJobDataMap().get("krnwhDao");
-		this.krnwhDao = krnwhDao;
-
-		KrnwhLogDaoImpl krnwhLogDao = (KrnwhLogDaoImpl)jobDetail.getJobDataMap().get("krnwhLogDao");
-		this.krnwhLogDao = krnwhLogDao;
-
-		KrnwhJobSettings krnwhJobSettings = (KrnwhJobSettings)jobDetail.getJobDataMap().get("krnwhJobSettings");
-		this.krnwhJobSettings = krnwhJobSettings;
-	}
 
 
 	public void processPersistence(KRNWH krnwh){
 		if(krnwh.getFppunc() != null) {
 			KRNWH skrnwh = krnwhDao.save(krnwh);
-			if (skrnwh == null) {
-				log.warn("error saving" + krnwh.getFppunc());
-				//errorCount++;
+			if (skrnwh != null) {
+				totalSaved++;
+				log.info("saved : " + krnwh.getFppunc());
+			}else{
+				log.warn("error saving : " + krnwh.getFppunc());
+				errorCount++;
 			}
 		}
 	}
