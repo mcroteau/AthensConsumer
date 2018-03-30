@@ -17,7 +17,7 @@
             text-align:center;
         }
         #header-background{
-            height:373px;
+            height:391px;
             width:100%;
             z-index:0;
             background:#D4212F;
@@ -51,7 +51,6 @@
     <div class="span12">
         <h1>Daily Punches ${total}</h1>
     </div>
-
 
     <c:if test="${not empty message}">
         <div class="span12">

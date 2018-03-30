@@ -161,15 +161,15 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //krnwhs = dao.list(m, o);
-            krnwhs = generateMockKrnwhs(m, o);
+            krnwhs = dao.list(m, o);
+            //krnwhs = generateMockKrnwhs(m, o);
         }else{
-            //krnwhs = dao.list(10, 0);
-            krnwhs = generateMockKrnwhs(10, 0);
+            krnwhs = dao.list(10, 0);
+            //krnwhs = generateMockKrnwhs(10, 0);
         }
 
-        //int count = dao.count();
-        int count = 2031;
+        int count = dao.count();
+        //int count = 2031;
 
         System.out.println("count : " + count);
 
