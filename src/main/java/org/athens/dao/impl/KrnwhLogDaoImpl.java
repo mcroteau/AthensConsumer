@@ -60,11 +60,9 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
         try{
             id = jdbcTemplate.queryForObject(countSql, Integer.class, new Object[0]);
         }catch(Exception e){
-            e.printStackTrace();
+            log.warn("unable to get next id");
             id = 0;
         }
-
-        log.info("id:" + id);
 
         String saveSql = "insert into QGPL.KRNLOG " +
                 "( id, kstatus, ktot, kadtcnt, kdate, kaudit ) " +

@@ -155,7 +155,7 @@ public class KRNWH {
 				" fpfkey: " + this.getFpfkey() +
 				" fppcod: " + this.getFppcod() +
 				" fstatus: " + this.getFstatus() +
-				" krnlogid: " + this.getKrnlogid() + "\n";
+				" krnlogid: " + this.getKrnlogid();
 	}
 	
 	

@@ -27,7 +27,15 @@ import org.athens.dao.impl.KrnwhLogDaoImpl;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.DisallowConcurrentExecution;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import java.util.concurrent.TimeUnit;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 
 @DisallowConcurrentExecution
 public class KrnwhIngestJob implements Job {
@@ -48,7 +56,7 @@ public class KrnwhIngestJob implements Job {
 
 	private KrnwhJobSettings krnwhJobSettings;
 
-
+	private Map<String, Integer> foundMap = new HashMap<String, Integer>();
 
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 
@@ -74,8 +82,8 @@ public class KrnwhIngestJob implements Job {
 				KrnwhJobSettings krnwhJobSettings = (KrnwhJobSettings)jobDetail.getJobDataMap().get("krnwhJobSettings");
 				this.krnwhJobSettings = krnwhJobSettings;
 
-			TimeUnit.MINUTES.sleep(1);
-				/**
+			//TimeUnit.MINUTES.sleep(1);
+
 				 //log.info(krnwhJobSettings.getCompany() + " : " + krnwhJobSettings.getReport() + " : " + krnwhJobSettings.getApiKey());
 				 KrnwhLog todaysKrnwhLog = krnwhLogDao.findByDate(new BigDecimal(formattedDate));
 
@@ -89,14 +97,14 @@ public class KrnwhIngestJob implements Job {
 				}
 
 				KrnwhLog klog = new KrnwhLog();
-				 klog.setKstatus(ApplicationConstants.STARTED_STATUS);
-				 klog.setKtot(new BigDecimal(0));
-				 klog.setKadtcnt(new BigDecimal(0));
-				 klog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-				 klog.setKdate(new BigDecimal(formattedDate));
+			    klog.setKstatus(ApplicationConstants.STARTED_STATUS);
+			    klog.setKtot(new BigDecimal(0));
+			    klog.setKadtcnt(new BigDecimal(0));
+			    klog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+			    klog.setKdate(new BigDecimal(formattedDate));
 				KrnwhLog savedKrnwhLog = krnwhLogDao.save(klog);
 
-				 krnwhLog = savedKrnwhLog;
+			    krnwhLog = savedKrnwhLog;
 
 				log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
 				log.info("apiKey: " + krnwhJobSettings.getApiKey());
@@ -140,7 +148,6 @@ public class KrnwhIngestJob implements Job {
 				this.token = token.replaceAll("^\"|\"$", "");
 
 				processReportDataFromRequest();
-				**/
 		//}
 
 		}catch (Exception e){
@@ -155,7 +162,7 @@ public class KrnwhIngestJob implements Job {
 	public void processReportDataFromRequest(){
 		System.out.println("running report using jersey ...");
 
-		String url = "https://secure4.saashr.com/ta/rest/v1/report/saved/70165985";
+		String url = "https://secure4.saashr.com/ta/rest/v1/report/saved/70184453";
 
 		DefaultClientConfig client = new DefaultClientConfig();
 		WebResource resource = Client.create(client)
@@ -178,7 +185,7 @@ public class KrnwhIngestJob implements Job {
 	public void readCsvDataString(String csvData){
 		String line = "";
 		int count = 0;
-		int errorCount = 0;
+		int found = 0;
 
 		InputStream is = new ByteArrayInputStream(csvData.getBytes());
 
@@ -187,6 +194,8 @@ public class KrnwhIngestJob implements Job {
 			while ((line = br.readLine()) != null) {
 
 				if(count != 0) {
+
+					//log.info("\n\n");
 
 					String[] punchData = line.split(",");
 
@@ -203,13 +212,13 @@ public class KrnwhIngestJob implements Job {
 					DateFormat sdff = new SimpleDateFormat("yyyyMMddHHmmss");
 					String date2 = sdff.format(date);
 
-					log.info(date2.toString() + " : " + date.toString());
-					System.out.println(line);
+					//log.info(date2.toString() + " : " + date.toString());
+					//System.out.println(line);
 
 					String empIdS = punchData[0].replaceAll("^\"|\"$", "");
+					String badgeIdS = punchData[4].replaceAll("^\"|\"$", "");
 					String type = punchData[2].replaceAll("^\"|\"$", "");
 					String clockS = punchData[3].replaceAll("^\"|\"$", "");
-					String badgeIdS = punchData[4].replaceAll("^\"|\"$", "");
 
 					if (type == "Active") type = "A";
 					if (type == "LOA") type = "L";
@@ -231,35 +240,95 @@ public class KrnwhIngestJob implements Job {
 
 					KRNWH krnwh = new KRNWH();
 					krnwh.setFpempn(empId);
+					//if(count % 2 ==0) krnwh.setFpempn(new BigDecimal("0"));
 					krnwh.setFppunc(punch);
 					krnwh.setFptype(type);
 					krnwh.setFpclck(clockS);
+
 					krnwh.setFpbadg(badgeId);
-					krnwh.setFpfkey("843");//*
-
+					//if(count % 3 ==0) krnwh.setFpbadg(new BigDecimal("0"));
+					krnwh.setFpfkey("");//*
 					krnwh.setFppcod(new BigDecimal(0));//*
-
-					krnwh.setFstatus("m");
+					krnwh.setFstatus("h");//*
 
 					krnwh.setKrnlogid(krnwhLog.getId());
 
+					KRNWH existingKrnwh = null;
 
-					if (count == 3) krnwh.setFstatus("aa");
+					if(krnwh.getFpbadg().compareTo(new BigDecimal(0)) != 0  &&
+							krnwh.getFpempn().compareTo(new BigDecimal(0)) != 0){
 
-					log.info(krnwh.toString());
+						//log.info("find by both");
+						existingKrnwh = krnwhDao.findByPunchBadgeIdEmployeeId(krnwh.getFppunc(), krnwh.getFpbadg(), krnwh.getFpempn());
+						if(existingKrnwh != null){
+							String key = krnwh.getFppunc().toString() + krnwh.getFpbadg().toString() + krnwh.getFpempn().toString();
+
+							int value = 0;
+							if(foundMap.containsKey(key)){
+								value =foundMap.get(key);
+							}
+
+							value++;
+							foundMap.put(key, value);
+						}
+					}else if(krnwh.getFpbadg().compareTo(new BigDecimal(0)) != 0 &&
+								krnwh.getFpempn().compareTo(new BigDecimal(0)) == 0){
+
+						//log.info("find by badge id");
+						existingKrnwh = krnwhDao.findByPunchBadgeId(krnwh.getFppunc(), krnwh.getFpbadg());
+						if(existingKrnwh != null){
+							String key = krnwh.getFppunc().toString() + krnwh.getFpbadg().toString();
+							int value = 0;
+							if(foundMap.containsKey(key)){
+								value =foundMap.get(key);
+							}
+							value++;
+							foundMap.put(key, value);
+						}
+
+					}else if(krnwh.getFpempn().compareTo(new BigDecimal(0)) != 0 &&
+								krnwh.getFpbadg().compareTo(new BigDecimal(0)) == 0){
+
+						existingKrnwh = krnwhDao.findByPunchEmployeeId(krnwh.getFppunc(), krnwh.getFpempn());
+						//log.info("find by employee id");
+						if(existingKrnwh != null){
+							String key = krnwh.getFppunc().toString() + krnwh.getFpempn().toString();
+							int value = 0;
+							if(foundMap.containsKey(key)){
+								value =foundMap.get(key);
+							}
+							value++;
+							foundMap.put(key, value);
+						}
+
+					}
+
+
+					//if (count == 3) krnwh.setFstatus("aa");
+
+					//log.info(krnwh.toString());
 
 					try {
 
-						if(count == 19){
-
-							break;
+						if(existingKrnwh == null) {
+							processPersistence(krnwh);
+							log.info("saved: " + totalSaved + ", count: " + count);
+						}else{
+							found++;
+							log.info("found: " + found +  ", count: " + count);
 						}
-						processPersistence(krnwh);
+
+						if(count %50==0){
+							Gson g =  new GsonBuilder().setPrettyPrinting().create();
+							String js = g.toJson(foundMap);
+							System.out.println(js);
+						}
+
 
 					} catch (Exception e) {
 						errorCount++;
-						//
 						log.warn("error");
+						e.printStackTrace();
 					}
 
 				}
@@ -273,6 +342,12 @@ public class KrnwhIngestJob implements Job {
 
 		log.info("count: " + count);
 		log.info("error count: " + errorCount);
+		log.info("totalSaved: " + totalSaved);
+		log.info("found : " + found);
+
+		Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
+		String jsonStr = gsonObj.toJson(foundMap);
+		System.out.println(jsonStr);
 
 		krnwhLog.setKtot(new BigDecimal(totalSaved));
 		krnwhLog.setKadtcnt(new BigDecimal(errorCount));
@@ -288,7 +363,7 @@ public class KrnwhIngestJob implements Job {
 			KRNWH skrnwh = krnwhDao.save(krnwh);
 			if (skrnwh != null) {
 				totalSaved++;
-				log.info("saved : " + krnwh.getFppunc());
+				//log.info("saved : " + krnwh.getFppunc());
 			}else{
 				log.warn("error saving : " + krnwh.getFppunc());
 				errorCount++;
