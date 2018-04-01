@@ -2,6 +2,7 @@ package org.athens.dao.impl;
 
 import org.apache.log4j.Logger;
 import org.athens.domain.KRNWH;
+import org.athens.domain.KrnwhLog;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,7 +149,25 @@ public class KrnwhDaoImpl implements KrnwhDao {
 		//TODO:return type?
 		return krnwh;
 	}
-	
+
+
+	public List<KRNWH> findByDate(BigDecimal startDate, BigDecimal endDate){
+		String sql = "select * from QGPL.KRNWH where fppunc between " + startDate + " and " + endDate;
+
+		log.info("find by date : " + sql);
+
+		List<KRNWH> krnwhs = null;
+
+		try {
+			krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KRNWH.class));
+
+		}catch(Exception e){
+			log.warn("unable to find krnwhs by date...");
+		}
+		return krnwhs;
+	}
+
+
 
 }
 

@@ -13,11 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.athens.ApplicationRunner;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 import org.athens.dao.impl.KrnwhLogDaoImpl;
@@ -32,7 +35,10 @@ import org.athens.domain.KrnwhLog;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.FileWriter;
 import org.athens.common.ApplicationConstants;
+import org.athens.common.CSVUtils;
+
 
 @Controller
 public class ApplicationController {
@@ -126,8 +132,8 @@ public class ApplicationController {
             model.addAttribute("krnwhLogs", krnwhLogs);
             model.addAttribute("total", count);
 
-        model.addAttribute("sort", sort);
-        model.addAttribute("order", order);
+            model.addAttribute("sort", sort);
+            model.addAttribute("order", order);
 
             model.addAttribute("resultsPerPage", 10);
             model.addAttribute("activePage", page);
@@ -236,6 +242,61 @@ public class ApplicationController {
         return "krnwh/list";
 
     }
+
+    @RequestMapping(value="/krnwh/search", method=RequestMethod.POST)
+    public String search(ModelMap model,
+                                 HttpServletRequest request,
+                                 final RedirectAttributes redirect,
+                                 @RequestParam(value="start-date", required = true ) BigDecimal startDate,
+                                 @RequestParam(value="end-date", required = true ) BigDecimal endDate){
+
+        if(startDate.precision() == 14 && endDate.precision() == 14){
+            List<KRNWH> krnwhs = dao.findByDate(startDate, endDate);
+            model.addAttribute("total", krnwhs.size());
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+            model.addAttribute("krnwhs", krnwhs);
+            return "krnwh/search";
+        }else{
+            redirect.addFlashAttribute("message", "data is incorrect");
+            return "redirect:list";
+        }
+
+    }
+
+    @RequestMapping(value="/krnwh/export", method=RequestMethod.POST)
+    public void export(ModelMap model,
+                         HttpServletRequest request,
+                         HttpServletResponse response,
+                         final RedirectAttributes redirect,
+                         @RequestParam(value="startDate", required = true ) BigDecimal startDate,
+                         @RequestParam(value="endDate", required = true ) BigDecimal endDate)  throws Exception {
+
+        response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
+
+        List<KRNWH> krnwhs = dao.findByDate(startDate, endDate);
+        //model.addAttribute("total", krnwhs.size());
+        //model.addAttribute("krnwhs", krnwhs);
+        StringBuffer writer=new StringBuffer();
+
+        for (KRNWH d : krnwhs) {
+            List<String> list = new ArrayList<>();
+            list.add(d.getId().toString());
+            list.add(d.getFppunc().toString());
+            list.add(d.getFptype());
+            list.add(d.getFpclck());
+            list.add(d.getFpbadg().toString());
+            list.add(d.getFpfkey());
+            list.add(d.getFppcod().toString());
+            list.add(d.getFstatus());
+            list.add(d.getKrnlogid().toString());
+
+            CSVUtils.writeLine(writer, list);
+        }
+
+        response.getWriter().print(writer.toString());
+    }
+
 
     public List<KRNWH> generateMockKrnwhs(int max, int offset){
         List<KRNWH> krnwhs = new ArrayList<KRNWH>();

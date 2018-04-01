@@ -49,7 +49,7 @@ public class KrnwhDailyJobBootup {
                     .newTrigger()
                     .withIdentity("krnTrigger", "atns")
                     .withSchedule(
-                            CronScheduleBuilder.cronSchedule("1 */13 * * * ?"))
+                            CronScheduleBuilder.cronSchedule("1 */113 * * * ?"))
                     .build();
 
             Scheduler scheduler = new StdSchedulerFactory().getScheduler();

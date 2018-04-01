@@ -55,7 +55,7 @@
     <c:if test="${not empty message}">
         <div class="span12">
             <div class="alert alert-info">
-                ${message}
+                ${message}Test
             </div>
         </div>
     </c:if>
