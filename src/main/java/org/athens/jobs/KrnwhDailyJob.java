@@ -30,7 +30,6 @@ import org.quartz.DisallowConcurrentExecution;
 import java.util.Map;
 import java.util.HashMap;
 
-import java.util.concurrent.TimeUnit;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.Gson;
@@ -38,9 +37,9 @@ import com.google.gson.GsonBuilder;
 
 
 @DisallowConcurrentExecution
-public class KrnwhIngestJob implements Job {
+public class KrnwhDailyJob implements Job {
 
-	final static Logger log = Logger.getLogger(KrnwhIngestJob.class);
+	final static Logger log = Logger.getLogger(KrnwhDailyJob.class);
 
 	private String token = "";
 
