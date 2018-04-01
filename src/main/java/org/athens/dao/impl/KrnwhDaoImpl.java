@@ -121,30 +121,31 @@ public class KrnwhDaoImpl implements KrnwhDao {
 **/
 		
 	public KRNWH save(KRNWH krnwh){
+/**
 		String countSql = "select max(id) + 1 from QGPL.KRNWH";
 
 		int id;
 
 		try{
 			id = jdbcTemplate.queryForObject(countSql, Integer.class, new Object[0]);
+
 		}catch(Exception e){
-			log.warn("unable to get next id");
+			log.warn("unable to get next id krnwh");
 			id = 0;
 		}
-
+**/
 		String saveSql = "insert into QGPL.KRNWH " +
-				"( id, fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus, krnlogid ) " +
+				"( fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus, krnlogid ) " +
 				"values " +
-				"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				"(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		jdbcTemplate.update(saveSql, new Object[] {
-				id, krnwh.getFpempn(), krnwh.getFppunc(), krnwh.getFptype(),
+				krnwh.getFpempn(), krnwh.getFppunc(), krnwh.getFptype(),
 				krnwh.getFpclck(), krnwh.getFpbadg(), krnwh.getFpfkey(),
 				krnwh.getFppcod(), krnwh.getFstatus(), krnwh.getKrnlogid()
 		});
 
-		//KRNWH savedKrnwh = find(id);
-
+		//TODO:return type?
 		return krnwh;
 	}
 	

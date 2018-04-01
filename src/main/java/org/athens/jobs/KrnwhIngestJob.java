@@ -193,7 +193,7 @@ public class KrnwhIngestJob implements Job {
 
 			while ((line = br.readLine()) != null) {
 
-				if(count != 0) {
+				if(count != 0) {//TODO: remo
 
 					//log.info("\n\n");
 
