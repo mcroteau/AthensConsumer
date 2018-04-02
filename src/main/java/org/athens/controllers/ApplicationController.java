@@ -243,12 +243,20 @@ public class ApplicationController {
 
     }
 
-    @RequestMapping(value="/krnwh/search", method=RequestMethod.POST)
-    public String search(ModelMap model,
-                                 HttpServletRequest request,
-                                 final RedirectAttributes redirect,
-                                 @RequestParam(value="start-date", required = true ) BigDecimal startDate,
-                                 @RequestParam(value="end-date", required = true ) BigDecimal endDate){
+
+    @RequestMapping(value="/krnwh/search", method=RequestMethod.GET)
+    public String search(){
+        return "krnwh/search";
+    }
+
+
+
+    @RequestMapping(value="/krnwh/perform_search", method=RequestMethod.POST)
+    public String performSearch(ModelMap model,
+                         HttpServletRequest request,
+                         final RedirectAttributes redirect,
+                         @RequestParam(value="start-date", required = true ) BigDecimal startDate,
+                         @RequestParam(value="end-date", required = true ) BigDecimal endDate){
 
         if(startDate.precision() == 14 && endDate.precision() == 14){
             List<KRNWH> krnwhs = dao.findByDate(startDate, endDate);
@@ -259,10 +267,11 @@ public class ApplicationController {
             return "krnwh/search";
         }else{
             redirect.addFlashAttribute("message", "data is incorrect");
-            return "redirect:list";
+            return "krnwh/search";
         }
 
     }
+
 
     @RequestMapping(value="/krnwh/export", method=RequestMethod.POST)
     public void export(ModelMap model,

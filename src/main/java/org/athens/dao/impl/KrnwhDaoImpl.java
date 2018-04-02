@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.athens.dao.KrnwhDao;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -156,7 +157,7 @@ public class KrnwhDaoImpl implements KrnwhDao {
 
 		log.info("find by date : " + sql);
 
-		List<KRNWH> krnwhs = null;
+		List<KRNWH> krnwhs = new ArrayList<KRNWH>();
 
 		try {
 			krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KRNWH.class));

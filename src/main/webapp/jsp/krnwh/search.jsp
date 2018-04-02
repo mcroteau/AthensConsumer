@@ -10,8 +10,14 @@
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap-reboot.css" />
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css" />
 
+	<script type="text/javascript" src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min.js"></script>
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.css" />
 
-    <style type="text/css">
+	<script type="text/javascript" src="${pageContext.request.contextPath}/bootstrap/js/bootstrap-datepicker.min.js"></script>
+
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap-datepicker.min.css" />
+
+	<style type="text/css">
         body{
             padding:0px
             text-align:center;
@@ -36,9 +42,29 @@
             -moz-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
             -webkit-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
         }
-    </style>
-</head>
+        #date-selectors{
+        }
+        #date-selectors input[type="text"]{
+            width:100px;
+            font-size:12px;
+            display:inline-block;
+            color:rgba(0,0,0,0.54) !important;
+        }
 
+        #date-selectors span{
+            font-size:12px;
+        }
+
+        .datepicker table tr td.active,
+        .datepicker table tr td.active:hover,
+        .datepicker table tr td.active.disabled,
+        .datepicker table tr td.active.disabled:hover{
+            border:none !important;
+            background:#1c695b !important;
+        }
+    </style>
+
+</head>
 <body>
 
 
@@ -55,23 +81,43 @@
     <c:if test="${not empty message}">
         <div class="span12">
             <div class="alert alert-info">
-                ${message}Test
+                ${message}
             </div>
         </div>
     </c:if>
 
-	<form action="${pageContext.request.contextPath}/krnwh/export" method="post">
-        <input name="startDate" type="hidden" class="form-control" value="${startDate}" id="start-date">
-        <input name="endDate" type="hidden" class="form-control" value="${endDate}" id="end-date">
+	<form action="${pageContext.request.contextPath}/krnwh/perform_search" method="post">
 
-        		<div class="form-group">
-        			<input type="submit" value="export" class="btn btn-primary">
-        		</div>
+        <div class="input-group input-daterange">
+            <input name="start-date" type="text" class="form-control" value="${starDate}" id="start-date">
+            <div class="input-group-addon">to</div>
+            <input name="end-date" type="text" class="form-control" value="${endDate}" id="end-date">
+        </div>
 
+		<div class="form-group">
+			<input type="submit" value="Get Data" class="btn btn-primary">
+		</div>
     </form>
+
 
     <c:choose>
         <c:when test="${krnwhs.size() > 0}">
+            <form action="${pageContext.request.contextPath}/krnwh/export" method="post">
+
+                <input name="start-date" type="hidden" class="form-control" value="${starDate}" id="start-date">
+                <input name="end-date" type="hidden" class="form-control" value="${endDate}" id="end-date">
+
+                <div class="form-group">
+                    <input type="submit" value="Export Data" class="btn btn-primary">
+                </div>
+            </form>
+        </c:when>
+    </c:choose>
+
+    <c:choose>
+        <c:when test="${krnwhs.size() > 0}">
+
+
 
             <a href="${pageContext.request.contextPath}/list" title="Run Job" class="btn btn-default">Daily Report Logs</a>
 
@@ -129,5 +175,59 @@
         </c:when>
     </c:choose>
 </div>
+
+	<script type="text/javascript">
+	String.prototype.pad = function(padString, length) {
+        var str = this;
+        while (str.length < length)
+            str = padString + str;
+        return str;
+    }
+
+	$(document).ready(function(){
+
+        var $startDate = $("#start-date"),
+            $endDate = $("#end-date");
+
+        $startDate.datepicker(getFormat());
+        $endDate.datepicker(getFormat());
+
+        $startDate.datepicker("update", getYesterday());
+        $endDate.datepicker("update", new Date());
+
+
+        function getYesterday(){
+            var d = new Date();
+            d.setDate(d.getDate() - 2);
+            return d;
+        }
+
+        function getFormat(){
+            return {
+               format: {
+                   /*
+                    * Say our UI should display a week ahead,
+                    * but textbox should store the actual date.
+                    * This is useful if we need UI to select local dates,
+                    * but store in UTC
+                    */
+                   toDisplay: function (date, format, language) {
+                       var d = new Date(date);
+                       //d.setDate(d.getDate() - 7);
+                       //return d.toISOString();
+                       var h = d.getFullYear() + "" + (d.getMonth() +1).toString().pad("0", 2) +"" + (d.getDate() +1).toString().pad("0", 2) + "000000";;
+                       return h;
+                   },
+                   toValue: function (date, format, language) {
+                       var d = new Date(date);
+
+                       var h = d.getFullYear() + "" + (d.getMonth() +1).toString().pad("0", 2) +"" + (d.getDate() +1).toString().pad("0", 2) + "000000";
+                   }
+               }
+           }
+        }
+
+	});
+	</script>
 </body>
 </html>
