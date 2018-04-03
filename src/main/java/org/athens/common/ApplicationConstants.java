@@ -9,7 +9,7 @@ public class ApplicationConstants {
 
     public static final String EMPTY_AUDIT     = "{}";
 
-    public static final String ATHENS_QUARTZ_GROUP          = "Athens";
+    public static final String ATHENS_GROUP                 = "Athens";
     public static final String ATHENS_DAILY_QUARTZ_JOB      = "AthensQuartzDaily";
     public static final String ATHENS_WEEKLY_QUARTZ_JOB     = "AthensQuartzWeekly";
     public static final String ATHENS_QUARTZ_DAILY_TRIGGER  = "AthensQuartzDailyTrigger";

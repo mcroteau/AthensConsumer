@@ -1,5 +1,6 @@
 package org.athens.jobs;
 
+import com.sun.jersey.core.impl.provider.entity.XMLRootObjectProvider;
 import org.apache.log4j.Logger;
 
 import org.athens.common.ApplicationConstants;
@@ -37,15 +38,15 @@ public class KrnwhJobBootup {
 
 
     public void initializeQuartzJobs() {
-        initializeQuartzJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_Q
-        initializeQuartzJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_GROUP, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.QUARTZ_WEEKLY_QUARTZ_JOB_EXPRESSION);
+        initializeQuartzJob(KrnwhDailyJob.class, ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_DAILY_TRIGGER, ApplicationConstants.DAILY_JOB_QUARTZ_EXPRESSION);
+        initializeQuartzJob(KrnwhWeeklyJob.class, ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.WEEKLY_JOB_QUARTZ_EXPRESSION);
     }
 
 
-    private void initializeQuartzJob(String name, String group, String triggerName, String expression) {
+    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression) {
         try {
-            JobDetail job = JobBuilder.newJob(KrnwhDailyJob.class)
-                    .withIdentity(name, group).build();
+            JobDetail job = JobBuilder.newJob(clazz)
+                    .withIdentity(name, ApplicationConstants.ATHENS_GROUP).build();
 
             job.getJobDataMap().put("krnwhDao", krnwhDao);
             job.getJobDataMap().put("krnwhLogDao", krnwhLogDao);
@@ -53,7 +54,7 @@ public class KrnwhJobBootup {
 
             Trigger trigger = TriggerBuilder
                     .newTrigger()
-                    .withIdentity(triggerName, ApplicationConstants.ATHENS_QUARTZ_GROUP)
+                    .withIdentity(triggerName, ApplicationConstants.ATHENS_GROUP)
                     .withSchedule(
                             CronScheduleBuilder.cronSchedule(expression))
                     .build();
@@ -62,12 +63,11 @@ public class KrnwhJobBootup {
             scheduler.start();
             scheduler.scheduleJob(job, trigger);
 
-            if (name.equals(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB)) {
+            if(name.equals(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB)){
                 log.info("setup krnw daily...");
             } else {
                 log.info("setup krnw weekly...");
             }
-
         } catch (Exception e) {
             log.info("something went wrong setting up krnwh job");
             e.printStackTrace();
