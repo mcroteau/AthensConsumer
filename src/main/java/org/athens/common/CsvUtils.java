@@ -3,7 +3,7 @@ package org.athens.common;
 import java.io.IOException;
 import java.util.List;
 
-public class CSVUtils {
+public class CsvUtils {
 
     private static final char DEFAULT_SEPARATOR = ',';
 

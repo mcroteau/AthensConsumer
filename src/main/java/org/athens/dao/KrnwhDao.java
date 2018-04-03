@@ -1,6 +1,7 @@
 package org.athens.dao;
 
-import org.athens.domain.KRNWH;
+import org.athens.domain.Krnwh;
+import org.athens.domain.Krnwh;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,16 +11,16 @@ public interface KrnwhDao {
 
 	public int count();
 
-	public KRNWH find();
+	public Krnwh find();
 	
-	public List<KRNWH> list(int max, int offset);
+	public List<Krnwh> list(int max, int offset);
 	
-	public KRNWH save(KRNWH krnwh);
+	public Krnwh save(Krnwh krnwh);
 
-	public KRNWH findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn);
+	public Krnwh findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn);
 
-	public KRNWH findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg);
+	public Krnwh findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg);
 
-	public KRNWH findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn);
+	public Krnwh findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn);
 	
 }

@@ -2,6 +2,7 @@ package org.athens.jobs;
 
 import org.apache.log4j.Logger;
 
+import org.athens.common.ApplicationConstants;
 import org.athens.domain.KrnwhJobSettings;
 import org.quartz.JobDetail;
 import org.quartz.JobBuilder;
@@ -15,9 +16,9 @@ import org.athens.dao.impl.KrnwhDaoImpl;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 
 
-public class KrnwhDailyJobBootup {
+public class KrnwhJobBootup {
 
-    final static Logger log = Logger.getLogger(KrnwhDailyJobBootup.class);
+    final static Logger log = Logger.getLogger(KrnwhJobBootup.class);
 
     private KrnwhDaoImpl krnwhDao;
 
@@ -25,7 +26,7 @@ public class KrnwhDailyJobBootup {
 
     private KrnwhJobSettings krnwhJobSettings;
 
-    public KrnwhDailyJobBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
+    public KrnwhJobBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
         log.info("about to setup krnwh report...");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;
@@ -35,11 +36,8 @@ public class KrnwhDailyJobBootup {
 
     public void initializeReportQuartzJob() {
         try {
-
-            //log.info(krnwhLogDao.list.jsp(10, 0));
-
             JobDetail job = JobBuilder.newJob(KrnwhDailyJob.class)
-                    .withIdentity("krnwhJob", "atns").build();
+                    .withIdentity(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP).build();
 
             job.getJobDataMap().put("krnwhDao", krnwhDao);
             job.getJobDataMap().put("krnwhLogDao", krnwhLogDao);

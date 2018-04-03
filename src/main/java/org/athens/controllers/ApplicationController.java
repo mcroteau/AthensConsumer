@@ -2,7 +2,8 @@ package org.athens.controllers;
 
 import org.apache.log4j.Logger;
 
-import org.athens.domain.KRNWH;
+import org.athens.domain.Krnwh;
+import org.athens.domain.Krnwh;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ import java.util.List;
 
 import java.io.FileWriter;
 import org.athens.common.ApplicationConstants;
-import org.athens.common.CSVUtils;
+import org.athens.common.CsvUtils;
 
 
 @Controller
@@ -58,42 +59,40 @@ public class ApplicationController {
         return "redirect:list";
     }
 
-    @RequestMapping(value="/index", method= RequestMethod.GET)
-    public String index(final RedirectAttributes redirect){
-        String message = "";
+
+    @RequestMapping(value="/run_daily", method= RequestMethod.POST)
+    public String run_daily(final RedirectAttributes redirect){
+        String message = runJob(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP);
+        redirect.addFlashAttribute("message", message);
+        return "redirect:list";
+    }
+
+
+    @RequestMapping(value="/run_weekly", method= RequestMethod.POST)
+    public String run_weekly(final RedirectAttributes redirect){
+        String message = runJob(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP);
+        redirect.addFlashAttribute("message", message);
+        return "redirect:list";
+    }
+
+
+
+    private String runJob(String job, String group){
+        String message = "Successfully ran report...";
         try {
-                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-                List<JobExecutionContext> runningJobs = scheduler.getCurrentlyExecutingJobs();
-                for (JobExecutionContext jobCtx : runningJobs) {
-                    String thisJobName = jobCtx.getJobDetail().getKey().getName();
-                    String thisGroupName = jobCtx.getJobDetail().getKey().getGroup();
-                    if ("krnwhJob".equalsIgnoreCase(thisJobName) && "atns".equalsIgnoreCase(thisGroupName)
-                            //&& !jobCtx.getFireTime().equals(ctx.getFireTime())
-                            ) {
-                        running = true;
-                    }
-                }
-
-                if(!running) {
-                    log.info("Running report");
-                    JobKey jobKey = new JobKey("krnwhJob", "atns");
-                    scheduler.triggerJob(jobKey); //trigger a job by jobkey
-
-                    message = "Successfully ran report...";
-
-                    running = false;
-                }
+            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+            JobKey jobKey = new JobKey(job, group);
+            scheduler.triggerJob(jobKey);
         }catch (Exception e){
             message = "Something went wrong";
             log.warn("unable to get connection");
             e.printStackTrace();
         }
-
-
-        redirect.addFlashAttribute("message", message);
-        //return "application/index";
-        return "redirect:list";
+        return message;
     }
+
+
+
 
     @RequestMapping(value="/list", method=RequestMethod.GET)
     public String list(ModelMap model,
@@ -159,7 +158,7 @@ public class ApplicationController {
             page = "1";
         }
 
-        List<KRNWH> krnwhs;
+        List<Krnwh> krnwhs;
 
         if(offset != null) {
             int m = 10;
@@ -167,11 +166,11 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            krnwhs = dao.list(m, o);
-            //krnwhs = generateMockKrnwhs(m, o);
+            //krnwhs = dao.list(m, o);
+            krnwhs = generateMockKrnwhs(m, o);
         }else{
-            krnwhs = dao.list(10, 0);
-            //krnwhs = generateMockKrnwhs(10, 0);
+            //krnwhs = dao.list(10, 0);
+            krnwhs = generateMockKrnwhs(10, 0);
         }
 
         int count = dao.count();
@@ -212,7 +211,7 @@ public class ApplicationController {
             page = "1";
         }
 
-        List<KRNWH> krnwhs;
+        List<Krnwh> krnwhs;
 
         if(offset != null) {
             int m = 10;
@@ -250,8 +249,7 @@ public class ApplicationController {
     }
 
 
-
-    @RequestMapping(value="/krnwh/perform_search", method=RequestMethod.POST)
+    @RequestMapping(value="/krnwh/search", method=RequestMethod.POST)
     public String performSearch(ModelMap model,
                          HttpServletRequest request,
                          final RedirectAttributes redirect,
@@ -259,7 +257,7 @@ public class ApplicationController {
                          @RequestParam(value="end-date", required = true ) BigDecimal endDate){
 
         if(startDate.precision() == 14 && endDate.precision() == 14){
-            List<KRNWH> krnwhs = dao.findByDate(startDate, endDate);
+            List<Krnwh> krnwhs = dao.findByDate(startDate, endDate);
             model.addAttribute("total", krnwhs.size());
             model.addAttribute("startDate", startDate);
             model.addAttribute("endDate", endDate);
@@ -269,7 +267,6 @@ public class ApplicationController {
             redirect.addFlashAttribute("message", "data is incorrect");
             return "krnwh/search";
         }
-
     }
 
 
@@ -278,17 +275,17 @@ public class ApplicationController {
                          HttpServletRequest request,
                          HttpServletResponse response,
                          final RedirectAttributes redirect,
-                         @RequestParam(value="startDate", required = true ) BigDecimal startDate,
-                         @RequestParam(value="endDate", required = true ) BigDecimal endDate)  throws Exception {
+                         @RequestParam(value="start-date", required = true ) BigDecimal startDate,
+                         @RequestParam(value="end-date", required = true ) BigDecimal endDate)  throws Exception {
 
         response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
 
-        List<KRNWH> krnwhs = dao.findByDate(startDate, endDate);
+        List<Krnwh> krnwhs = dao.findByDate(startDate, endDate);
         //model.addAttribute("total", krnwhs.size());
         //model.addAttribute("krnwhs", krnwhs);
         StringBuffer writer=new StringBuffer();
 
-        for (KRNWH d : krnwhs) {
+        for (Krnwh d : krnwhs) {
             List<String> list = new ArrayList<>();
             list.add(d.getId().toString());
             list.add(d.getFppunc().toString());
@@ -300,17 +297,17 @@ public class ApplicationController {
             list.add(d.getFstatus());
             list.add(d.getKrnlogid().toString());
 
-            CSVUtils.writeLine(writer, list);
+            CsvUtils.writeLine(writer, list);
         }
 
         response.getWriter().print(writer.toString());
     }
 
 
-    public List<KRNWH> generateMockKrnwhs(int max, int offset){
-        List<KRNWH> krnwhs = new ArrayList<KRNWH>();
+    public List<Krnwh> generateMockKrnwhs(int max, int offset){
+        List<Krnwh> krnwhs = new ArrayList<Krnwh>();
         for(int n = offset; n < max + offset; n++){
-            KRNWH krnwh = new KRNWH();
+            Krnwh krnwh = new Krnwh();
             krnwh.setFpempn(new BigDecimal(n));
             krnwh.setFppunc(new BigDecimal(n));
             krnwh.setFptype("t");

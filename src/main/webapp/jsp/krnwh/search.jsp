@@ -29,6 +29,11 @@
             background:#D4212F;
             position:fixed;
             top:0px;
+            <c:choose>
+                <c:when test="${krnwhs == null || krnwhs.size() == 0}">
+                    height:100%;
+                </c:when>
+            </c:choose>
         }
         #container{
             width:840px;
@@ -86,10 +91,10 @@
         </div>
     </c:if>
 
-	<form action="${pageContext.request.contextPath}/krnwh/perform_search" method="post">
+	<form action="${pageContext.request.contextPath}/krnwh/search" method="post">
 
         <div class="input-group input-daterange">
-            <input name="start-date" type="text" class="form-control" value="${starDate}" id="start-date">
+            <input name="start-date" type="text" class="form-control" value="${startDate}" id="start-date">
             <div class="input-group-addon">to</div>
             <input name="end-date" type="text" class="form-control" value="${endDate}" id="end-date">
         </div>
@@ -104,8 +109,8 @@
         <c:when test="${krnwhs.size() > 0}">
             <form action="${pageContext.request.contextPath}/krnwh/export" method="post">
 
-                <input name="start-date" type="hidden" class="form-control" value="${starDate}" id="start-date">
-                <input name="end-date" type="hidden" class="form-control" value="${endDate}" id="end-date">
+                <input name="start-date" type="hidden" class="form-control" value="${startDate}">
+                <input name="end-date" type="hidden" class="form-control" value="${endDate}">
 
                 <div class="form-group">
                     <input type="submit" value="Export Data" class="btn btn-primary">
@@ -189,11 +194,17 @@
         var $startDate = $("#start-date"),
             $endDate = $("#end-date");
 
-        $startDate.datepicker(getFormat());
         $endDate.datepicker(getFormat());
+        $startDate.datepicker(getFormat());
 
-        $startDate.datepicker("update", getYesterday());
-        $endDate.datepicker("update", new Date());
+        if($startDate.val() == ""){
+            $startDate.datepicker("update", getYesterday());
+        }
+
+        if($endDate.val() == ""){
+            $endDate.datepicker("update", new Date());
+        }
+
 
 
         function getYesterday(){
@@ -204,6 +215,7 @@
 
         function getFormat(){
             return {
+               autoclose:true,
                format: {
                    /*
                     * Say our UI should display a week ahead,

@@ -1,7 +1,8 @@
 package org.athens.dao.impl;
 
 import org.apache.log4j.Logger;
-import org.athens.domain.KRNWH;
+import org.athens.domain.Krnwh;
+import org.athens.domain.Krnwh;
 import org.athens.domain.KrnwhLog;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -23,7 +24,7 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	private JdbcTemplate jdbcTemplate;
 
 	public int count() {
-		String sql = "select count(*) from KRNWH";
+		String sql = "select count(*) from Krnwh";
 		int count = 0;
 		try{
 			count = jdbcTemplate.queryForObject(sql, Integer.class, new Object[0]);
@@ -34,44 +35,44 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	}
 
 
-	public KRNWH find(){
-		String sql = "select * from QGPL.KRNWH limit 1";
-		KRNWH k = (KRNWH) jdbcTemplate.queryForObject(sql, new Object[] {},
-						new BeanPropertyRowMapper(KRNWH.class));
+	public Krnwh find(){
+		String sql = "select * from QGPL.Krnwh limit 1";
+		Krnwh k = (Krnwh) jdbcTemplate.queryForObject(sql, new Object[] {},
+						new BeanPropertyRowMapper(Krnwh.class));
 		System.out.println(k.toString());
 		return k;
 	}
 
-	public KRNWH findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn){
-		KRNWH k = null;
+	public Krnwh findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn){
+		Krnwh k = null;
 		try{
-			String sql = "select * from QGPL.KRNWH where fppunc = " + fppunc + " and fpbadg = " + fpbadg + " and fpempn = " + fpempn;
-			k = (KRNWH) jdbcTemplate.queryForObject(sql, new Object[] {},
-					new BeanPropertyRowMapper(KRNWH.class));
+			String sql = "select * from QGPL.Krnwh where fppunc = " + fppunc + " and fpbadg = " + fpbadg + " and fpempn = " + fpempn;
+			k = (Krnwh) jdbcTemplate.queryForObject(sql, new Object[] {},
+					new BeanPropertyRowMapper(Krnwh.class));
 		}catch(Exception e){
 			log.warn("unable to find by punch badge id employee id");
 		}
 		return k;
 	}
 
-	public KRNWH findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg){
-		KRNWH k = null;
+	public Krnwh findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg){
+		Krnwh k = null;
 		try{
-			String sql = "select * from QGPL.KRNWH where fppunc = " + fppunc + " and fpbadg = " + fpbadg;
-			k = (KRNWH) jdbcTemplate.queryForObject(sql, new Object[] {},
-					new BeanPropertyRowMapper(KRNWH.class));
+			String sql = "select * from QGPL.Krnwh where fppunc = " + fppunc + " and fpbadg = " + fpbadg;
+			k = (Krnwh) jdbcTemplate.queryForObject(sql, new Object[] {},
+					new BeanPropertyRowMapper(Krnwh.class));
 		}catch(Exception e){
 			log.warn("unable to find by punch badge id");
 		}
 		return k;
 	}
 
-	public KRNWH findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn){
-		KRNWH k = null;
+	public Krnwh findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn){
+		Krnwh k = null;
 		try{
-			String sql = "select * from QGPL.KRNWH where fppunc = " + fppunc + " and fpempn = " + fpempn;
-			k = (KRNWH) jdbcTemplate.queryForObject(sql, new Object[] {},
-					new BeanPropertyRowMapper(KRNWH.class));
+			String sql = "select * from QGPL.Krnwh where fppunc = " + fppunc + " and fpempn = " + fpempn;
+			k = (Krnwh) jdbcTemplate.queryForObject(sql, new Object[] {},
+					new BeanPropertyRowMapper(Krnwh.class));
 		}catch(Exception e){
 			log.warn("unable to find by punch employee id");
 		}
@@ -81,12 +82,12 @@ public class KrnwhDaoImpl implements KrnwhDao {
 
 
 
-	public List<KRNWH> list(int max, int offset){
+	public List<Krnwh> list(int max, int offset){
 		try{
 
-			String sql = "select * from QGPL.KRNWH limit " + max + " offset " + offset;
+			String sql = "select * from QGPL.Krnwh limit " + max + " offset " + offset;
 			System.out.println("find all " + sql);
-			List<KRNWH> krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KRNWH.class));
+			List<Krnwh> krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(Krnwh.class));
 			
 			return krnwhs;
 		
@@ -97,12 +98,12 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	}
 
 
-	public List<KRNWH> listByIngest(int max, int offset, BigDecimal ingest){
+	public List<Krnwh> listByIngest(int max, int offset, BigDecimal ingest){
 		try{
 
-			String sql = "select * from QGPL.KRNWH where krnlogid = " + ingest + " limit " + max + " offset " + offset;
+			String sql = "select * from QGPL.Krnwh where krnlogid = " + ingest + " limit " + max + " offset " + offset;
 			System.out.println("find all " + sql);
-			List<KRNWH> krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KRNWH.class));
+			List<Krnwh> krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(Krnwh.class));
 
 			return krnwhs;
 
@@ -122,9 +123,9 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	fstatus varchar(1)		
 **/
 		
-	public KRNWH save(KRNWH krnwh){
+	public Krnwh save(Krnwh krnwh){
 /**
-		String countSql = "select max(id) + 1 from QGPL.KRNWH";
+		String countSql = "select max(id) + 1 from QGPL.Krnwh";
 
 		int id;
 
@@ -136,7 +137,7 @@ public class KrnwhDaoImpl implements KrnwhDao {
 			id = 0;
 		}
 **/
-		String saveSql = "insert into QGPL.KRNWH " +
+		String saveSql = "insert into QGPL.Krnwh " +
 				"( fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus, krnlogid ) " +
 				"values " +
 				"(?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -152,15 +153,15 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	}
 
 
-	public List<KRNWH> findByDate(BigDecimal startDate, BigDecimal endDate){
-		String sql = "select * from QGPL.KRNWH where fppunc between " + startDate + " and " + endDate;
+	public List<Krnwh> findByDate(BigDecimal startDate, BigDecimal endDate){
+		String sql = "select * from QGPL.Krnwh where fppunc between " + startDate + " and " + endDate;
 
 		log.info("find by date : " + sql);
 
-		List<KRNWH> krnwhs = new ArrayList<KRNWH>();
+		List<Krnwh> krnwhs = new ArrayList<Krnwh>();
 
 		try {
-			krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KRNWH.class));
+			krnwhs = jdbcTemplate.query(sql, new BeanPropertyRowMapper(Krnwh.class));
 
 		}catch(Exception e){
 			log.warn("unable to find krnwhs by date...");

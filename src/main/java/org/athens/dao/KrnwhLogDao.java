@@ -1,6 +1,6 @@
 package org.athens.dao;
 
-import org.athens.domain.KRNWH;
+import org.athens.domain.Krnwh;
 import org.athens.domain.KrnwhLog;
 
 import java.util.List;

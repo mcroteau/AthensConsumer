@@ -6,7 +6,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.common.ApplicationConstants;
-import org.athens.domain.KRNWH;
+import org.athens.domain.Krnwh;
 import org.athens.domain.KrnwhLog;
 import org.quartz.*;
 
@@ -237,7 +237,7 @@ public class KrnwhDailyJob implements Job {
 					//krnwh.getFpclck(), krnwh.setFpbadg(), krnwh.setFpfkey(),
 					//krnwh.getFppcod(), krnwh.setFstatus()
 
-					KRNWH krnwh = new KRNWH();
+					Krnwh krnwh = new Krnwh();
 					krnwh.setFpempn(empId);
 					//if(count % 2 ==0) krnwh.setFpempn(new BigDecimal("0"));
 					krnwh.setFppunc(punch);
@@ -252,7 +252,7 @@ public class KrnwhDailyJob implements Job {
 
 					krnwh.setKrnlogid(krnwhLog.getId());
 
-					KRNWH existingKrnwh = null;
+					Krnwh existingKrnwh = null;
 
 					if(krnwh.getFpbadg().compareTo(new BigDecimal(0)) != 0  &&
 							krnwh.getFpempn().compareTo(new BigDecimal(0)) != 0){
@@ -357,9 +357,9 @@ public class KrnwhDailyJob implements Job {
 
 
 
-	public void processPersistence(KRNWH krnwh){
+	public void processPersistence(Krnwh krnwh){
 		if(krnwh.getFppunc() != null) {
-			KRNWH skrnwh = krnwhDao.save(krnwh);
+			Krnwh skrnwh = krnwhDao.save(krnwh);
 			if (skrnwh != null) {
 				totalSaved++;
 				//log.info("saved : " + krnwh.getFppunc());

@@ -2,9 +2,9 @@ package org.athens.domain;
 
 import java.math.BigDecimal;
 
-public class KRNWH {
+public class Krnwh {
 
-	public KRNWH(){}
+	public Krnwh(){}
 
 	private BigDecimal id;
 	private BigDecimal fpempn;

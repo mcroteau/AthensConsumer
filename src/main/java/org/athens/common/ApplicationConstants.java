@@ -9,5 +9,9 @@ public class ApplicationConstants {
 
     public static final String EMPTY_AUDIT     = "{}";
 
+    public static final String ATHENS_GROUP            = "Athens";
+    
+    public static final String ATHENS_DAILY_KRNWH_JOB  = "AthensKrnwhDaily";
+    public static final String ATHENS_WEEKLY_KRNWH_JOB = "AthensKrnwhWeekly";
 
 }

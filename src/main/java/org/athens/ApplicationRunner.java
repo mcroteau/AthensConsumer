@@ -7,7 +7,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import org.athens.domain.KRNWH;
+import org.athens.domain.Krnwh;
+import org.athens.domain.Krnwh;
 import org.athens.domain.KrnwhLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -226,7 +227,7 @@ public class ApplicationRunner {
 					//krnwh.getFpclck(), krnwh.setFpbadg(), krnwh.setFpfkey(),
 					//krnwh.getFppcod(), krnwh.setFstatus()
 
-					KRNWH krnwh = new KRNWH();
+					Krnwh krnwh = new Krnwh();
 					krnwh.setFpempn(empId);
 					krnwh.setFppunc(punch);
 					krnwh.setFptype(type);
@@ -267,9 +268,9 @@ public class ApplicationRunner {
 		log.info("error count: " + errorCount);
 	}
 
-	public void processPersistence(KRNWH krnwh){
+	public void processPersistence(Krnwh krnwh){
 		if(krnwh.getFppunc() != null) {
-			KRNWH skrnwh = dao.save(krnwh);
+			Krnwh skrnwh = dao.save(krnwh);
 			if (skrnwh == null) {
 				log.warn("error saving" + krnwh.getFppunc());
 				//errorCount++;
