@@ -75,8 +75,6 @@ public class ApplicationController {
         return "redirect:list";
     }
 
-
-
     private String runJob(String job, String group){
         String message = "Successfully ran report...";
         try {

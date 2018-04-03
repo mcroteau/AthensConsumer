@@ -9,9 +9,12 @@ public class ApplicationConstants {
 
     public static final String EMPTY_AUDIT     = "{}";
 
-    public static final String ATHENS_GROUP            = "Athens";
-    
-    public static final String ATHENS_DAILY_KRNWH_JOB  = "AthensKrnwhDaily";
-    public static final String ATHENS_WEEKLY_KRNWH_JOB = "AthensKrnwhWeekly";
+    public static final String ATHENS_GROUP             = "Athens";
+    public static final String ATHENS_QUARTZ_TRIGGER    = "AthensQuartzTrigger";
+    public static final String ATHENS_DAILY_KRNWH_JOB   = "AthensKrnwhDaily";
+    public static final String ATHENS_WEEKLY_KRNWH_JOB  = "AthensKrnwhWeekly";
+
+    public static final String QUARTZ_DAILY_JOB_EXPRESSION  = "1 */60 * * * ?";
+    public static final String QUARTZ_WEEKLY_JOB_EXPRESSION = "1 */60 * * * ?";
 
 }
