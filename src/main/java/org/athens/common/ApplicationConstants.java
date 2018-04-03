@@ -9,13 +9,17 @@ public class ApplicationConstants {
 
     public static final String EMPTY_AUDIT     = "{}";
 
+    public static final String KRONOS_DAILY_REPORT          = "70184453";
+    public static final String KRONOS_WEEKLY_REPORT         = "70165985";
+
     public static final String ATHENS_GROUP                 = "Athens";
+
     public static final String ATHENS_DAILY_QUARTZ_JOB      = "AthensQuartzDaily";
     public static final String ATHENS_WEEKLY_QUARTZ_JOB     = "AthensQuartzWeekly";
     public static final String ATHENS_QUARTZ_DAILY_TRIGGER  = "AthensQuartzDailyTrigger";
     public static final String ATHENS_QUARTZ_WEEKLY_TRIGGER = "AthensQuartzWeeklyTrigger";
 
-    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "0 34 6,18 * * ?";
-    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 37 6,18 * * ?";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 1 6,23 * * ?";
+    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 59 6,20 * * ?";
 
 }

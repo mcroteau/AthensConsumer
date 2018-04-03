@@ -42,7 +42,7 @@ public class KrnwhDailyJob extends BaseKrnwhJob {
 	final static Logger log = Logger.getLogger(KrnwhDailyJob.class);
 
 	public KrnwhDailyJob(){
-		super(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB);
+		super(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.KRONOS_DAILY_REPORT);
 		log.info("initialized krnwh daily job ...");
 	}
 

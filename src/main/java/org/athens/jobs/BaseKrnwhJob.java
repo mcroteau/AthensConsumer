@@ -42,8 +42,9 @@ public class BaseKrnwhJob implements Job {
     private int errorCount = 0;
 
     private String report;
-    private KrnwhLog krnwhLog;
     private JobKey jobKey;
+
+    private KrnwhLog krnwhLog;
 
     private KrnwhDaoImpl krnwhDao;
     private KrnwhLogDaoImpl krnwhLogDao;
@@ -51,12 +52,13 @@ public class BaseKrnwhJob implements Job {
 
     private Map<String, Integer> foundMap = new HashMap<String, Integer>();
 
-    public BaseKrnwhJob(){}
 
-    public BaseKrnwhJob(String jobName){
+    public BaseKrnwhJob(String jobName, String report){
         log.info("initizing base job...");
+        this.report = report;
         this.jobKey = new JobKey(jobName, ApplicationConstants.ATHENS_GROUP);
     }
+
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -65,6 +67,8 @@ public class BaseKrnwhJob implements Job {
             this.krnwhDao = (KrnwhDaoImpl) jobDetail.getJobDataMap().get("krnwhDao");
             this.krnwhLogDao = (KrnwhLogDaoImpl) jobDetail.getJobDataMap().get("krnwhLogDao");
             this.krnwhJobSettings  = (KrnwhJobSettings) jobDetail.getJobDataMap().get("krnwhJobSettings");
+
+            log.info(this.jobKey.getName());
 
             /**
              DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -153,7 +157,7 @@ public class BaseKrnwhJob implements Job {
     public void processReportDataFromRequest(){
         System.out.println("running report using jersey ...");
 
-        String url = "https://secure4.saashr.com/ta/rest/v1/report/saved/70184453";
+        String url = "https://secure4.saashr.com/ta/rest/v1/report/saved/" + this.report;
 
         DefaultClientConfig client = new DefaultClientConfig();
         WebResource resource = Client.create(client)
