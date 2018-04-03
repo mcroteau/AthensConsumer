@@ -37,12 +37,12 @@ public class KrnwhJobBootup {
 
 
     public void initializeQuartzJobs() {
-        initializeQuartzJob(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP, ApplicationConstants.QUARTZ_DAILY_JOB_EXPRESSION);
-        initializeQuartzJob(ApplicationConstants.ATHENS_WEEKLY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP, ApplicationConstants.QUARTZ_WEEKLY_JOB_EXPRESSION);
+        initializeQuartzJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_Q
+        initializeQuartzJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_GROUP, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.QUARTZ_WEEKLY_QUARTZ_JOB_EXPRESSION);
     }
 
 
-    private void initializeQuartzJob(String name, String group, String expression) {
+    private void initializeQuartzJob(String name, String group, String triggerName, String expression) {
         try {
             JobDetail job = JobBuilder.newJob(KrnwhDailyJob.class)
                     .withIdentity(name, group).build();
@@ -53,7 +53,7 @@ public class KrnwhJobBootup {
 
             Trigger trigger = TriggerBuilder
                     .newTrigger()
-                    .withIdentity(ApplicationConstants.ATHENS_QUARTZ_TRIGGER, ApplicationConstants.ATHENS_GROUP)
+                    .withIdentity(triggerName, ApplicationConstants.ATHENS_QUARTZ_GROUP)
                     .withSchedule(
                             CronScheduleBuilder.cronSchedule(expression))
                     .build();

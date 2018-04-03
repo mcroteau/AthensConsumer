@@ -62,7 +62,7 @@ public class ApplicationController {
 
     @RequestMapping(value="/run_daily", method= RequestMethod.POST)
     public String run_daily(final RedirectAttributes redirect){
-        String message = runJob(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP);
+        String message = runJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_GROUP);
         redirect.addFlashAttribute("message", message);
         return "redirect:list";
     }
@@ -70,7 +70,7 @@ public class ApplicationController {
 
     @RequestMapping(value="/run_weekly", method= RequestMethod.POST)
     public String run_weekly(final RedirectAttributes redirect){
-        String message = runJob(ApplicationConstants.ATHENS_DAILY_KRNWH_JOB, ApplicationConstants.ATHENS_GROUP);
+        String message = runJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_GROUP);
         redirect.addFlashAttribute("message", message);
         return "redirect:list";
     }

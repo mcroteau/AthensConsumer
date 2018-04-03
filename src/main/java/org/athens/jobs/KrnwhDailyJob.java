@@ -69,7 +69,7 @@ public class KrnwhDailyJob implements Job {
 
 				log.info("executing report : " + formattedDate.toString());
 
-				JobKey jobKey = new JobKey("krnwhJob", "atns");
+				JobKey jobKey = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_GROUP);
 				JobDetail jobDetail = context.getScheduler().getJobDetail(jobKey);
 
 				KrnwhDaoImpl krnwhDao = (KrnwhDaoImpl)jobDetail.getJobDataMap().get("krnwhDao");
@@ -151,6 +151,7 @@ public class KrnwhDailyJob implements Job {
 
 		}catch (Exception e){
 			log.warn("log error..");
+			e.printStackTrace();
 			//TODO: log error
 		}
 
