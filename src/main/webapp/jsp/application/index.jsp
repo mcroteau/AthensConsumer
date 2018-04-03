@@ -14,6 +14,8 @@
 	</div>
 
 
+<span>count: ${jobCount}</span>
+
 	<c:if test="${not empty message}">
 		<div class="span12">
 			<div class="alert alert-info">

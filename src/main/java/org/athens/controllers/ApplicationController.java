@@ -26,8 +26,9 @@ import java.math.BigDecimal;
 
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 import org.athens.dao.impl.KrnwhDaoImpl;
-
 import org.quartz.JobKey;
+import org.quartz.JobDetail;
+
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.JobExecutionContext;
@@ -125,7 +126,17 @@ public class ApplicationController {
             //int count = logDao.count();
             int count = 304;
 
+            try {
+                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+                JobKey jobKey = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_GROUP);
+                JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+                log.info(jobDetail);
+                int h = jobDetail.getJobDataMap().getIntegerFromString("job-count");
+                model.addAttribute("jobCount", h);
+                log.info("get job details" + h);
+            }catch (Exception e){
 
+            }
             model.addAttribute("krnwhLogs", krnwhLogs);
             model.addAttribute("total", count);
 

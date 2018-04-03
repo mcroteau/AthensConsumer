@@ -54,7 +54,7 @@ public class BaseKrnwhJob implements Job {
 
 
     public BaseKrnwhJob(String jobName, String report){
-        log.info("Initizing " + jobName);
+        log.info("Initializing " + jobName);
         this.report = report;
         this.jobKey = new JobKey(jobName, ApplicationConstants.ATHENS_GROUP);
     }
@@ -70,6 +70,12 @@ public class BaseKrnwhJob implements Job {
 
             log.info(this.jobKey.getName());
 
+            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+            JobDetail details = scheduler.getJobDetail(this.jobKey);
+            log.info("put" + details);
+            details.getJobDataMap().put("jobCount", 190);
+
+            /**
              DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
              Date date = new Date();
              String formattedDate = dateFormat.format(date);
@@ -145,8 +151,10 @@ public class BaseKrnwhJob implements Job {
 
              processReportDataFromRequest();
 
+             **/
+
         } catch (Exception e) {
-            log.info("something went wrong setting up krnwh job");
+            log.info("something went wrong setting up quartz job");
             e.printStackTrace();
         }
     }
@@ -305,6 +313,14 @@ public class BaseKrnwhJob implements Job {
 
                         if(existingKrnwh == null) {
                             processPersistence(krnwh);
+                            try {
+                                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+                                JobDetail jobDetail = scheduler.getJobDetail(this.jobKey);
+                                log.info("put" + jobDetail);
+                                jobDetail.getJobDataMap().put("job-count", count);
+                            }catch (Exception e){
+
+                            }
                             log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", count: " + count);
                         }else{
                             found++;
