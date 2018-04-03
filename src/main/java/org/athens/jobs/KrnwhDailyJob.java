@@ -43,7 +43,6 @@ public class KrnwhDailyJob extends BaseKrnwhJob {
 
 	public KrnwhDailyJob(){
 		super(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.KRONOS_DAILY_REPORT);
-		log.info("initialized krnwh daily job ...");
 	}
 
 }

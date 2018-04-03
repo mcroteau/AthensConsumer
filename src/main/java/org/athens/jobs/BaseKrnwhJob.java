@@ -54,7 +54,7 @@ public class BaseKrnwhJob implements Job {
 
 
     public BaseKrnwhJob(String jobName, String report){
-        log.info("initizing base job...");
+        log.info("Initizing " + jobName);
         this.report = report;
         this.jobKey = new JobKey(jobName, ApplicationConstants.ATHENS_GROUP);
     }
@@ -70,8 +70,7 @@ public class BaseKrnwhJob implements Job {
 
             log.info(this.jobKey.getName());
 
-            /**
-             DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+             DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
              Date date = new Date();
              String formattedDate = dateFormat.format(date);
 
@@ -145,7 +144,6 @@ public class BaseKrnwhJob implements Job {
              this.token = token.replaceAll("^\"|\"$", "");
 
              processReportDataFromRequest();
-             **/
 
         } catch (Exception e) {
             log.info("something went wrong setting up krnwh job");
@@ -307,10 +305,10 @@ public class BaseKrnwhJob implements Job {
 
                         if(existingKrnwh == null) {
                             processPersistence(krnwh);
-                            log.info("saved: " + totalSaved + ", count: " + count);
+                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", count: " + count);
                         }else{
                             found++;
-                            log.info("found: " + found +  ", count: " + count);
+                            log.info(this.jobKey.getName() + ": found: " + found +  ", count: " + count);
                         }
 
                         if(count %50==0){

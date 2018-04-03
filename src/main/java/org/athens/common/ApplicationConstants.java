@@ -19,7 +19,7 @@ public class ApplicationConstants {
     public static final String ATHENS_QUARTZ_DAILY_TRIGGER  = "AthensQuartzDailyTrigger";
     public static final String ATHENS_QUARTZ_WEEKLY_TRIGGER = "AthensQuartzWeeklyTrigger";
 
-    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 1 6,23 * * ?";
-    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 59 6,20 * * ?";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 24 6,21 * * ?";
+    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 27 6,21 * * ?";
 
 }

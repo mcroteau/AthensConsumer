@@ -12,7 +12,6 @@ public class KrnwhWeeklyJob extends BaseKrnwhJob {
 
     public KrnwhWeeklyJob(){
         super(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.KRONOS_WEEKLY_REPORT);
-        log.info("initialized krnwh weekly job...");
     }
 
 }

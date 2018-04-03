@@ -53,7 +53,7 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
 
 
     public KrnwhLog save(KrnwhLog krnwhLog){
-        String countSql = "select max(id) + 1 from QGPL.KRNLOG";
+        /**
 
         int id;
 
@@ -63,18 +63,20 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
             log.warn("unable to get next id");
             id = 0;
         }
+         **/
 
         String saveSql = "insert into QGPL.KRNLOG " +
-                "( id, kstatus, ktot, kadtcnt, kdate, kaudit ) " +
+                "( kstatus, ktot, kadtcnt, kdate, kaudit ) " +
                 "values " +
-                "(?, ?, ?, ?, ?, ?)";
+                "( ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(saveSql, new Object[] {
-                id, krnwhLog.getKstatus(), krnwhLog.getKtot(),
+                krnwhLog.getKstatus(), krnwhLog.getKtot(),
                 krnwhLog.getKadtcnt(), krnwhLog.getKdate(), krnwhLog.getKaudit()
         });
 
-        return find(new BigDecimal(id));
+        //return find(new BigDecimal(id));
+        return findByDate(krnwhLog.getKdate());
     }
 
 
