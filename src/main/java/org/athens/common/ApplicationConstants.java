@@ -14,7 +14,7 @@ public class ApplicationConstants {
     public static final String ATHENS_DAILY_KRNWH_JOB   = "AthensKrnwhDaily";
     public static final String ATHENS_WEEKLY_KRNWH_JOB  = "AthensKrnwhWeekly";
 
-    public static final String QUARTZ_DAILY_JOB_EXPRESSION  = "1 */60 * * * ?";
-    public static final String QUARTZ_WEEKLY_JOB_EXPRESSION = "1 */60 * * * ?";
+    public static final String QUARTZ_DAILY_JOB_EXPRESSION  = "1 1 9,15 * * ?";
+    public static final String QUARTZ_WEEKLY_JOB_EXPRESSION = "1 1 1 * * ?";
 
 }
