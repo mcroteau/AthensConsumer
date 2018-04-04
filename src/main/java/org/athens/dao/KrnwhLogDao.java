@@ -18,7 +18,9 @@ public interface KrnwhLogDao {
 	public KrnwhLog update(KrnwhLog krnwhLog);
 
 	public KrnwhLog find(BigDecimal id);
-	
+
+	public KrnwhLog findByDate(BigDecimal date);
+
 }
 
 

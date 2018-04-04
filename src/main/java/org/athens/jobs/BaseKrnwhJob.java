@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**Im going to rename all quartz job classes**/
 
 @DisallowConcurrentExecution
 public class BaseKrnwhJob implements Job {
@@ -40,8 +41,12 @@ public class BaseKrnwhJob implements Job {
     final static Logger log = Logger.getLogger(BaseKrnwhJob.class);
 
     private String token = "";
-    private int totalSaved = 0;
-    private int errorCount = 0;
+
+    private int count;
+    private int totalCount  = 0;
+    private int totalSaved  = 0;
+    private int totalError  = 0;
+    private int totalFound  = 0;
 
     private String report;
     private JobKey jobKey;
@@ -53,7 +58,7 @@ public class BaseKrnwhJob implements Job {
     private KrnwhJobSettings krnwhJobSettings;
     private KrnwhJobStats quartzJobStats;
 
-    private Map<String, Integer> foundMap = new HashMap<String, Integer>();
+    private Map<String, Integer> existsMap = new HashMap<String, Integer>();
     private Map<String, Krnwh> auditMap = new HashMap<String, Krnwh>();
 
 
@@ -69,7 +74,7 @@ public class BaseKrnwhJob implements Job {
         try {
             setLocalDefined(context);
             resetQuartzJobStats();
-
+            getSetKrnwhQuartzJobLog();
 
             log.info(this.jobKey.getName());
             /**
@@ -79,41 +84,9 @@ public class BaseKrnwhJob implements Job {
             }
              **/
 
-             DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-             Date date = new Date();
-             String formattedDate = dateFormat.format(date);
 
-             log.info("executing report : " + formattedDate.toString());
-             
 
-             //TimeUnit.MINUTES.sleep(1);
-
-             //log.info(krnwhJobSettings.getCompany() + " : " + krnwhJobSettings.getReport() + " : " + krnwhJobSettings.getApiKey());
-             KrnwhLog todaysKrnwhLog = krnwhLogDao.findByDate(new BigDecimal(formattedDate));
-
-             if (todaysKrnwhLog != null) {
-                 /**
-             todaysKrnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
-             todaysKrnwhLog.setKtot(new BigDecimal(124));
-             todaysKrnwhLog.setKaudit("g");
-             todaysKrnwhLog.setKadtcnt(new BigDecimal(3));
-             todaysKrnwhLog.setKdate(new BigDecimal(20180323));
-             krnwhLogDao.update(todaysKrnwhLog);
-                  **/
-             }
-
-             KrnwhLog klog = new KrnwhLog();
-             klog.setKstatus(ApplicationConstants.STARTED_STATUS);
-             klog.setKtot(new BigDecimal(0));
-             klog.setKadtcnt(new BigDecimal(0));
-             klog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-             klog.setKdate(new BigDecimal(formattedDate));
-             KrnwhLog savedKrnwhLog = krnwhLogDao.save(klog);
-
-             krnwhLog = savedKrnwhLog;
-
-             log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
-
+             log.info("savedKrnwhLog : " + krnwhLog.getId());
 
              log.info("apiKey: " + krnwhJobSettings.getApiKey());
 
@@ -188,8 +161,6 @@ public class BaseKrnwhJob implements Job {
 
     public void readCsvDataString(String csvData){
         String line = "";
-        int count = 0;
-        int found = 0;
 
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
 
@@ -197,7 +168,7 @@ public class BaseKrnwhJob implements Job {
 
             while ((line = br.readLine()) != null) {
 
-                if(count != 0) {
+                if(totalCount != 0) {
 
                     String[] punchData = line.split(",");
 
@@ -300,7 +271,7 @@ public class BaseKrnwhJob implements Job {
                     }
 
 
-                    if (count == 3) krnwh.setFstatus("aa");
+                    if (totalCount == 3) krnwh.setFstatus("aa");
 
                     //log.info(krnwh.toString());
 
@@ -308,15 +279,15 @@ public class BaseKrnwhJob implements Job {
 
                         if(existingKrnwh == null) {
                             Krnwh skrnwh=krnwhDao.save(krnwh);
-                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", count: " + count);
+                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", count: " + totalCount);
                             quartzJobStats.setSaved(totalSaved);
                         }else{
-                            found++;
-                            log.info(this.jobKey.getName() + ": found: " + found +  ", count: " + count);
+                            totalFound++;
+                            log.info(this.jobKey.getName() + ": found: " + totalFound +  ", count: " + totalCount);
                             quartzJobStats.setFound(found);
                         }
 
-                        if(count %50==0){
+                        if(totalCount %50==0){
                             Gson g =  new GsonBuilder().setPrettyPrinting().create();
                             String js = g.toJson(foundMap);
                             System.out.println(js);
@@ -324,25 +295,25 @@ public class BaseKrnwhJob implements Job {
 
 
                     } catch (Exception e) {
-                        errorCount++;
+                        totalError;
                         log.warn("error");
                         e.printStackTrace();
                     }
 
                 }
 
-                count++;
+                totalCount++;
 
                 quartzJobStats.setCount(count);
             }
 
         } catch (Exception e) {
-            errorCount++;
+            totalError++;
             e.printStackTrace();
         }
 
         log.info("count: " + count);
-        log.info("error count: " + errorCount);
+        log.info("error count: " + totalError);
         log.info("totalSaved: " + totalSaved);
         log.info("found : " + found);
 
@@ -351,7 +322,7 @@ public class BaseKrnwhJob implements Job {
         System.out.println(jsonStr);
 
         krnwhLog.setKtot(new BigDecimal(totalSaved));
-        krnwhLog.setKadtcnt(new BigDecimal(errorCount));
+        krnwhLog.setKadtcnt(new BigDecimal(totalError));
         krnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
         krnwhLogDao.update(krnwhLog);
 
@@ -361,6 +332,34 @@ public class BaseKrnwhJob implements Job {
 
     public void processPersistence(Krnwh krnwh){
     }
+
+    public void getSetKrnwhQuartzJobLog(){
+        BigDecimal dateTime = getLogDateTimeFormatted();
+        log.info("executing report : " + dateTime.toString());
+
+        KrnwhLog existingKrnwhLog = krnwhLogDao.findByDate(dateTime);
+
+        if (existingKrnwhLog == null) {
+            this.krnwhLog = existingKrnwhLog;
+        }else{
+            KrnwhLog nkrnwhLog = new KrnwhLog();
+            nkrnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
+            nkrnwhLog.setKtot(new BigDecimal(0));
+            nkrnwhLog.setKadtcnt(new BigDecimal(0));
+            nkrnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+            nkrnwhLog.setKdate(new BigDecimal(formattedDate));
+            this.krnwhLog = krnwhLogDao.save(nkrnwhLog);
+        }
+    }
+
+
+    public BigDecimal getLogDateTimeFormatted(){
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fDate = dateFormat.format(date);
+        return new BigDecimal(fDate);
+    }
+
 
 
     public void resetQuartzJobStats(){
