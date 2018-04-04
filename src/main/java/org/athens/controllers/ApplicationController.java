@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import org.athens.domain.Krnwh;
 import org.athens.domain.Krnwh;
+import org.athens.jobs.QuartzJobStats;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,8 +53,11 @@ public class ApplicationController {
 
     @Autowired
     private KrnwhLogDaoImpl logDao;
+    //@Autowired
+    //private Scheduler scheduler;
+
     @Autowired
-    private Scheduler scheduler;
+    private QuartzJobStats quartzJobStats;
 
 
 
@@ -100,12 +104,12 @@ public class ApplicationController {
             int count = 304;
 
             try {
-                //Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
                 JobKey jobKey = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_GROUP);
                 JobDetail jobDetail = scheduler.getJobDetail(jobKey);
                 log.info(jobDetail);
-                int h = jobDetail.getJobDataMap().getIntegerFromString("job-count");
-                model.addAttribute("jobCount", h);
+                int h = jobDetail.getJobDataMap().getInt("jobCount");
+                model.addAttribute("jobCount", quartzJobStats.getCount());
                 log.info("get job details" + h);
             }catch (Exception e){
 

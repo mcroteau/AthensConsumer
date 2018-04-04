@@ -7,8 +7,6 @@
 
 <body>
 
-    <img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
-
 	<div class="span12">
 		<h1>Punch Ingests</h1>
 	</div>

@@ -1,6 +1,5 @@
 package org.athens.jobs;
 
-import com.sun.jersey.core.impl.provider.entity.XMLRootObjectProvider;
 import org.apache.log4j.Logger;
 
 import org.athens.common.ApplicationConstants;
@@ -16,25 +15,24 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.athens.dao.impl.KrnwhDaoImpl;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 
-import javax.naming.ldap.PagedResultsControl;
 
+public class KrnwhJobsBootup {
 
-public class KrnwhJobBootup {
-
-    final static Logger log = Logger.getLogger(KrnwhJobBootup.class);
+    final static Logger log = Logger.getLogger(KrnwhJobsBootup.class);
 
     private KrnwhDaoImpl krnwhDao;
     private KrnwhLogDaoImpl krnwhLogDao;
     private KrnwhJobSettings krnwhJobSettings;
-    private Scheduler scheduler;
+    private QuartzJobStats quartzJobStats;
+    //private Scheduler scheduler;
 
 
-    public KrnwhJobBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings, Scheduler scheduler){
+    public KrnwhJobsBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings, QuartzJobStats quartzJobStats){
         log.info("about to setup krnwh reports.. .");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;
         this.krnwhJobSettings = krnwhJobSettings;
-        this.scheduler = scheduler;
+        this.quartzJobStats = quartzJobStats;
         initializeQuartzJobs();
     }
 
@@ -53,6 +51,8 @@ public class KrnwhJobBootup {
             job.getJobDataMap().put("krnwhDao", krnwhDao);
             job.getJobDataMap().put("krnwhLogDao", krnwhLogDao);
             job.getJobDataMap().put("krnwhJobSettings", krnwhJobSettings);
+            job.getJobDataMap().put("quartzJobStats", quartzJobStats);
+            job.getJobDataMap().put("jobCount", 4);
 
             Trigger trigger = TriggerBuilder
                     .newTrigger()
@@ -61,7 +61,7 @@ public class KrnwhJobBootup {
                             CronScheduleBuilder.cronSchedule(expression))
                     .build();
 
-            //Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
             scheduler.scheduleJob(job, trigger);
 

@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.concurrent.TimeUnit;
 
 @DisallowConcurrentExecution
 public class BaseKrnwhJob implements Job {
@@ -49,7 +49,7 @@ public class BaseKrnwhJob implements Job {
     private KrnwhDaoImpl krnwhDao;
     private KrnwhLogDaoImpl krnwhLogDao;
     private KrnwhJobSettings krnwhJobSettings;
-    //private Scheduler scheduler;
+    private QuartzJobStats quartzJobStats;
 
     private Map<String, Integer> foundMap = new HashMap<String, Integer>();
 
@@ -68,16 +68,15 @@ public class BaseKrnwhJob implements Job {
             this.krnwhDao = (KrnwhDaoImpl) jobDetail.getJobDataMap().get("krnwhDao");
             this.krnwhLogDao = (KrnwhLogDaoImpl) jobDetail.getJobDataMap().get("krnwhLogDao");
             this.krnwhJobSettings  = (KrnwhJobSettings) jobDetail.getJobDataMap().get("krnwhJobSettings");
+            this.quartzJobStats  = (QuartzJobStats) jobDetail.getJobDataMap().get("quartzJobStats");
 
             log.info(this.jobKey.getName());
 
-            //Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 
-            //JobKey jbk = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB,ApplicationConstants.ATHENS_GROUP);
-            //JobDetail details = dailys.getJobDetail(jbk);
-            log.info("put" + jobDetail);
-            jobDetail.getJobDataMap().putAsString("jobCount", 189);
-
+            for(int n = 0; n < 9321000; n++) {
+                quartzJobStats.setCount(n);
+                TimeUnit.SECONDS.sleep(7);
+            }
             /**
              DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
              Date date = new Date();

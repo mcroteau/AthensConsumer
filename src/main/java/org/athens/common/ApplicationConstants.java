@@ -21,5 +21,6 @@ public class ApplicationConstants {
 
     //public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 24 6,21 * * ?";
     public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 27 6,21 * * ?";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 */2 * * * ?";
 
 }
