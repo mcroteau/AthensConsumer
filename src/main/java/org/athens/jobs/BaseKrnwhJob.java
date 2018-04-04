@@ -40,13 +40,14 @@ public class BaseKrnwhJob implements Job {
 
     final static Logger log = Logger.getLogger(BaseKrnwhJob.class);
 
-    private String token = "";
+    private String authenticationToken = "";
 
-    private int count;
-    private int totalCount  = 0;
-    private int totalSaved  = 0;
-    private int totalError  = 0;
-    private int totalFound  = 0;
+    private int totalCount     = 0;
+    private int totalSaved     = 0;
+    private int totalError     = 0;
+    private int totalFound     = 0;
+    private int totalProcessed = 0;
+
 
     private String report;
     private JobKey jobKey;
@@ -57,9 +58,6 @@ public class BaseKrnwhJob implements Job {
     private KrnwhLogDaoImpl krnwhLogDao;
     private KrnwhJobSettings krnwhJobSettings;
     private KrnwhJobStats quartzJobStats;
-
-    private Map<String, Integer> existsMap = new HashMap<String, Integer>();
-    private Map<String, Krnwh> auditMap = new HashMap<String, Krnwh>();
 
 
     public BaseKrnwhJob(String jobName, String report){
@@ -76,6 +74,8 @@ public class BaseKrnwhJob implements Job {
             resetQuartzJobStats();
             getSetKrnwhQuartzJobLog();
 
+            performKronosAuthentication();
+
             log.info(this.jobKey.getName());
             /**
             for(int n = 0; n < 932; n++) {
@@ -90,41 +90,6 @@ public class BaseKrnwhJob implements Job {
 
              log.info("apiKey: " + krnwhJobSettings.getApiKey());
 
-             JsonObject innerObject = new JsonObject();
-             innerObject.addProperty("username", krnwhJobSettings.getUsername());
-             innerObject.addProperty("password", krnwhJobSettings.getPassword());
-             innerObject.addProperty("company", krnwhJobSettings.getCompany());
-
-
-             JsonObject jsonObject = new JsonObject();
-             jsonObject.add("credentials", innerObject);
-
-             WebResource resource = Client.create(new DefaultClientConfig())
-             .resource(ApplicationConstants.KRONOS_LOGIN_URI);
-
-             WebResource.Builder builder = resource.accept("application/json");
-             builder.type("application/json");
-             builder.header("api-key", krnwhJobSettings.getApiKey());
-
-
-             ClientResponse cresponse = builder.post(ClientResponse.class, jsonObject.toString());
-
-             String jsonOutput = cresponse.getEntity(String.class);
-
-             if (cresponse.getStatus() != 200) {
-             log.info(cresponse.toString());
-             throw new RuntimeException("Failed : HTTP error code : " + cresponse.getStatus());
-             }
-
-             System.out.println("Token json response from server .... \n");
-             //log.info(jsonOutput);
-
-             JsonParser jsonParser = new JsonParser();
-             JsonObject tokenObj = (JsonObject) jsonParser.parse(jsonOutput);
-
-
-             this.token = tokenObj.get("token").toString();
-             this.token = token.replaceAll("^\"|\"$", "");
 
              processReportDataFromRequest();
 
@@ -133,6 +98,53 @@ public class BaseKrnwhJob implements Job {
             log.info("something went wrong setting up quartz job");
             e.printStackTrace();
         }
+    }
+
+
+    public void performKronosAuthentication(){
+
+        JsonObject credentials = getAuthenticationCredentials();
+
+        WebResource resource = Client.create(new DefaultClientConfig())
+                .resource(ApplicationConstants.KRONOS_LOGIN_URI);
+
+        WebResource.Builder builder = resource.accept("application/json");
+        builder.type("application/json");
+        builder.header("api-key", krnwhJobSettings.getApiKey());
+
+        ClientResponse response = builder.post(ClientResponse.class, credentials.toString());
+
+        String jsonOutput = response.getEntity(String.class);
+
+        if (response.getStatus() != 200) {
+            log.info(response.toString());
+            throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
+        }
+
+        parseSetAuthenticationToken(jsonOutput);
+    }
+
+
+    private void parseSetAuthenticationToken(String jsonOutput){
+        JsonParser jsonParser = new JsonParser();
+        JsonObject tokenObj = (JsonObject) jsonParser.parse(jsonOutput);
+
+        this.authenticationToken = tokenObj.get(ApplicationConstants.KRONOS_TOKEN_LOOKUP).toString();
+        this.authenticationToken = authenticationToken.replaceAll("^\"|\"$", "");
+    }
+
+
+    private JsonObject getAuthenticationCredentials(){
+        JsonObject innerObject = new JsonObject();
+        innerObject.addProperty("username", krnwhJobSettings.getUsername());
+        innerObject.addProperty("password", krnwhJobSettings.getPassword());
+        innerObject.addProperty("company", krnwhJobSettings.getCompany());
+
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("credentials", innerObject);
+
+        return jsonObject;
     }
 
 
@@ -153,10 +165,23 @@ public class BaseKrnwhJob implements Job {
         String csvData = response.getEntity(String.class);
 
         //log.info(csvData);
+        readCsvDataSetTotal(csvData.toString());
         readCsvDataString(csvData.toString());
     }
 
+public void readCsvDataSetTotal(String csvData){
+    String line = "";
+    InputStream is = new ByteArrayInputStream(csvData.getBytes());
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+        int totalCount = 0;
+        while ((line = br.readLine()) != null) {
+            totalCount++;
+        }
+        quartzJobStats.setTotal(totalCount);
+    }catch (Exception e){
 
+    }
+}
 
 
     public void readCsvDataString(String csvData){
@@ -339,7 +364,7 @@ public class BaseKrnwhJob implements Job {
 
         KrnwhLog existingKrnwhLog = krnwhLogDao.findByDate(dateTime);
 
-        if (existingKrnwhLog == null) {
+        if (existingKrnwhLog != null) {
             this.krnwhLog = existingKrnwhLog;
         }else{
             KrnwhLog nkrnwhLog = new KrnwhLog();
@@ -347,7 +372,7 @@ public class BaseKrnwhJob implements Job {
             nkrnwhLog.setKtot(new BigDecimal(0));
             nkrnwhLog.setKadtcnt(new BigDecimal(0));
             nkrnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-            nkrnwhLog.setKdate(new BigDecimal(formattedDate));
+            nkrnwhLog.setKdate(new BigDecimal(dateTime));
             this.krnwhLog = krnwhLogDao.save(nkrnwhLog);
         }
     }

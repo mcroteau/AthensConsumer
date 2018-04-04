@@ -9,6 +9,7 @@ public class ApplicationConstants {
 
     public static final String EMPTY_AUDIT     = "{}";
 
+    public static final String KRONOS_TOKEN_LOOKUP          = "token";
     public static final String KRONOS_DAILY_REPORT          = "70184453";
     public static final String KRONOS_WEEKLY_REPORT         = "70165985";
     public static final String KRONOS_LOGIN_URI             = "https://secure4.saashr.com/ta/rest/v1/login";

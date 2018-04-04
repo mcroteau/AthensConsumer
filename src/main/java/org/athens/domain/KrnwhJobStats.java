@@ -1,14 +1,36 @@
 package org.athens.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class KrnwhJobStats {
 
     private int total;
     private int saved;
-    private int count;
+    private int processed;
     private int found;
     private int errored;
+
     private String status;
 
+    private Map<String, Integer> existsMap = new HashMap<String, Integer>();
+    private Map<String, Krnwh> auditMap = new HashMap<String, Krnwh>();
+
+
+
+    public Map<String, Krnwh> getAuditMap() {
+        return auditMap;
+    }
+
+    public Krnwh getAuditMapValue(String key) {
+        return auditMap.get(key);
+    }
+
+    public Krnwh setAuditMapValue(String key, Krnwh krnwh) {
+        auditMap.put(key, krnwh);
+    }
+
+    private Map<String, Krnwh> auditMap;
 
     public int getTotal() {
         return total;
@@ -26,12 +48,12 @@ public class KrnwhJobStats {
         this.saved = saved;
     }
 
-    public int getCount() {
-        return count;
+    public int getProcessed() {
+        return processed;
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public void setProcessed(int processed) {
+        this.processed = processed;
     }
 
     public int getFound() {
@@ -57,4 +79,5 @@ public class KrnwhJobStats {
     public void setStatus(String status) {
         this.status = status;
     }
+
 }
