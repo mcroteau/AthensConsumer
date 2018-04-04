@@ -41,29 +41,13 @@
 		<constructor-arg>
 			<bean class="org.athens.dao.impl.KrnwhLogDaoImpl"/>
 		</constructor-arg>
-		<constructor-arg ref="dailyQuartzStats"/>
+		<constructor-arg ref="dailyQuartzJobStats"/>
+		<constructor-arg ref="weeklyQuartzJobStats"/>
 	</bean>
 
-<bean id="dailyQuartzStats" class="org.athens.jobs.QuartzJobStats" scope="singleton"/>
 
-	<!--
-	<bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-		<property name="autoStartup">
-			<value>true</value>
-		</property>
-	</bean>
-	-->
+	<bean id="dailyQuartzJobStats" class="org.athens.domain.KrnwhJobStats" scope="singleton"/>
 
-	<!--
-	<bean id="schedulefactory" class="org.quartz.impl.StdSchedulerFactory"/>
-
-	<bean id="dailys" class="org.quartz.core.QuartzScheduler">
-		<property name="d">
-			<bean factory-bean="schedulefactory" factory-method="getScheduler"/>
-		</property>
-	</bean>
-	-->
-
-	<!--<bean id="emailService" class="org.randr.service.EmailService"/>-->
+	<bean id="weeklyQuartzJobStats" class="org.athens.domain.KrnwhJobStats" scope="singleton"/>
 
 </beans>

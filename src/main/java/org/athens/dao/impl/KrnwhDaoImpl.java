@@ -124,32 +124,34 @@ public class KrnwhDaoImpl implements KrnwhDao {
 **/
 		
 	public Krnwh save(Krnwh krnwh){
-/**
-		String countSql = "select max(id) + 1 from QGPL.Krnwh";
 
-		int id;
+		String sql = "SELECT * FROM FINAL TABLE " +
+				"(insert into QGPL.KRNWH ( fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus, krnlogid ) " +
+				"values " +
+				"("   + krnwh.getFpempn() + "," +
+					    krnwh.getFppunc() + "," +
+				  "'" + krnwh.getFptype() + "'," +
+				  "'" + krnwh.getFpclck() + "'," +
+						krnwh.getFpbadg() + "," +
+				  "'" + krnwh.getFpfkey() + "'," +
+						krnwh.getFppcod() + "," +
+				  "'" + krnwh.getFstatus() + "'," +
+						krnwh.getKrnlogid() + "))";
 
-		try{
-			id = jdbcTemplate.queryForObject(countSql, Integer.class, new Object[0]);
+		log.info(sql);
+		Krnwh skrnwh = new Krnwh();
+
+		try {
+			skrnwh = (Krnwh) jdbcTemplate.queryForObject(sql, new Object[]{},
+					new BeanPropertyRowMapper(Krnwh.class));
 
 		}catch(Exception e){
-			log.warn("unable to get next id krnwh");
-			id = 0;
+			e.printStackTrace();
+			log.warn("unable to save log ...");
 		}
-**/
-		String saveSql = "insert into QGPL.Krnwh " +
-				"( fpempn, fppunc, fptype, fpclck, fpbadg, fpfkey, fppcod, fstatus, krnlogid ) " +
-				"values " +
-				"(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-		jdbcTemplate.update(saveSql, new Object[] {
-				krnwh.getFpempn(), krnwh.getFppunc(), krnwh.getFptype(),
-				krnwh.getFpclck(), krnwh.getFpbadg(), krnwh.getFpfkey(),
-				krnwh.getFppcod(), krnwh.getFstatus(), krnwh.getKrnlogid()
-		});
+		return skrnwh;
 
-		//TODO:return type?
-		return krnwh;
 	}
 
 

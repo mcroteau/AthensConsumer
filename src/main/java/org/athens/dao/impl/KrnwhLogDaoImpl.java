@@ -53,30 +53,29 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
 
 
     public KrnwhLog save(KrnwhLog krnwhLog){
-        /**
 
-        int id;
-
-        try{
-            id = jdbcTemplate.queryForObject(countSql, Integer.class, new Object[0]);
-        }catch(Exception e){
-            log.warn("unable to get next id");
-            id = 0;
-        }
-         **/
-
-        String saveSql = "insert into QGPL.KRNLOG " +
-                "( kstatus, ktot, kadtcnt, kdate, kaudit ) " +
+        String sql = "SELECT * FROM FINAL TABLE " +
+                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit ) " +
                 "values " +
-                "( ?, ?, ?, ?, ?)";
+                "("   + krnwhLog.getKdate() + "," +
+                  "'" + krnwhLog.getKstatus() + "'," +
+                        krnwhLog.getKtot() + "," +
+                        krnwhLog.getKadtcnt() + "," +
+                  "'" + krnwhLog.getKaudit() + "'))";
 
-        jdbcTemplate.update(saveSql, new Object[] {
-                krnwhLog.getKstatus(), krnwhLog.getKtot(),
-                krnwhLog.getKadtcnt(), krnwhLog.getKdate(), krnwhLog.getKaudit()
-        });
 
-        //return find(new BigDecimal(id));
-        return findByDate(krnwhLog.getKdate());
+        KrnwhLog skrnwhLog = new KrnwhLog();
+
+        try {
+            skrnwhLog = (KrnwhLog) jdbcTemplate.queryForObject(sql, new Object[]{},
+                    new BeanPropertyRowMapper(KrnwhLog.class));
+
+        }catch(Exception e){
+            e.printStackTrace();
+            log.warn("unable to save log ...");
+        }
+
+        return skrnwhLog;
     }
 
 

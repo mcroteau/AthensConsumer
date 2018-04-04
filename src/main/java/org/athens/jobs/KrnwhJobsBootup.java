@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import org.athens.common.ApplicationConstants;
 import org.athens.domain.KrnwhJobSettings;
+import org.athens.domain.KrnwhJobStats;
 import org.quartz.JobDetail;
 import org.quartz.JobBuilder;
 import org.quartz.Trigger;
@@ -20,39 +21,42 @@ public class KrnwhJobsBootup {
 
     final static Logger log = Logger.getLogger(KrnwhJobsBootup.class);
 
+
     private KrnwhDaoImpl krnwhDao;
     private KrnwhLogDaoImpl krnwhLogDao;
     private KrnwhJobSettings krnwhJobSettings;
-    private QuartzJobStats quartzJobStats;
-    //private Scheduler scheduler;
+    private KrnwhJobStats dailyQuartzJobStats;
+    private KrnwhJobStats weeklyQuartzJobStats;
 
 
-    public KrnwhJobsBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings, QuartzJobStats quartzJobStats){
+
+
+    public KrnwhJobsBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings, KrnwhJobStats dailyQuartzJobStats, KrnwhJobStats weeklyQuartzJobStats){
         log.info("about to setup krnwh reports.. .");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;
         this.krnwhJobSettings = krnwhJobSettings;
-        this.quartzJobStats = quartzJobStats;
+        this.dailyQuartzJobStats = dailyQuartzJobStats;
+        this.weeklyQuartzJobStats = weeklyQuartzJobStats;
         initializeQuartzJobs();
     }
 
 
     public void initializeQuartzJobs() {
-        initializeQuartzJob(KrnwhDailyJob.class, ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_DAILY_TRIGGER, ApplicationConstants.DAILY_JOB_QUARTZ_EXPRESSION);
-        initializeQuartzJob(KrnwhWeeklyJob.class, ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.WEEKLY_JOB_QUARTZ_EXPRESSION);
+        initializeQuartzJob(KrnwhDailyJob.class, ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_DAILY_TRIGGER, ApplicationConstants.DAILY_JOB_QUARTZ_EXPRESSION, dailyQuartzJobStats);
+        initializeQuartzJob(KrnwhWeeklyJob.class, ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.WEEKLY_JOB_QUARTZ_EXPRESSION, weeklyQuartzJobStats);
     }
 
 
-    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression) {
+    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression, KrnwhJobStats quartzJobStats) {
         try {
             JobDetail job = JobBuilder.newJob(clazz)
                     .withIdentity(name, ApplicationConstants.ATHENS_GROUP).build();
 
-            job.getJobDataMap().put("krnwhDao", krnwhDao);
-            job.getJobDataMap().put("krnwhLogDao", krnwhLogDao);
-            job.getJobDataMap().put("krnwhJobSettings", krnwhJobSettings);
-            job.getJobDataMap().put("quartzJobStats", quartzJobStats);
-            job.getJobDataMap().put("jobCount", 4);
+            job.getJobDataMap().put(ApplicationConstants.KRNWH_DAO_LOOKUP, krnwhDao);
+            job.getJobDataMap().put(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP, krnwhLogDao);
+            job.getJobDataMap().put(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP, krnwhJobSettings);
+            job.getJobDataMap().put(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP, quartzJobStats);
 
             Trigger trigger = TriggerBuilder
                     .newTrigger()
@@ -75,4 +79,5 @@ public class KrnwhJobsBootup {
             e.printStackTrace();
         }
     }
+
 }

@@ -3,26 +3,20 @@ package org.athens.controllers;
 import org.apache.log4j.Logger;
 
 import org.athens.domain.Krnwh;
-import org.athens.domain.Krnwh;
-import org.athens.jobs.QuartzJobStats;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.athens.domain.KrnwhJobStats;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.athens.ApplicationRunner;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 import org.athens.dao.impl.KrnwhLogDaoImpl;
@@ -32,17 +26,13 @@ import org.quartz.JobDetail;
 
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.JobExecutionContext;
 import org.athens.domain.KrnwhLog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import java.io.FileWriter;
 import org.athens.common.ApplicationConstants;
 import org.athens.common.CsvUtils;
-
-import org.quartz.core.QuartzScheduler;
 
 
 @Controller
@@ -57,7 +47,9 @@ public class ApplicationController {
     //private Scheduler scheduler;
 
     @Autowired
-    private QuartzJobStats quartzJobStats;
+    private KrnwhJobStats dailyQuartzJobStats;
+    @Autowired
+    private KrnwhJobStats weeklyQuartzJobStats;
 
 
 
@@ -103,17 +95,7 @@ public class ApplicationController {
             //int count = logDao.count();
             int count = 304;
 
-            try {
-                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-                JobKey jobKey = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_GROUP);
-                JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-                log.info(jobDetail);
-                int h = jobDetail.getJobDataMap().getInt("jobCount");
-                model.addAttribute("jobCount", quartzJobStats.getCount());
-                log.info("get job details" + h);
-            }catch (Exception e){
 
-            }
             model.addAttribute("krnwhLogs", krnwhLogs);
             model.addAttribute("total", count);
 
@@ -122,6 +104,9 @@ public class ApplicationController {
 
             model.addAttribute("resultsPerPage", 10);
             model.addAttribute("activePage", page);
+
+            model.addAttribute("dailyJobCount", dailyQuartzJobStats.getCount());
+            model.addAttribute("weeklyJobCount", weeklyQuartzJobStats.getCount());
 
             model.addAttribute("krnwhLogsLinkActive", "active");
 

@@ -269,13 +269,6 @@ public class ApplicationRunner {
 	}
 
 	public void processPersistence(Krnwh krnwh){
-		if(krnwh.getFppunc() != null) {
-			Krnwh skrnwh = dao.save(krnwh);
-			if (skrnwh == null) {
-				log.warn("error saving" + krnwh.getFppunc());
-				//errorCount++;
-			}
-		}
 	}
 
 }

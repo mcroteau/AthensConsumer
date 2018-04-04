@@ -12,7 +12,8 @@
 	</div>
 
 
-<span>count: ${jobCount}</span>
+<span>daily: ${dailyJobCount}</span>
+<span>weekly: ${weeklyJobCount}</span>
 
 	<c:if test="${not empty message}">
 		<div class="span12">
