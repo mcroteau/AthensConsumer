@@ -26,13 +26,15 @@ public class KrnwhJobBootup {
     private KrnwhDaoImpl krnwhDao;
     private KrnwhLogDaoImpl krnwhLogDao;
     private KrnwhJobSettings krnwhJobSettings;
+    private Scheduler scheduler;
 
 
-    public KrnwhJobBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings){
+    public KrnwhJobBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings, Scheduler scheduler){
         log.info("about to setup krnwh reports.. .");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;
         this.krnwhJobSettings = krnwhJobSettings;
+        this.scheduler = scheduler;
         initializeQuartzJobs();
     }
 
@@ -59,7 +61,7 @@ public class KrnwhJobBootup {
                             CronScheduleBuilder.cronSchedule(expression))
                     .build();
 
-            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+            //Scheduler scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
             scheduler.scheduleJob(job, trigger);
 

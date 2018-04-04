@@ -41,6 +41,8 @@ import java.io.FileWriter;
 import org.athens.common.ApplicationConstants;
 import org.athens.common.CsvUtils;
 
+import org.quartz.core.QuartzScheduler;
+
 
 @Controller
 public class ApplicationController {
@@ -50,47 +52,18 @@ public class ApplicationController {
 
     @Autowired
     private KrnwhLogDaoImpl logDao;
+    @Autowired
+    private Scheduler scheduler;
+
+
 
 	final static Logger log = Logger.getLogger(ApplicationController.class);
 
-    boolean running = false;
 
     @RequestMapping(value="/", method= RequestMethod.GET)
     public String list(final RedirectAttributes redirect){
         return "redirect:list";
     }
-
-
-    @RequestMapping(value="/run_daily", method= RequestMethod.POST)
-    public String run_daily(final RedirectAttributes redirect){
-        String message = runJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB);
-        redirect.addFlashAttribute("message", message);
-        return "redirect:list";
-    }
-
-
-    @RequestMapping(value="/run_weekly", method= RequestMethod.POST)
-    public String run_weekly(final RedirectAttributes redirect){
-        String message = runJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB);
-        redirect.addFlashAttribute("message", message);
-        return "redirect:list";
-    }
-
-    private String runJob(String job){
-        String message = "Successfully ran report...";
-        try {
-            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-            JobKey jobKey = new JobKey(job, ApplicationConstants.ATHENS_GROUP);
-            scheduler.triggerJob(jobKey);
-        }catch (Exception e){
-            message = "Something went wrong";
-            log.warn("unable to get connection");
-            e.printStackTrace();
-        }
-        return message;
-    }
-
-
 
 
     @RequestMapping(value="/list", method=RequestMethod.GET)
@@ -127,7 +100,7 @@ public class ApplicationController {
             int count = 304;
 
             try {
-                Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+                //Scheduler scheduler = new StdSchedulerFactory().getScheduler();
                 JobKey jobKey = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_GROUP);
                 JobDetail jobDetail = scheduler.getJobDetail(jobKey);
                 log.info(jobDetail);
@@ -311,6 +284,37 @@ public class ApplicationController {
 
         response.getWriter().print(writer.toString());
     }
+
+
+    @RequestMapping(value="/run_daily", method= RequestMethod.POST)
+    public String runDaily(final RedirectAttributes redirect){
+        String message = runJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB);
+        redirect.addFlashAttribute("message", message);
+        return "redirect:list";
+    }
+
+
+    @RequestMapping(value="/run_weekly", method= RequestMethod.POST)
+    public String runWeekly(final RedirectAttributes redirect){
+        String message = runJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB);
+        redirect.addFlashAttribute("message", message);
+        return "redirect:list";
+    }
+
+    private String runJob(String job){
+        String message = "Successfully ran report...";
+        try {
+            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+            JobKey jobKey = new JobKey(job, ApplicationConstants.ATHENS_GROUP);
+            scheduler.triggerJob(jobKey);
+        }catch (Exception e){
+            message = "Something went wrong";
+            log.warn("unable to get connection");
+            e.printStackTrace();
+        }
+        return message;
+    }
+
 
 
     public List<Krnwh> generateMockKrnwhs(int max, int offset){

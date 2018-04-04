@@ -49,6 +49,7 @@ public class BaseKrnwhJob implements Job {
     private KrnwhDaoImpl krnwhDao;
     private KrnwhLogDaoImpl krnwhLogDao;
     private KrnwhJobSettings krnwhJobSettings;
+    //private Scheduler scheduler;
 
     private Map<String, Integer> foundMap = new HashMap<String, Integer>();
 
@@ -70,10 +71,12 @@ public class BaseKrnwhJob implements Job {
 
             log.info(this.jobKey.getName());
 
-            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-            JobDetail details = scheduler.getJobDetail(this.jobKey);
-            log.info("put" + details);
-            details.getJobDataMap().put("jobCount", 190);
+            //Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+
+            //JobKey jbk = new JobKey(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB,ApplicationConstants.ATHENS_GROUP);
+            //JobDetail details = dailys.getJobDetail(jbk);
+            log.info("put" + jobDetail);
+            jobDetail.getJobDataMap().putAsString("jobCount", 189);
 
             /**
              DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
