@@ -13,6 +13,7 @@ public class KrnwhLog {
 	private BigDecimal kadtcnt;
 	private String kaudit;
 	private BigDecimal kdate;
+	private BigDecimal kproc;
 	
 	
 	
@@ -68,15 +69,25 @@ public class KrnwhLog {
 	public BigDecimal getKdate(){
 		return this.kdate;
 	}
-	
-	
+
+
+	public BigDecimal getKproc() {
+		return kproc;
+	}
+
+	public void setKproc(BigDecimal kproc) {
+		this.kproc = kproc;
+	}
+
+
 	public String toString(){
 		return  "\nid: " + this.getId() +
 				" kstatus: " + this.getKstatus() +
 				" ktot: " + this.getKtot() +
 				" kadtcnt: " + this.getKadtcnt() +
 				" kaudit: " + this.getKaudit() +
-				" kdate: " + this.getKdate() + "\n";
+				" kdate: " + this.getKdate() +
+				" kproc: " + this.getKproc() + "/n";
 	}
 
 	//krnwhLog.getId(), krnwhLog.getKstatus(), krnwhLog.getKtot(),

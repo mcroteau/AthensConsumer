@@ -70,31 +70,25 @@ public class BaseKrnwhJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try {
+            /**
+             for(int n = 0; n < 932; n++) {
+             quartzJobStats.setCount(n);
+             TimeUnit.SECONDS.sleep(7);
+             }**/
+
+            log.info(this.jobKey.getName() + ", log:"+ krnwhLog.getId());
+
             setLocalDefined(context);
             resetQuartzJobStats();
             getSetKrnwhQuartzJobLog();
-
             performKronosAuthentication();
-
-            log.info(this.jobKey.getName());
-            /**
-            for(int n = 0; n < 932; n++) {
-                quartzJobStats.setCount(n);
-                TimeUnit.SECONDS.sleep(7);
-            }
-             **/
-
-
-
-             log.info("savedKrnwhLog : " + krnwhLog.getId());
-
-             log.info("apiKey: " + krnwhJobSettings.getApiKey());
-
-
-             processReportDataFromRequest();
-
+            performKronosReportRequestProcess();
 
         } catch (Exception e) {
+            if(krnwhLog != null){
+                krnwhLog.getKstatus(ApplicationConstants.ERROR_STATUS);
+                krnwhLogDao.save(krnwhLog);
+            }
             log.info("something went wrong setting up quartz job");
             e.printStackTrace();
         }
@@ -148,52 +142,51 @@ public class BaseKrnwhJob implements Job {
     }
 
 
-    public void processReportDataFromRequest(){
-        System.out.println("running report using jersey ...");
-
-        String url = ApplicationConstants.KRONOS_BASE_REPORT_URI + this.report;
+    public void performKronosReportRequestProcess(){
+        String uri = ApplicationConstants.KRONOS_BASE_REPORT_URI + this.report;
 
         DefaultClientConfig client = new DefaultClientConfig();
         WebResource resource = Client.create(client)
-                .resource(url);
+                .resource(uri);
 
         WebResource.Builder builder = resource.accept("text/csv");
-        log.info("setting bearer token " + token);
-        builder.header("Authentication", "Bearer " + token);
+        log.info("setting bearer token " + this.authenticationToken);
+        builder.header("Authentication", "Bearer " + this.authenticationToken);
 
         ClientResponse response  = builder.get(ClientResponse.class);
         String csvData = response.getEntity(String.class);
 
-        //log.info(csvData);
         readCsvDataSetTotal(csvData.toString());
         readCsvDataString(csvData.toString());
     }
 
-public void readCsvDataSetTotal(String csvData){
-    String line = "";
-    InputStream is = new ByteArrayInputStream(csvData.getBytes());
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-        int totalCount = 0;
-        while ((line = br.readLine()) != null) {
-            totalCount++;
-        }
-        quartzJobStats.setTotal(totalCount);
-    }catch (Exception e){
 
+    public void readCsvDataSetTotal(String csvData){
+        String line = "";
+        InputStream is = new ByteArrayInputStream(csvData.getBytes());
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            totalCount = 0;
+            while ((line = br.readLine()) != null) {
+                totalCount++;
+            }
+            quartzJobStats.setTotal(totalCount);
+            krnwhLog.setKtot(totalCount);
+            krnwhLogDao.update(krnwhLog);
+        }catch (Exception e){
+            log.warn("issue setting");
+        }
     }
-}
 
 
     public void readCsvDataString(String csvData){
         String line = "";
 
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
-
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             while ((line = br.readLine()) != null) {
 
-                if(totalCount != 0) {
+                if(totalProcessed != 0) {
 
                     String[] punchData = line.split(",");
 
@@ -256,12 +249,12 @@ public void readCsvDataSetTotal(String csvData){
                             String key = krnwh.getFppunc().toString() + krnwh.getFpbadg().toString() + krnwh.getFpempn().toString();
 
                             int value = 0;
-                            if(foundMap.containsKey(key)){
-                                value =foundMap.get(key);
+                            if(quartzJobStats.getExistsMap().containsKey(key)){
+                                value = quartzJobStats.getExistsMap().get(key);
                             }
 
                             value++;
-                            foundMap.put(key, value);
+                            quartzJobStats.setExistsMapValue(key, value);
                         }
                     }else if(krnwh.getFpbadg().compareTo(new BigDecimal(0)) != 0 &&
                             krnwh.getFpempn().compareTo(new BigDecimal(0)) == 0){
@@ -271,11 +264,11 @@ public void readCsvDataSetTotal(String csvData){
                         if(existingKrnwh != null){
                             String key = krnwh.getFppunc().toString() + krnwh.getFpbadg().toString();
                             int value = 0;
-                            if(foundMap.containsKey(key)){
-                                value =foundMap.get(key);
+                            if(quartzJobStats.getExistsMap().containsKey(key)){
+                                value = quartzJobStats.getExistsMap().get(key);
                             }
                             value++;
-                            foundMap.put(key, value);
+                            quartzJobStats.setExistsMapValue(key, value);
                         }
 
                     }else if(krnwh.getFpempn().compareTo(new BigDecimal(0)) != 0 &&
@@ -286,50 +279,53 @@ public void readCsvDataSetTotal(String csvData){
                         if(existingKrnwh != null){
                             String key = krnwh.getFppunc().toString() + krnwh.getFpempn().toString();
                             int value = 0;
-                            if(foundMap.containsKey(key)){
-                                value =foundMap.get(key);
+                            if(quartzJobStats.getExistsMap().containsKey(key)){
+                                value = quartzJobStats.getExistsMap().get(key);
                             }
                             value++;
-                            foundMap.put(key, value);
+                            quartzJobStats.setExistsMapValue(key, value);
                         }
 
                     }
 
 
-                    if (totalCount == 3) krnwh.setFstatus("aa");
+                    //if (totalProcessed == 3) krnwh.setFstatus("aa");
 
                     //log.info(krnwh.toString());
 
                     try {
 
                         if(existingKrnwh == null) {
-                            Krnwh skrnwh=krnwhDao.save(krnwh);
-                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", count: " + totalCount);
+                            Krnwh skrnwh = krnwhDao.save(krnwh);
+                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                             quartzJobStats.setSaved(totalSaved);
                         }else{
                             totalFound++;
-                            log.info(this.jobKey.getName() + ": found: " + totalFound +  ", count: " + totalCount);
-                            quartzJobStats.setFound(found);
+                            log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
+                            quartzJobStats.setFound(totalFound);
                         }
 
-                        if(totalCount %50==0){
+                        if(totalProcessed %50==0){
                             Gson g =  new GsonBuilder().setPrettyPrinting().create();
-                            String js = g.toJson(foundMap);
+                            String js = g.toJson(quartzJobStats.getExistsMap());
                             System.out.println(js);
                         }
 
 
                     } catch (Exception e) {
-                        totalError;
+                        totalError++;
                         log.warn("error");
                         e.printStackTrace();
                     }
 
                 }
 
-                totalCount++;
+                totalProcessed++;
+                quartzJobStats.setProcessed(totalProcessed);
 
-                quartzJobStats.setCount(count);
+                krnwhLog.setKadtcnt(new BigDecimal(totalError));
+                krnwhLog.setKproc(new BigDecimal(totalProcessed));
+                krnwhLogDao.update(krnwhLog);
             }
 
         } catch (Exception e) {
@@ -337,15 +333,16 @@ public void readCsvDataSetTotal(String csvData){
             e.printStackTrace();
         }
 
-        log.info("count: " + count);
+        log.info("processed: "   + totalProcessed);
         log.info("error count: " + totalError);
-        log.info("totalSaved: " + totalSaved);
-        log.info("found : " + found);
+        log.info("totalSaved: "  + totalSaved);
+        log.info("found: "       + totalFound);
 
         Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
-        String jsonStr = gsonObj.toJson(foundMap);
+        String jsonStr = gsonObj.toJson(quartzJobStats.getExistsMap());
         System.out.println(jsonStr);
 
+        krnwhLog.setKproc(new BigDecimal(totalProcessed));
         krnwhLog.setKtot(new BigDecimal(totalSaved));
         krnwhLog.setKadtcnt(new BigDecimal(totalError));
         krnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
@@ -353,10 +350,6 @@ public void readCsvDataSetTotal(String csvData){
 
     }
 
-
-
-    public void processPersistence(Krnwh krnwh){
-    }
 
     public void getSetKrnwhQuartzJobLog(){
         BigDecimal dateTime = getLogDateTimeFormatted();
@@ -390,9 +383,9 @@ public void readCsvDataSetTotal(String csvData){
     public void resetQuartzJobStats(){
         this.quartzJobStats.setTotal(0);
         this.quartzJobStats.setSaved(0);
-        this.quartzJobStats.setCount(0);
         this.quartzJobStats.setFound(0);
         this.quartzJobStats.setErrored(0);
+        this.quartzJobStats.setProcessed(0);
     }
 
 

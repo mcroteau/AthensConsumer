@@ -55,13 +55,14 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
     public KrnwhLog save(KrnwhLog krnwhLog){
 
         String sql = "SELECT * FROM FINAL TABLE " +
-                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit ) " +
+                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, kproc ) " +
                 "values " +
                 "("   + krnwhLog.getKdate() + "," +
                   "'" + krnwhLog.getKstatus() + "'," +
                         krnwhLog.getKtot() + "," +
                         krnwhLog.getKadtcnt() + "," +
-                  "'" + krnwhLog.getKaudit() + "'))";
+                  "'" + krnwhLog.getKaudit() + "'," +
+                        krnwhLog.getKproc() + "))";
 
 
         KrnwhLog skrnwhLog = new KrnwhLog();
@@ -82,11 +83,11 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
 
     public KrnwhLog update(KrnwhLog krnwhLog){
 
-        String updateSql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kdate, kaudit ) = (?, ?, ?, ?, ?)  where id = ?";
+        String updateSql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kdate, kaudit, kproc ) = (?, ?, ?, ?, ?, ?)  where id = ?";
 
         jdbcTemplate.update(updateSql, new Object[] {
                 krnwhLog.getKstatus(), krnwhLog.getKtot(), krnwhLog.getKadtcnt(),
-                krnwhLog.getKdate(), krnwhLog.getKaudit(), krnwhLog.getId()
+                krnwhLog.getKdate(), krnwhLog.getKaudit(), krnwhLog.getKproc(), krnwhLog.getId()
         });
 
         return find(krnwhLog.getId());

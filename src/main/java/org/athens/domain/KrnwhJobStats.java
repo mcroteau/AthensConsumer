@@ -7,30 +7,15 @@ public class KrnwhJobStats {
 
     private int total;
     private int saved;
-    private int processed;
     private int found;
     private int errored;
+    private int processed;
 
     private String status;
 
     private Map<String, Integer> existsMap = new HashMap<String, Integer>();
     private Map<String, Krnwh> auditMap = new HashMap<String, Krnwh>();
 
-
-
-    public Map<String, Krnwh> getAuditMap() {
-        return auditMap;
-    }
-
-    public Krnwh getAuditMapValue(String key) {
-        return auditMap.get(key);
-    }
-
-    public Krnwh setAuditMapValue(String key, Krnwh krnwh) {
-        auditMap.put(key, krnwh);
-    }
-
-    private Map<String, Krnwh> auditMap;
 
     public int getTotal() {
         return total;
@@ -46,14 +31,6 @@ public class KrnwhJobStats {
 
     public void setSaved(int saved) {
         this.saved = saved;
-    }
-
-    public int getProcessed() {
-        return processed;
-    }
-
-    public void setProcessed(int processed) {
-        this.processed = processed;
     }
 
     public int getFound() {
@@ -79,5 +56,41 @@ public class KrnwhJobStats {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public int getProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(int processed) {
+        this.processed = processed;
+    }
+
+
+
+    public Map<String, Integer> getExistsMap() {
+        return existsMap;
+    }
+
+    public int getExistsMapValue(String key) {
+        return existsMap.get(key);
+    }
+
+    public void setExistsMapValue(String key, int occurrences) {
+        existsMap.put(key, occurrences);
+    }
+
+
+    public Map<String, Krnwh> getAuditMap() {
+        return auditMap;
+    }
+
+    public Krnwh getAuditMapValue(String key) {
+        return auditMap.get(key);
+    }
+
+    public void setAuditMapValue(String key, Krnwh krnwh) {
+        auditMap.put(key, krnwh);
+    }
+
 
 }
