@@ -1,22 +1,15 @@
 package org.athens.dao.impl;
 
 import org.apache.log4j.Logger;
+import org.athens.domain.QuartzIngestLog;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.athens.domain.KrnwhLog;
 import org.athens.dao.KrnwhLogDao;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-/**
-viewing ingest/saved
-comparison logic
-authorization
-style guide
- **/
 
 
 public class KrnwhLogDaoImpl implements KrnwhLogDao  {
@@ -25,6 +18,7 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+
 
     public int count() {
         String sql = "select count(*) from KRNLOG";
@@ -36,40 +30,25 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
         }
         return count;
     }
-	
-    public List<KrnwhLog> list(int max, int offset){
-        try{
 
-            String sql = "select * from QGPL.KRNLOG limit " + max + " offset " + offset;
-            List<KrnwhLog> krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KrnwhLog>(KrnwhLog.class));
-
-            return krnwLogs;
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-		return null;
-    }
-
-
-    public KrnwhLog save(KrnwhLog krnwhLog){
+    public QuartzIngestLog save(QuartzIngestLog ingestLog){
 
         String sql = "SELECT * FROM FINAL TABLE " +
                 "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, kproc ) " +
                 "values " +
-                "("   + krnwhLog.getKdate() + "," +
-                  "'" + krnwhLog.getKstatus() + "'," +
-                        krnwhLog.getKtot() + "," +
-                        krnwhLog.getKadtcnt() + "," +
-                  "'" + krnwhLog.getKaudit() + "'," +
-                        krnwhLog.getKproc() + "))";
+                "("   + ingestLog.getKdate() + "," +
+                  "'" + ingestLog.getKstatus() + "'," +
+                        ingestLog.getKtot() + "," +
+                        ingestLog.getKadtcnt() + "," +
+                  "'" + ingestLog.getKaudit() + "'," +
+                        ingestLog.getKproc() + "))";
 
 
-        KrnwhLog skrnwhLog = new KrnwhLog();
+        QuartzIngestLog skrnwhLog = new QuartzIngestLog();
 
         try {
-            skrnwhLog = (KrnwhLog) jdbcTemplate.queryForObject(sql, new Object[]{},
-                    new BeanPropertyRowMapper(KrnwhLog.class));
+            skrnwhLog = (QuartzIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
+                    new BeanPropertyRowMapper(QuartzIngestLog.class));
 
         }catch(Exception e){
             e.printStackTrace();
@@ -81,52 +60,67 @@ public class KrnwhLogDaoImpl implements KrnwhLogDao  {
 
 
 
-    public KrnwhLog update(KrnwhLog krnwhLog){
+    public QuartzIngestLog update(QuartzIngestLog ingestLog){
 
         String updateSql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kdate, kaudit, kproc ) = (?, ?, ?, ?, ?, ?)  where id = ?";
 
         jdbcTemplate.update(updateSql, new Object[] {
-                krnwhLog.getKstatus(), krnwhLog.getKtot(), krnwhLog.getKadtcnt(),
-                krnwhLog.getKdate(), krnwhLog.getKaudit(), krnwhLog.getKproc(), krnwhLog.getId()
+                ingestLog.getKstatus(), ingestLog.getKtot(), ingestLog.getKadtcnt(),
+                ingestLog.getKdate(), ingestLog.getKaudit(), ingestLog.getKproc(), ingestLog.getId()
         });
 
-        return find(krnwhLog.getId());
+        return find(ingestLog.getId());
 
     }
 
 
+    public List<QuartzIngestLog> list(int max, int offset){
+        try{
 
-    public KrnwhLog find(BigDecimal id){
+            String sql = "select * from QGPL.KRNLOG limit " + max + " offset " + offset;
+            List<QuartzIngestLog> krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<QuartzIngestLog>(QuartzIngestLog.class));
+
+            return krnwLogs;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
+    public QuartzIngestLog find(BigDecimal id){
         String findSql = "select * from QGPL.KRNLOG where id = " + id;
 
-        KrnwhLog krnwhLog = new KrnwhLog();
+        QuartzIngestLog ingestLog = new QuartzIngestLog();
 
         try {
-            krnwhLog = (KrnwhLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
-                    new BeanPropertyRowMapper(KrnwhLog.class));
+            ingestLog = (QuartzIngestLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
+                    new BeanPropertyRowMapper(QuartzIngestLog.class));
 
         }catch(Exception e){
             log.warn("unable to find by id...");
         }
 
-        return krnwhLog;
+        return ingestLog;
     }
 
 
 
-    public KrnwhLog findByDate(BigDecimal date){
+    public QuartzIngestLog findByDate(BigDecimal date){
         String findSql = "select * from QGPL.KRNLOG where kdate = " + date + " limit 1";
 
-        KrnwhLog krnwhLog = null;
+        QuartzIngestLog ingestLog = null;
 
         try {
-            krnwhLog = (KrnwhLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
-                    new BeanPropertyRowMapper(KrnwhLog.class));
+            ingestLog = (QuartzIngestLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
+                    new BeanPropertyRowMapper(QuartzIngestLog.class));
 
         }catch(Exception e){
             log.warn("unable to find log by date...");
         }
-        return krnwhLog;
+        return ingestLog;
     }
 
 }

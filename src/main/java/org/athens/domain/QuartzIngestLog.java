@@ -3,9 +3,9 @@ package org.athens.domain;
 import java.math.BigDecimal;
 
 
-public class KrnwhLog {
+public class QuartzIngestLog {
 	
-	public KrnwhLog(){}
+	public QuartzIngestLog(){}
 		
 	private BigDecimal id;
 	private String kstatus;

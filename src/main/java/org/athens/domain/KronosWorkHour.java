@@ -2,9 +2,9 @@ package org.athens.domain;
 
 import java.math.BigDecimal;
 
-public class Krnwh {
+public class KronosWorkHour {
 
-	public Krnwh(){}
+	public KronosWorkHour(){}
 
 	private BigDecimal id;
 	private BigDecimal fpempn;

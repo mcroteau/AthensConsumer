@@ -7,9 +7,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import org.athens.domain.Krnwh;
-import org.athens.domain.Krnwh;
-import org.athens.domain.KrnwhLog;
+import org.athens.domain.QuartzIngestLog;
+import org.athens.domain.KronosWorkHour;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -70,33 +69,33 @@ public class ApplicationRunner {
 		String formattedDate = dateFormat.format(date);
 		log.info(formattedDate.toString());
 
-		KrnwhLog todaysKrnwhLog = logDao.findByDate(new BigDecimal(formattedDate));
+		QuartzIngestLog todaysIngestLog = logDao.findByDate(new BigDecimal(formattedDate));
 
-		if(todaysKrnwhLog != null){
-			todaysKrnwhLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
-			todaysKrnwhLog.setKtot(new BigDecimal(124));
-			todaysKrnwhLog.setKaudit("g");
-			todaysKrnwhLog.setKadtcnt(new BigDecimal(3));
-			todaysKrnwhLog.setKdate(new BigDecimal(20180323));
-			logDao.update(todaysKrnwhLog);
+		if(todaysIngestLog != null){
+			todaysIngestLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+			todaysIngestLog.setKtot(new BigDecimal(124));
+			todaysIngestLog.setKaudit("g");
+			todaysIngestLog.setKadtcnt(new BigDecimal(3));
+			todaysIngestLog.setKdate(new BigDecimal(20180323));
+			logDao.update(todaysIngestLog);
 		}
 
-		KrnwhLog krnwhLog = new KrnwhLog();
-		krnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
-		krnwhLog.setKtot(new BigDecimal(0));
-		krnwhLog.setKadtcnt(new BigDecimal(0));
-		krnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-		krnwhLog.setKdate(new BigDecimal(formattedDate));
-		KrnwhLog savedKrnwhLog = logDao.save(krnwhLog);
+		QuartzIngestLog ingestLog = new QuartzIngestLog();
+		ingestLog.setKstatus(ApplicationConstants.STARTED_STATUS);
+		ingestLog.setKtot(new BigDecimal(0));
+		ingestLog.setKadtcnt(new BigDecimal(0));
+		ingestLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+		ingestLog.setKdate(new BigDecimal(formattedDate));
+		QuartzIngestLog savedIngestLog = logDao.save(ingestLog);
 
-		log.info("savedKrnwhLog : " + savedKrnwhLog.getId());
+		log.info("savedIngestLog : " + savedIngestLog.getId());
 
 		
-		List<KrnwhLog> krnwhLogs = logDao.list(10, 0);
+		List<QuartzIngestLog> ingestLogs = logDao.list(10, 0);
 		
-		log.info("krnwhLogs : " + krnwhLogs.size());
+		log.info("ingestLogs : " + ingestLogs.size());
 		
-		for (KrnwhLog klog : krnwhLogs) {
+		for (QuartzIngestLog klog : ingestLogs) {
 			log.info(klog);
 		}
 
@@ -223,23 +222,23 @@ public class ApplicationRunner {
 					BigDecimal empId = new BigDecimal(empIdS);
 					BigDecimal punch = new BigDecimal(date2);
 
-					//krnwh.getFpempn(), krnwh.setFppunc(), krnwh.setFptype(),
-					//krnwh.getFpclck(), krnwh.setFpbadg(), krnwh.setFpfkey(),
-					//krnwh.getFppcod(), krnwh.setFstatus()
+					//kronosWorkHour.getFpempn(), kronosWorkHour.setFppunc(), kronosWorkHour.setFptype(),
+					//kronosWorkHour.getFpclck(), kronosWorkHour.setFpbadg(), kronosWorkHour.setFpfkey(),
+					//kronosWorkHour.getFppcod(), kronosWorkHour.setFstatus()
 
-					Krnwh krnwh = new Krnwh();
-					krnwh.setFpempn(empId);
-					krnwh.setFppunc(punch);
-					krnwh.setFptype(type);
-					krnwh.setFpclck(clockS);
-					krnwh.setFpbadg(badgeId);
-					krnwh.setFpfkey("843");//*
-					krnwh.setFppcod(new BigDecimal(0));//*
-					krnwh.setFstatus("m");
+					KronosWorkHour kronosWorkHour = new KronosWorkHour();
+					kronosWorkHour.setFpempn(empId);
+					kronosWorkHour.setFppunc(punch);
+					kronosWorkHour.setFptype(type);
+					kronosWorkHour.setFpclck(clockS);
+					kronosWorkHour.setFpbadg(badgeId);
+					kronosWorkHour.setFpfkey("843");//*
+					kronosWorkHour.setFppcod(new BigDecimal(0));//*
+					kronosWorkHour.setFstatus("m");
 
-					if (count == 3) krnwh.setFstatus("aa");
+					if (count == 3) kronosWorkHour.setFstatus("aa");
 
-					log.info(krnwh.toString());
+					log.info(kronosWorkHour.toString());
 
 					try {
 
@@ -247,7 +246,7 @@ public class ApplicationRunner {
 							
 							break;
 						}
-						processPersistence(krnwh);
+						processPersistence(kronosWorkHour);
 
 					} catch (Exception e) {
 						errorCount++;
@@ -268,7 +267,7 @@ public class ApplicationRunner {
 		log.info("error count: " + errorCount);
 	}
 
-	public void processPersistence(Krnwh krnwh){
+	public void processPersistence(KronosWorkHour kronosWorkHour){
 	}
 
 }

@@ -1,7 +1,6 @@
 package org.athens.dao;
 
-import org.athens.domain.Krnwh;
-import org.athens.domain.Krnwh;
+import org.athens.domain.KronosWorkHour;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,16 +10,18 @@ public interface KrnwhDao {
 
 	public int count();
 
-	public Krnwh find();
-	
-	public List<Krnwh> list(int max, int offset);
-	
-	public Krnwh save(Krnwh krnwh);
+	public KronosWorkHour save(KronosWorkHour kronosWorkHour);
 
-	public Krnwh findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn);
+	public List<KronosWorkHour> list(int max, int offset);
 
-	public Krnwh findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg);
+	public List<KronosWorkHour> findByDate(BigDecimal startDate, BigDecimal endDate);
 
-	public Krnwh findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn);
+	public List<KronosWorkHour> findByIngest(int max, int offset, BigDecimal ingest);
+
+	public KronosWorkHour findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg);
+
+	public KronosWorkHour findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn);
+
+	public KronosWorkHour findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn);
 	
 }

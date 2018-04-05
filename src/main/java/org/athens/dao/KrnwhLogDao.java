@@ -1,7 +1,6 @@
 package org.athens.dao;
 
-import org.athens.domain.Krnwh;
-import org.athens.domain.KrnwhLog;
+import org.athens.domain.QuartzIngestLog;
 
 import java.util.List;
 import java.math.BigDecimal;
@@ -11,15 +10,15 @@ public interface KrnwhLogDao {
 
 	public int count();
 
-	public List<KrnwhLog> list(int max, int offset);
+	public List<QuartzIngestLog> list(int max, int offset);
 	
-	public KrnwhLog save(KrnwhLog krnwhLog);
+	public QuartzIngestLog save(QuartzIngestLog ingestLog);
 	
-	public KrnwhLog update(KrnwhLog krnwhLog);
+	public QuartzIngestLog update(QuartzIngestLog ingestLog);
 
-	public KrnwhLog find(BigDecimal id);
+	public QuartzIngestLog find(BigDecimal id);
 
-	public KrnwhLog findByDate(BigDecimal date);
+	public QuartzIngestLog findByDate(BigDecimal date);
 
 }
 

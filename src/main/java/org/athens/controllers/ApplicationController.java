@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 
-import org.athens.domain.Krnwh;
+import org.athens.domain.QuartzIngestLog;
+import org.athens.domain.KronosWorkHour;
 import org.athens.domain.KrnwhJobStats;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,11 +26,9 @@ import java.math.BigDecimal;
 import org.athens.dao.impl.KrnwhLogDaoImpl;
 import org.athens.dao.impl.KrnwhDaoImpl;
 import org.quartz.JobKey;
-import org.quartz.JobDetail;
 
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
-import org.athens.domain.KrnwhLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +41,9 @@ import org.athens.common.CsvUtils;
 
 @Controller
 public class ApplicationController {
+
+    final static Logger log = Logger.getLogger(ApplicationController.class);
+
 
     @Autowired
     private KrnwhDaoImpl dao;
@@ -55,29 +58,41 @@ public class ApplicationController {
     private KrnwhJobStats weeklyQuartzJobStats;
 
 
-	final static Logger log = Logger.getLogger(ApplicationController.class);
-
-
-    @RequestMapping(value="/", method= RequestMethod.GET)
+    @RequestMapping(value="/", method=RequestMethod.GET)
     public String list(final RedirectAttributes redirect){
         return "redirect:list";
     }
 
 
-    @RequestMapping(value="/status", method= RequestMethod.GET)
-    public String status(final RedirectAttributes redirect){
+    @RequestMapping(value="/status", method=RequestMethod.GET, produces="application/json")
+    public @ResponseBody String status(HttpServletRequest request){
 
         Map<String, KrnwhJobStats> runningJobsMap = new HashMap<String, KrnwhJobStats>();
-        if(dailyQuartzJobStats.getStatus() != null && dailyQuartzJobStats.getStatus().equals(ApplicationConstants.RUNNING_STATUS)){
+
+        if(dailyQuartzJobStats.getStatus() == null && weeklyQuartzJobStats.getStatus() == null){
+            KrnwhJobStats emptyStats = new KrnwhJobStats();
+            emptyStats.setStatus("idle");
+            runningJobsMap.put("status", emptyStats);
+        }
+
+        if(dailyQuartzJobStats.getStatus() != null){
             runningJobsMap.put("dailyJobRunning", dailyQuartzJobStats);
         }
-        if(weeklyQuartzJobStats.getStatus() != null && weeklyQuartzJobStats.getStatus().equals(ApplicationConstants.RUNNING_STATUS)){
+        if(weeklyQuartzJobStats.getStatus() != null){
             runningJobsMap.put("weeklyJobRunning", weeklyQuartzJobStats);
         }
+
+        Gson gs1 =  new GsonBuilder().setPrettyPrinting().create();
+        String js1 = gs1.toJson(dailyQuartzJobStats);
+        //log.info("js1" + js1);
+        Gson gs2 =  new GsonBuilder().setPrettyPrinting().create();
+        String js2 = gs2.toJson(weeklyQuartzJobStats);
+        //log.info("js2" + js2);
 
         Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
         String jsonStr = gsonObj.toJson(runningJobsMap);
 
+        //log.info("jsonStr" + jsonStr);
         return jsonStr;
     }
 
@@ -97,7 +112,7 @@ public class ApplicationController {
             page = "1";
         }
 
-        List<KrnwhLog> krnwhLogs;
+        List<QuartzIngestLog> ingestLogs;
 
         if(offset != null) {
             int m = 10;
@@ -105,18 +120,18 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //krnwhLogs = logDao.list(m, o);
-            krnwhLogs = generateMockKrnwhLogs(m, o);
+            //ingestLogs = logDao.list(m, o);
+            ingestLogs = generateMockKrnwhLogs(m, o);
         }else{
-            //krnwhLogs = logDao.list(10, 0);
-            krnwhLogs = generateMockKrnwhLogs(10, 0);
+            //ingestLogs = logDao.list(10, 0);
+            ingestLogs = generateMockKrnwhLogs(10, 0);
         }
 
         //int count = logDao.count();
         int count = 304;
 
 
-        model.addAttribute("krnwhLogs", krnwhLogs);
+        model.addAttribute("ingestLogs", ingestLogs);
         model.addAttribute("total", count);
 
         model.addAttribute("sort", sort);
@@ -150,7 +165,7 @@ public class ApplicationController {
             page = "1";
         }
 
-        List<Krnwh> krnwhs;
+        List<KronosWorkHour> kronosWorkHours;
 
         if(offset != null) {
             int m = 10;
@@ -158,11 +173,11 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //krnwhs = dao.list(m, o);
-            krnwhs = generateMockKrnwhs(m, o);
+            //kronosWorkHours = dao.list(m, o);
+            kronosWorkHours = generateMockKrnwhs(m, o);
         }else{
-            //krnwhs = dao.list(10, 0);
-            krnwhs = generateMockKrnwhs(10, 0);
+            //kronosWorkHours = dao.list(10, 0);
+            kronosWorkHours = generateMockKrnwhs(10, 0);
         }
 
         int count = dao.count();
@@ -170,7 +185,7 @@ public class ApplicationController {
 
         System.out.println("count : " + count);
 
-        model.addAttribute("krnwhs", krnwhs);
+        model.addAttribute("kronosWorkHours", kronosWorkHours);
         model.addAttribute("total", count);
 
         model.addAttribute("sort", sort);
@@ -203,7 +218,7 @@ public class ApplicationController {
             page = "1";
         }
 
-        List<Krnwh> krnwhs;
+        List<KronosWorkHour> kronosWorkHours;
 
         if(offset != null) {
             int m = 10;
@@ -211,18 +226,18 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //krnwhs = dao.listByIngest(m, o, ingest);
-            krnwhs = generateMockKrnwhs(m, o);
+            //kronosWorkHours = dao.listByIngest(m, o, ingest);
+            kronosWorkHours = generateMockKrnwhs(m, o);
         }else{
-            //krnwhs = dao.listByIngest(10, 0, ingest);
-            krnwhs = generateMockKrnwhs(10, 0);
+            //kronosWorkHours = dao.listByIngest(10, 0, ingest);
+            kronosWorkHours = generateMockKrnwhs(10, 0);
         }
 
         //int count = dao.count();
         int count = 2031;
         System.out.println("count : " + count);
 
-        model.addAttribute("krnwhs", krnwhs);
+        model.addAttribute("kronosWorkHours", kronosWorkHours);
         model.addAttribute("total", count);
 
         model.addAttribute("resultsPerPage", 10);
@@ -249,11 +264,11 @@ public class ApplicationController {
                          @RequestParam(value="end-date", required = true ) BigDecimal endDate){
 
         if(startDate.precision() == 14 && endDate.precision() == 14){
-            List<Krnwh> krnwhs = dao.findByDate(startDate, endDate);
-            model.addAttribute("total", krnwhs.size());
+            List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
+            model.addAttribute("total", kronosWorkHours.size());
             model.addAttribute("startDate", startDate);
             model.addAttribute("endDate", endDate);
-            model.addAttribute("krnwhs", krnwhs);
+            model.addAttribute("kronosWorkHours", kronosWorkHours);
             return "krnwh/search";
         }else{
             redirect.addFlashAttribute("message", "data is incorrect");
@@ -272,12 +287,12 @@ public class ApplicationController {
 
         response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
 
-        List<Krnwh> krnwhs = dao.findByDate(startDate, endDate);
-        //model.addAttribute("total", krnwhs.size());
-        //model.addAttribute("krnwhs", krnwhs);
+        List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
+        //model.addAttribute("total", kronosWorkHours.size());
+        //model.addAttribute("kronosWorkHours", kronosWorkHours);
         StringBuffer writer=new StringBuffer();
 
-        for (Krnwh d : krnwhs) {
+        for (KronosWorkHour d : kronosWorkHours) {
             List<String> list = new ArrayList<>();
             list.add(d.getId().toString());
             list.add(d.getFppunc().toString());
@@ -327,28 +342,28 @@ public class ApplicationController {
 
 
 
-    public List<Krnwh> generateMockKrnwhs(int max, int offset){
-        List<Krnwh> krnwhs = new ArrayList<Krnwh>();
+    public List<KronosWorkHour> generateMockKrnwhs(int max, int offset){
+        List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
         for(int n = offset; n < max + offset; n++){
-            Krnwh krnwh = new Krnwh();
-            krnwh.setFpempn(new BigDecimal(n));
-            krnwh.setFppunc(new BigDecimal(n));
-            krnwh.setFptype("t");
-            krnwh.setFpclck("");
-            krnwh.setFpbadg(new BigDecimal(n));
-            krnwh.setFpfkey("843");//*
-            krnwh.setFppcod(new BigDecimal(n));//*
-            krnwh.setFstatus("a");
-            krnwh.setKrnlogid(new BigDecimal(n));
-            krnwhs.add(krnwh);
+            KronosWorkHour kronosWorkHour = new KronosWorkHour();
+            kronosWorkHour.setFpempn(new BigDecimal(n));
+            kronosWorkHour.setFppunc(new BigDecimal(n));
+            kronosWorkHour.setFptype("t");
+            kronosWorkHour.setFpclck("");
+            kronosWorkHour.setFpbadg(new BigDecimal(n));
+            kronosWorkHour.setFpfkey("843");//*
+            kronosWorkHour.setFppcod(new BigDecimal(n));//*
+            kronosWorkHour.setFstatus("a");
+            kronosWorkHour.setKrnlogid(new BigDecimal(n));
+            kronosWorkHours.add(kronosWorkHour);
         }
-        return krnwhs;
+        return kronosWorkHours;
     }
 
-    public List<KrnwhLog> generateMockKrnwhLogs(int max, int offset){
-        List<KrnwhLog> logs = new ArrayList<KrnwhLog>();
+    public List<QuartzIngestLog> generateMockKrnwhLogs(int max, int offset){
+        List<QuartzIngestLog> logs = new ArrayList<QuartzIngestLog>();
         for(int n = offset; n < max + offset; n++){
-            KrnwhLog log = new KrnwhLog();
+            QuartzIngestLog log = new QuartzIngestLog();
             log.setId(new BigDecimal(n));
             log.setKstatus(ApplicationConstants.COMPLETE_STATUS);
             log.setKtot(new BigDecimal(124));

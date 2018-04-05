@@ -3,8 +3,7 @@
 
 <html>
 <head>
-    <title>Athens Services Punch Report</title>
-
+<title><decorator:title /></title>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -28,7 +27,7 @@
             top:0px;
         }
         #container{
-            width:840px;
+            width:960px;
             padding:24px;
             margin:30px auto 200px auto;
             text-align:left;
@@ -40,6 +39,7 @@
             -webkit-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
         }
     </style>
+    <decorator:head />
 </head>
 
 <body>

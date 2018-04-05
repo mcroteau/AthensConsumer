@@ -12,11 +12,10 @@ public class KrnwhJobStats {
     private int found;
     private int errored;
     private int processed;
-
     private String status;
 
     private Map<String, Integer> existsMap = new HashMap<String, Integer>();
-    private Map<String, Krnwh> auditMap = new HashMap<String, Krnwh>();
+    private Map<String, KronosWorkHour> auditMap = new HashMap<String, KronosWorkHour>();
 
 
     public int getTotal() {
@@ -81,16 +80,16 @@ public class KrnwhJobStats {
     }
 
 
-    public Map<String, Krnwh> getAuditMap() {
+    public Map<String, KronosWorkHour> getAuditMap() {
         return auditMap;
     }
 
-    public Krnwh getAuditMapValue(String key) {
+    public KronosWorkHour getAuditMapValue(String key) {
         return auditMap.get(key);
     }
 
-    public void setAuditMapValue(String key, Krnwh krnwh) {
-        auditMap.put(key, krnwh);
+    public void setAuditMapValue(String key, KronosWorkHour kronosWorkHour) {
+        auditMap.put(key, kronosWorkHour);
     }
 
 
