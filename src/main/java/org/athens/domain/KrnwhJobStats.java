@@ -1,5 +1,7 @@
 package org.athens.domain;
 
+import org.athens.common.ApplicationConstants;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +68,6 @@ public class KrnwhJobStats {
     }
 
 
-
     public Map<String, Integer> getExistsMap() {
         return existsMap;
     }
@@ -92,5 +93,9 @@ public class KrnwhJobStats {
         auditMap.put(key, krnwh);
     }
 
+
+    public boolean jobRunning() {
+        return (this.status != null && this.status.equals(ApplicationConstants.RUNNING_STATUS)) ? true : false;
+    }
 
 }

@@ -1,5 +1,7 @@
 package org.athens.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 
 import org.athens.domain.Krnwh;
@@ -30,6 +32,8 @@ import org.athens.domain.KrnwhLog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.athens.common.ApplicationConstants;
 import org.athens.common.CsvUtils;
@@ -43,14 +47,12 @@ public class ApplicationController {
 
     @Autowired
     private KrnwhLogDaoImpl logDao;
-    //@Autowired
-    //private Scheduler scheduler;
 
     @Autowired
     private KrnwhJobStats dailyQuartzJobStats;
+
     @Autowired
     private KrnwhJobStats weeklyQuartzJobStats;
-
 
 
 	final static Logger log = Logger.getLogger(ApplicationController.class);
@@ -59,6 +61,24 @@ public class ApplicationController {
     @RequestMapping(value="/", method= RequestMethod.GET)
     public String list(final RedirectAttributes redirect){
         return "redirect:list";
+    }
+
+
+    @RequestMapping(value="/status", method= RequestMethod.GET)
+    public String status(final RedirectAttributes redirect){
+
+        Map<String, KrnwhJobStats> runningJobsMap = new HashMap<String, KrnwhJobStats>();
+        if(dailyQuartzJobStats.getStatus() != null && dailyQuartzJobStats.getStatus().equals(ApplicationConstants.RUNNING_STATUS)){
+            runningJobsMap.put("dailyJobRunning", dailyQuartzJobStats);
+        }
+        if(weeklyQuartzJobStats.getStatus() != null && weeklyQuartzJobStats.getStatus().equals(ApplicationConstants.RUNNING_STATUS)){
+            runningJobsMap.put("weeklyJobRunning", weeklyQuartzJobStats);
+        }
+
+        Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
+        String jsonStr = gsonObj.toJson(runningJobsMap);
+
+        return jsonStr;
     }
 
 
@@ -73,46 +93,47 @@ public class ApplicationController {
                        @RequestParam(value="sort", required = false ) String sort,
                        @RequestParam(value="order", required = false ) String order){
 
-            if(page == null){
-                page = "1";
+        if(page == null){
+            page = "1";
+        }
+
+        List<KrnwhLog> krnwhLogs;
+
+        if(offset != null) {
+            int m = 10;
+            if(max != null){
+                m = Integer.parseInt(max);
             }
+            int o = Integer.parseInt(offset);
+            //krnwhLogs = logDao.list(m, o);
+            krnwhLogs = generateMockKrnwhLogs(m, o);
+        }else{
+            //krnwhLogs = logDao.list(10, 0);
+            krnwhLogs = generateMockKrnwhLogs(10, 0);
+        }
 
-            List<KrnwhLog> krnwhLogs;
-
-            if(offset != null) {
-                int m = 10;
-                if(max != null){
-                    m = Integer.parseInt(max);
-                }
-                int o = Integer.parseInt(offset);
-                //krnwhLogs = logDao.list(m, o);
-                krnwhLogs = generateMockKrnwhLogs(m, o);
-            }else{
-                //krnwhLogs = logDao.list(10, 0);
-                krnwhLogs = generateMockKrnwhLogs(10, 0);
-            }
-
-            //int count = logDao.count();
-            int count = 304;
+        //int count = logDao.count();
+        int count = 304;
 
 
-            model.addAttribute("krnwhLogs", krnwhLogs);
-            model.addAttribute("total", count);
+        model.addAttribute("krnwhLogs", krnwhLogs);
+        model.addAttribute("total", count);
 
-            model.addAttribute("sort", sort);
-            model.addAttribute("order", order);
+        model.addAttribute("sort", sort);
+        model.addAttribute("order", order);
 
-            model.addAttribute("resultsPerPage", 10);
-            model.addAttribute("activePage", page);
+        model.addAttribute("resultsPerPage", 10);
+        model.addAttribute("activePage", page);
 
-            model.addAttribute("dailyJobCount", dailyQuartzJobStats.getCount());
-            model.addAttribute("weeklyJobCount", weeklyQuartzJobStats.getCount());
+        if(dailyQuartzJobStats.jobRunning())model.addAttribute("dailyJobRunning");
 
-            model.addAttribute("krnwhLogsLinkActive", "active");
+        if(weeklyQuartzJobStats.jobRunning())model.addAttribute("weeklyJobRunning");
 
-            return "application/index";
+        model.addAttribute("krnwhLogsLinkActive", "active");
 
+        return "application/index";
     }
+
 
     @RequestMapping(value="/krnwh/list", method=RequestMethod.GET)
     public String krnws(ModelMap model,

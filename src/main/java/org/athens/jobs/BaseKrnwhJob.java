@@ -76,17 +76,18 @@ public class BaseKrnwhJob implements Job {
              TimeUnit.SECONDS.sleep(7);
              }**/
 
-            log.info(this.jobKey.getName() + ", log:"+ krnwhLog.getId());
-
             setLocalDefined(context);
             resetQuartzJobStats();
             getSetKrnwhQuartzJobLog();
+
+            log.info("running " + this.jobKey.getName() + "... log:"+ krnwhLog.getId());
+
             performKronosAuthentication();
             performKronosReportRequestProcess();
 
         } catch (Exception e) {
             if(krnwhLog != null){
-                krnwhLog.getKstatus(ApplicationConstants.ERROR_STATUS);
+                krnwhLog.setKstatus(ApplicationConstants.ERROR_STATUS);
                 krnwhLogDao.save(krnwhLog);
             }
             log.info("something went wrong setting up quartz job");
@@ -170,7 +171,7 @@ public class BaseKrnwhJob implements Job {
                 totalCount++;
             }
             quartzJobStats.setTotal(totalCount);
-            krnwhLog.setKtot(totalCount);
+            krnwhLog.setKtot(new BigDecimal(totalCount));
             krnwhLogDao.update(krnwhLog);
         }catch (Exception e){
             log.warn("issue setting");
@@ -316,6 +317,7 @@ public class BaseKrnwhJob implements Job {
                         totalError++;
                         log.warn("error");
                         e.printStackTrace();
+
                     }
 
                 }
@@ -365,7 +367,7 @@ public class BaseKrnwhJob implements Job {
             nkrnwhLog.setKtot(new BigDecimal(0));
             nkrnwhLog.setKadtcnt(new BigDecimal(0));
             nkrnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-            nkrnwhLog.setKdate(new BigDecimal(dateTime));
+            nkrnwhLog.setKdate(dateTime);
             this.krnwhLog = krnwhLogDao.save(nkrnwhLog);
         }
     }

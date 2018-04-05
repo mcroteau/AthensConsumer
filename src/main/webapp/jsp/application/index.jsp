@@ -3,17 +3,28 @@
 <html>
 <head>
 	<title>Punch Report Logs</title>
-</head>
 
+	<style type="text/css">
+	    .job-status{
+	        display:none;
+	    }
+	</style>
+</head>
 <body>
 
 	<div class="span12">
 		<h1>Punch Ingests</h1>
 	</div>
 
+    <div id="daily-status" class="job-status">
+        <a href="${pageContext.request.contextPath}/running_jobs">Daily Running</a>
+    </div>
+    <div id="weekly-status" class="job-status">
+        <a href="${pageContext.request.contextPath}/running_jobs">Weekly Running</a>
+    </div>
 
-<span>daily: ${dailyJobCount}</span>
-<span>weekly: ${weeklyJobCount}</span>
+    <a href="javascript:" id="status-check">Check Status</a>
+
 
 	<c:if test="${not empty message}">
 		<div class="span12">
@@ -72,5 +83,37 @@
 			<p>No Punch Logs created yet.</p>
 		</c:when>
 	</c:choose>
+
+	<script type="text/javascript">
+        $(document).ready(function(){
+            var $checkButton = $("#status-check"),
+                $dailyStatus = $("#daily-status"),
+                $weeklyStatus = $("#weekly-status");
+
+            $checkButton.click(function(event){
+                runStatusCheck();
+            });
+
+            function runStatusCheck(){
+                console.log("about to run job check");
+                $.ajax({
+                    url : "${pageContext.request.contextPath}/status",
+                    success : checkDisplayRunningJobs,
+                    error : function(){
+                        console.log("error");
+                    }
+                });
+            }
+
+            function checkDisplayRunningJobs(a, b){
+                console.log(a, b);
+                $dailyStatus.show();
+                $weeklyStatus.show();
+            }
+
+            runStatusCheck();
+        });
+
+	</script>
 </body>
 </html>
