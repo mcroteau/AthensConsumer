@@ -191,44 +191,29 @@ public class BaseKrnwhJob implements Job {
 
                     String[] punchData = line.split(",");
 
-                    String punchDate = punchData[1].replaceAll("^\"|\"$", "");
+                    BigDecimal punchDate = getFormattedPunchDate(punchData[1]);
 
-                    String format = "MM/dd/yyyy HH:mm'a'";
-                    if (punchDate.contains("p")) {
-                        format = "MM/dd/yyyy HH:mm'p'";
-                    }
-
-                    SimpleDateFormat sdf = new SimpleDateFormat(format);
-                    Date date = sdf.parse(punchDate);
-
-                    DateFormat sdff = new SimpleDateFormat("yyyyMMddHHmmss");
-                    String date2 = sdff.format(date);
-
-                    //log.info(date2.toString() + " : " + date.toString());
-                    //System.out.println(line);
 
                     String empIdS = punchData[0].replaceAll("^\"|\"$", "");
                     String badgeIdS = punchData[4].replaceAll("^\"|\"$", "");
+
                     String type = punchData[2].replaceAll("^\"|\"$", "");
                     String clockS = punchData[3].replaceAll("^\"|\"$", "");
-
-                    if (type == "Active") type = "A";
-                    if (type == "LOA") type = "L";
-                    if (type != "L" && type != "A") type = "O";
-
 
                     if (empIdS.equals("")) empIdS = "0";
                     if (badgeIdS.equals("")) badgeIdS = "0";
 
-                    //log.info("punchData [empId= " + empIdS + " , badgeId=" + badgeIdS + "]");
+                    if (type.equals("Active")) type = "A";
+                    if (type.equals("LOA")) type = "L";
+                    if (!type.equals("L") && !type.equals("A")) type = "O";
+                    
 
                     BigDecimal badgeId = new BigDecimal(badgeIdS);
                     BigDecimal empId = new BigDecimal(empIdS);
-                    BigDecimal punch = new BigDecimal(date2);
 
                     KronosWorkHour kronosWorkHour = new KronosWorkHour();
                     kronosWorkHour.setFpempn(empId);
-                    kronosWorkHour.setFppunc(punch);
+                    kronosWorkHour.setFppunc(punchDate);
                     kronosWorkHour.setFptype(type);
                     kronosWorkHour.setFpclck(clockS);
 
@@ -373,6 +358,21 @@ public class BaseKrnwhJob implements Job {
             nkrnwhLog.setKdate(dateTime);
             this.ingestLog = krnwhLogDao.save(nkrnwhLog);
         }
+    }
+
+    public BigDecimal getFormattedPunchDate(String kdate){
+        String kpDate = kdate.replaceAll("^\"|\"$", "");
+        String format = "MM/dd/yyyy HH:mm'a'";
+        if (kpDate.contains("p")) {
+            format = "MM/dd/yyyy HH:mm'p'";
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date date = sdf.parse(kpDate);
+
+        DateFormat sdff = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fDate = sdff.format(date);
+        return new BigDecimal(fDate);
     }
 
 
