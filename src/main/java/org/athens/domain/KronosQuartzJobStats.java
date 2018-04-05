@@ -4,8 +4,10 @@ import org.athens.common.ApplicationConstants;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
-public class KrnwhJobStats {
+public class KronosQuartzJobStats {
 
     private int total;
     private int saved;
@@ -15,7 +17,8 @@ public class KrnwhJobStats {
     private String status;
 
     private Map<String, Integer> existsMap = new HashMap<String, Integer>();
-    private Map<String, KronosWorkHour> auditMap = new HashMap<String, KronosWorkHour>();
+
+    private List<KronosWorkHour> auditDetails = new ArrayList<KronosWorkHour>();
 
 
     public int getTotal() {
@@ -80,16 +83,12 @@ public class KrnwhJobStats {
     }
 
 
-    public Map<String, KronosWorkHour> getAuditMap() {
-        return auditMap;
+    public List<KronosWorkHour> getAuditDetails() {
+        return auditDetails;
     }
 
-    public KronosWorkHour getAuditMapValue(String key) {
-        return auditMap.get(key);
-    }
-
-    public void setAuditMapValue(String key, KronosWorkHour kronosWorkHour) {
-        auditMap.put(key, kronosWorkHour);
+    public void addAuditDetails(KronosWorkHour kronosWorkHour) {
+        auditDetails.add(kronosWorkHour);
     }
 
 

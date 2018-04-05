@@ -3,8 +3,8 @@ package org.athens.jobs;
 import org.apache.log4j.Logger;
 
 import org.athens.common.ApplicationConstants;
-import org.athens.domain.KrnwhJobSettings;
-import org.athens.domain.KrnwhJobStats;
+import org.athens.domain.KronosWorkHourSettings;
+import org.athens.domain.KronosQuartzJobStats;
 import org.quartz.JobDetail;
 import org.quartz.JobBuilder;
 import org.quartz.Trigger;
@@ -13,8 +13,8 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
 
-import org.athens.dao.impl.KrnwhDaoImpl;
-import org.athens.dao.impl.KrnwhLogDaoImpl;
+import org.athens.dao.impl.KronosWorkHourDaoImpl;
+import org.athens.dao.impl.KronosIngestLogDaoImpl;
 
 
 public class KrnwhJobsBootup {
@@ -22,16 +22,16 @@ public class KrnwhJobsBootup {
     final static Logger log = Logger.getLogger(KrnwhJobsBootup.class);
 
 
-    private KrnwhDaoImpl krnwhDao;
-    private KrnwhLogDaoImpl krnwhLogDao;
-    private KrnwhJobSettings krnwhJobSettings;
-    private KrnwhJobStats dailyQuartzJobStats;
-    private KrnwhJobStats weeklyQuartzJobStats;
+    private KronosWorkHourDaoImpl krnwhDao;
+    private KronosIngestLogDaoImpl krnwhLogDao;
+    private KronosWorkHourSettings krnwhJobSettings;
+    private KronosQuartzJobStats dailyQuartzJobStats;
+    private KronosQuartzJobStats weeklyQuartzJobStats;
 
 
 
 
-    public KrnwhJobsBootup(KrnwhLogDaoImpl krnwhLogDao, KrnwhDaoImpl krnwhDao, KrnwhJobSettings krnwhJobSettings, KrnwhJobStats dailyQuartzJobStats, KrnwhJobStats weeklyQuartzJobStats){
+    public KrnwhJobsBootup(KronosIngestLogDaoImpl krnwhLogDao, KronosWorkHourDaoImpl krnwhDao, KronosWorkHourSettings krnwhJobSettings, KronosQuartzJobStats dailyQuartzJobStats, KronosQuartzJobStats weeklyQuartzJobStats){
         log.info("about to setup krnwh reports.. .");
         this.krnwhDao = krnwhDao;
         this.krnwhLogDao = krnwhLogDao;
@@ -48,7 +48,7 @@ public class KrnwhJobsBootup {
     }
 
 
-    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression, KrnwhJobStats quartzJobStats) {
+    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression, KronosQuartzJobStats quartzJobStats) {
         try {
             JobDetail job = JobBuilder.newJob(clazz)
                     .withIdentity(name, ApplicationConstants.ATHENS_GROUP).build();

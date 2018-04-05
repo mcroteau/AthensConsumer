@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.log4j.Logger;
 
-import org.athens.domain.QuartzIngestLog;
+import org.athens.domain.KronosIngestLog;
 import org.athens.domain.KronosWorkHour;
-import org.athens.domain.KrnwhJobStats;
+import org.athens.domain.KronosQuartzJobStats;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,8 +23,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 
-import org.athens.dao.impl.KrnwhLogDaoImpl;
-import org.athens.dao.impl.KrnwhDaoImpl;
+import org.athens.dao.impl.KronosIngestLogDaoImpl;
+import org.athens.dao.impl.KronosWorkHourDaoImpl;
 import org.quartz.JobKey;
 
 import org.quartz.Scheduler;
@@ -46,16 +46,16 @@ public class ApplicationController {
 
 
     @Autowired
-    private KrnwhDaoImpl dao;
+    private KronosWorkHourDaoImpl dao;
 
     @Autowired
-    private KrnwhLogDaoImpl logDao;
+    private KronosIngestLogDaoImpl logDao;
 
     @Autowired
-    private KrnwhJobStats dailyQuartzJobStats;
+    private KronosQuartzJobStats dailyQuartzJobStats;
 
     @Autowired
-    private KrnwhJobStats weeklyQuartzJobStats;
+    private KronosQuartzJobStats weeklyQuartzJobStats;
 
 
     @RequestMapping(value="/", method=RequestMethod.GET)
@@ -67,10 +67,10 @@ public class ApplicationController {
     @RequestMapping(value="/status", method=RequestMethod.GET, produces="application/json")
     public @ResponseBody String status(HttpServletRequest request){
 
-        Map<String, KrnwhJobStats> runningJobsMap = new HashMap<String, KrnwhJobStats>();
+        Map<String, KronosQuartzJobStats> runningJobsMap = new HashMap<String, KronosQuartzJobStats>();
 
         if(dailyQuartzJobStats.getStatus() == null && weeklyQuartzJobStats.getStatus() == null){
-            KrnwhJobStats emptyStats = new KrnwhJobStats();
+            KronosQuartzJobStats emptyStats = new KronosQuartzJobStats();
             emptyStats.setStatus("idle");
             runningJobsMap.put("status", emptyStats);
         }
@@ -112,7 +112,7 @@ public class ApplicationController {
             page = "1";
         }
 
-        List<QuartzIngestLog> ingestLogs;
+        List<KronosIngestLog> kronosIngestLogs;
 
         if(offset != null) {
             int m = 10;
@@ -120,18 +120,18 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //ingestLogs = logDao.list(m, o);
-            ingestLogs = generateMockKrnwhLogs(m, o);
+            //kronosIngestLogs = logDao.list(m, o);
+            kronosIngestLogs = generateMockKrnwhLogs(m, o);
         }else{
-            //ingestLogs = logDao.list(10, 0);
-            ingestLogs = generateMockKrnwhLogs(10, 0);
+            //kronosIngestLogs = logDao.list(10, 0);
+            kronosIngestLogs = generateMockKrnwhLogs(10, 0);
         }
 
         //int count = logDao.count();
         int count = 304;
 
 
-        model.addAttribute("ingestLogs", ingestLogs);
+        model.addAttribute("kronosIngestLogs", kronosIngestLogs);
         model.addAttribute("total", count);
 
         model.addAttribute("sort", sort);
@@ -360,10 +360,10 @@ public class ApplicationController {
         return kronosWorkHours;
     }
 
-    public List<QuartzIngestLog> generateMockKrnwhLogs(int max, int offset){
-        List<QuartzIngestLog> logs = new ArrayList<QuartzIngestLog>();
+    public List<KronosIngestLog> generateMockKrnwhLogs(int max, int offset){
+        List<KronosIngestLog> logs = new ArrayList<KronosIngestLog>();
         for(int n = offset; n < max + offset; n++){
-            QuartzIngestLog log = new QuartzIngestLog();
+            KronosIngestLog log = new KronosIngestLog();
             log.setId(new BigDecimal(n));
             log.setKstatus(ApplicationConstants.COMPLETE_STATUS);
             log.setKtot(new BigDecimal(124));

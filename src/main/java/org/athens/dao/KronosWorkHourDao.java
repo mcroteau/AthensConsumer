@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 
-public interface KrnwhDao {
+public interface KronosWorkHourDao {
 
 	public int count();
 

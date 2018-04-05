@@ -6,24 +6,24 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.athens.dao.KrnwhDao;
+import org.athens.dao.KronosWorkHourDao;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class KrnwhDaoImpl implements KrnwhDao {
+public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 
 
-	final static Logger log = Logger.getLogger(KrnwhDaoImpl.class);
+	final static Logger log = Logger.getLogger(KronosWorkHourDaoImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 
 	public int count() {
-		String sql = "select count(*) from KronosWorkHour";
+		String sql = "select count(*) from QGPL.KRNWH";
 		int count = 0;
 		try{
 			count = jdbcTemplate.queryForObject(sql, Integer.class, new Object[0]);
@@ -70,41 +70,39 @@ public class KrnwhDaoImpl implements KrnwhDao {
 
 
 	public List<KronosWorkHour> list(int max, int offset){
+		List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
 		try{
 
-			String sql = "select * from QGPL.KronosWorkHour limit " + max + " offset " + offset;
+			String sql = "select * from QGPL.KRNWH limit " + max + " offset " + offset;
 			System.out.println("find all " + sql);
-			List<KronosWorkHour> kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
-			
-			return kronosWorkHours;
-		
+			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
+
 		}catch (Exception e){
 			e.printStackTrace();
 		}	
-		return null;	
+		return kronosWorkHours;
 	}
 
 
 
 	public List<KronosWorkHour> findByIngest(int max, int offset, BigDecimal ingest){
+		List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
 		try{
 
-			String sql = "select * from QGPL.KronosWorkHour where krnlogid = " + ingest + " limit " + max + " offset " + offset;
+			String sql = "select * from QGPL.KRNWH where krnlogid = " + ingest + " limit " + max + " offset " + offset;
 			System.out.println("find all " + sql);
-			List<KronosWorkHour> kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
-
-			return kronosWorkHours;
+			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
 
 		}catch (Exception e){
 			e.printStackTrace();
 		}
-		return null;
+		return kronosWorkHours;
 	}
 
 
 
 	public List<KronosWorkHour> findByDate(BigDecimal startDate, BigDecimal endDate){
-		String sql = "select * from QGPL.KronosWorkHour where fppunc between " + startDate + " and " + endDate;
+		String sql = "select * from QGPL.KRNWH where fppunc between " + startDate + " and " + endDate;
 
 		log.info("find by date : " + sql);
 
@@ -115,6 +113,7 @@ public class KrnwhDaoImpl implements KrnwhDao {
 
 		}catch(Exception e){
 			log.warn("unable to find kronosWorkHours by date...");
+			e.printStackTrace();
 		}
 		return kronosWorkHours;
 	}
@@ -124,11 +123,12 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	public KronosWorkHour findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg){
 		KronosWorkHour k = null;
 		try{
-			String sql = "select * from QGPL.KronosWorkHour where fppunc = " + fppunc + " and fpbadg = " + fpbadg;
+			String sql = "select * from QGPL.KRNWH where fppunc = " + fppunc + " and fpbadg = " + fpbadg;
 			k = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[] {},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 		}catch(Exception e){
 			log.warn("unable to find by punch badge id");
+			e.printStackTrace();
 		}
 		return k;
 	}
@@ -138,11 +138,12 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	public KronosWorkHour findByPunchEmployeeId(BigDecimal fppunc, BigDecimal fpempn){
 		KronosWorkHour k = null;
 		try{
-			String sql = "select * from QGPL.KronosWorkHour where fppunc = " + fppunc + " and fpempn = " + fpempn;
+			String sql = "select * from QGPL.KRNWH where fppunc = " + fppunc + " and fpempn = " + fpempn;
 			k = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[] {},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 		}catch(Exception e){
 			log.warn("unable to find by punch employee id");
+			e.printStackTrace();
 		}
 		return k;
 	}
@@ -153,11 +154,12 @@ public class KrnwhDaoImpl implements KrnwhDao {
 	public KronosWorkHour findByPunchBadgeIdEmployeeId(BigDecimal fppunc, BigDecimal fpbadg, BigDecimal fpempn){
 		KronosWorkHour k = null;
 		try{
-			String sql = "select * from QGPL.KronosWorkHour where fppunc = " + fppunc + " and fpbadg = " + fpbadg + " and fpempn = " + fpempn;
+			String sql = "select * from QGPL.KRNWH where fppunc = " + fppunc + " and fpbadg = " + fpbadg + " and fpempn = " + fpempn;
 			k = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[] {},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 		}catch(Exception e){
 			log.warn("unable to find by punch badge id employee id");
+			e.printStackTrace();
 		}
 		return k;
 	}

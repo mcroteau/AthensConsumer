@@ -27,27 +27,27 @@
 	</bean>
 
 	
-	<bean id="krnwhDao" class="org.athens.dao.impl.KrnwhDaoImpl"/>
-	<bean id="krnwhLogDao" class="org.athens.dao.impl.KrnwhLogDaoImpl"/>
+	<bean id="krnwhDao" class="org.athens.dao.impl.KronosWorkHourDaoImpl"/>
+	<bean id="krnwhLogDao" class="org.athens.dao.impl.KronosIngestLogDaoImpl"/>
 
 
 	<bean id="krnwhReportBootup" class="org.athens.jobs.KrnwhJobsBootup">
 		<constructor-arg>
-			<bean class="org.athens.domain.KrnwhJobSettings"/>
+			<bean class="org.athens.domain.KronosWorkHourSettings"/>
 		</constructor-arg>
 		<constructor-arg>
-			<bean class="org.athens.dao.impl.KrnwhDaoImpl"/>
+			<bean class="org.athens.dao.impl.KronosWorkHourDaoImpl"/>
 		</constructor-arg>
 		<constructor-arg>
-			<bean class="org.athens.dao.impl.KrnwhLogDaoImpl"/>
+			<bean class="org.athens.dao.impl.KronosIngestLogDaoImpl"/>
 		</constructor-arg>
 		<constructor-arg ref="dailyQuartzJobStats"/>
 		<constructor-arg ref="weeklyQuartzJobStats"/>
 	</bean>
 
 
-	<bean id="dailyQuartzJobStats" class="org.athens.domain.KrnwhJobStats" scope="singleton"/>
+	<bean id="dailyQuartzJobStats" class="org.athens.domain.KronosQuartzJobStats" scope="singleton"/>
 
-	<bean id="weeklyQuartzJobStats" class="org.athens.domain.KrnwhJobStats" scope="singleton"/>
+	<bean id="weeklyQuartzJobStats" class="org.athens.domain.KronosQuartzJobStats" scope="singleton"/>
 
 </beans>

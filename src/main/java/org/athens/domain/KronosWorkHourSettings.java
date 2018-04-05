@@ -2,7 +2,7 @@ package org.athens.domain;
 
 import org.springframework.beans.factory.annotation.Value;
 
-public class KrnwhJobSettings {
+public class KronosWorkHourSettings {
 
     @Value("${api.key}")
     private String apiKey;
@@ -15,9 +15,6 @@ public class KrnwhJobSettings {
 
     @Value("${api.company}")
     private String company;
-
-    @Value("${krnwh.report}")
-    private String report;
 
 
     public String getApiKey() {
@@ -36,8 +33,5 @@ public class KrnwhJobSettings {
         return company;
     }
 
-    public String getReport() {
-        return report;
-    }
 
 }

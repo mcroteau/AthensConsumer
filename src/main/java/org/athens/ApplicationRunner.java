@@ -7,7 +7,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import org.athens.domain.QuartzIngestLog;
+import org.athens.domain.KronosIngestLog;
 import org.athens.domain.KronosWorkHour;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.math.BigDecimal;
 
-import org.athens.dao.impl.KrnwhDaoImpl;
-import org.athens.dao.impl.KrnwhLogDaoImpl;
+import org.athens.dao.impl.KronosWorkHourDaoImpl;
+import org.athens.dao.impl.KronosIngestLogDaoImpl;
 import org.athens.common.ApplicationConstants;
 
 import java.util.List;
@@ -51,10 +51,10 @@ public class ApplicationRunner {
 
 	
 	@Autowired
-	private KrnwhDaoImpl dao;
+	private KronosWorkHourDaoImpl dao;
 
 	@Autowired
-	private KrnwhLogDaoImpl logDao;
+	private KronosIngestLogDaoImpl logDao;
 
 
 	final static Logger log = Logger.getLogger(ApplicationRunner.class);
@@ -69,7 +69,7 @@ public class ApplicationRunner {
 		String formattedDate = dateFormat.format(date);
 		log.info(formattedDate.toString());
 
-		QuartzIngestLog todaysIngestLog = logDao.findByDate(new BigDecimal(formattedDate));
+		KronosIngestLog todaysIngestLog = logDao.findByDate(new BigDecimal(formattedDate));
 
 		if(todaysIngestLog != null){
 			todaysIngestLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
@@ -80,22 +80,22 @@ public class ApplicationRunner {
 			logDao.update(todaysIngestLog);
 		}
 
-		QuartzIngestLog ingestLog = new QuartzIngestLog();
-		ingestLog.setKstatus(ApplicationConstants.STARTED_STATUS);
-		ingestLog.setKtot(new BigDecimal(0));
-		ingestLog.setKadtcnt(new BigDecimal(0));
-		ingestLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
-		ingestLog.setKdate(new BigDecimal(formattedDate));
-		QuartzIngestLog savedIngestLog = logDao.save(ingestLog);
+		KronosIngestLog kronosIngestLog = new KronosIngestLog();
+		kronosIngestLog.setKstatus(ApplicationConstants.STARTED_STATUS);
+		kronosIngestLog.setKtot(new BigDecimal(0));
+		kronosIngestLog.setKadtcnt(new BigDecimal(0));
+		kronosIngestLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
+		kronosIngestLog.setKdate(new BigDecimal(formattedDate));
+		KronosIngestLog savedIngestLog = logDao.save(kronosIngestLog);
 
 		log.info("savedIngestLog : " + savedIngestLog.getId());
 
 		
-		List<QuartzIngestLog> ingestLogs = logDao.list(10, 0);
+		List<KronosIngestLog> kronosIngestLogs = logDao.list(10, 0);
 		
-		log.info("ingestLogs : " + ingestLogs.size());
+		log.info("kronosIngestLogs : " + kronosIngestLogs.size());
 		
-		for (QuartzIngestLog klog : ingestLogs) {
+		for (KronosIngestLog klog : kronosIngestLogs) {
 			log.info(klog);
 		}
 

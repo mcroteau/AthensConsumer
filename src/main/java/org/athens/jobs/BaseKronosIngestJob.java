@@ -8,12 +8,12 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.common.ApplicationConstants;
-import org.athens.dao.impl.KrnwhDaoImpl;
-import org.athens.dao.impl.KrnwhLogDaoImpl;
-import org.athens.domain.QuartzIngestLog;
+import org.athens.dao.impl.KronosWorkHourDaoImpl;
+import org.athens.dao.impl.KronosIngestLogDaoImpl;
+import org.athens.domain.KronosIngestLog;
 import org.athens.domain.KronosWorkHour;
-import org.athens.domain.KrnwhJobSettings;
-import org.athens.domain.KrnwhJobStats;
+import org.athens.domain.KronosWorkHourSettings;
+import org.athens.domain.KronosQuartzJobStats;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,9 +34,9 @@ import com.google.gson.JsonParser;
 /**Im going to rename all quartz job classes**/
 
 @DisallowConcurrentExecution
-public class BaseKrnwhJob implements Job {
+public class BaseKronosIngestJob implements Job {
 
-    final static Logger log = Logger.getLogger(BaseKrnwhJob.class);
+    final static Logger log = Logger.getLogger(BaseKronosIngestJob.class);
 
     private String authenticationToken = "";
 
@@ -49,15 +50,15 @@ public class BaseKrnwhJob implements Job {
     private String report;
     private JobKey jobKey;
 
-    private QuartzIngestLog ingestLog;
+    private KronosIngestLog kronosIngestLog;
 
-    private KrnwhDaoImpl krnwhDao;
-    private KrnwhLogDaoImpl krnwhLogDao;
-    private KrnwhJobSettings krnwhJobSettings;
-    private KrnwhJobStats quartzJobStats;
+    private KronosWorkHourDaoImpl krnwhDao;
+    private KronosIngestLogDaoImpl krnwhLogDao;
+    private KronosWorkHourSettings krnwhJobSettings;
+    private KronosQuartzJobStats quartzJobStats;
 
 
-    public BaseKrnwhJob(String jobName, String report){
+    public BaseKronosIngestJob(String jobName, String report){
         log.info("Initializing " + jobName);
         this.report = report;
         this.jobKey = new JobKey(jobName, ApplicationConstants.ATHENS_GROUP);
@@ -77,15 +78,15 @@ public class BaseKrnwhJob implements Job {
             resetQuartzJobStats();
             getSetKrnwhQuartzJobLog();
 
-            log.info("running " + this.jobKey.getName() + "... log:"+ ingestLog.getId());
+            log.info("running " + this.jobKey.getName() + "... log:"+ kronosIngestLog.getId());
 
             performKronosAuthentication();
             performKronosReportRequestProcess();
 
         } catch (Exception e) {
-            if(ingestLog != null){
-                ingestLog.setKstatus(ApplicationConstants.ERROR_STATUS);
-                krnwhLogDao.save(ingestLog);
+            if(kronosIngestLog != null){
+                kronosIngestLog.setKstatus(ApplicationConstants.ERROR_STATUS);
+                krnwhLogDao.save(kronosIngestLog);
             }
             log.info("something went wrong setting up quartz job");
             e.printStackTrace();
@@ -167,9 +168,9 @@ public class BaseKrnwhJob implements Job {
             while ((line = br.readLine()) != null) {
                 totalCount++;
             }
-            ingestLog.setKtot(new BigDecimal(totalCount));
-            ingestLog.setKstatus(ApplicationConstants.RUNNING_STATUS);
-            krnwhLogDao.update(ingestLog);
+            kronosIngestLog.setKtot(new BigDecimal(totalCount));
+            kronosIngestLog.setKstatus(ApplicationConstants.RUNNING_STATUS);
+            krnwhLogDao.update(kronosIngestLog);
 
             quartzJobStats.setTotal(totalCount);
             quartzJobStats.setStatus(ApplicationConstants.RUNNING_STATUS);
@@ -189,47 +190,15 @@ public class BaseKrnwhJob implements Job {
 
                 if(totalProcessed != 0) {
 
-                    String[] punchData = line.split(",");
-
-                    BigDecimal punchDate = getFormattedPunchDate(punchData[1]);
-
-
-                    String empIdS = punchData[0].replaceAll("^\"|\"$", "");
-                    String badgeIdS = punchData[4].replaceAll("^\"|\"$", "");
-
-                    String type = punchData[2].replaceAll("^\"|\"$", "");
-                    String clockS = punchData[3].replaceAll("^\"|\"$", "");
-
-                    if (empIdS.equals("")) empIdS = "0";
-                    if (badgeIdS.equals("")) badgeIdS = "0";
-
-                    if (type.equals("Active")) type = "A";
-                    if (type.equals("LOA")) type = "L";
-                    if (!type.equals("L") && !type.equals("A")) type = "O";
-                    
-
-                    BigDecimal badgeId = new BigDecimal(badgeIdS);
-                    BigDecimal empId = new BigDecimal(empIdS);
-
-                    KronosWorkHour kronosWorkHour = new KronosWorkHour();
-                    kronosWorkHour.setFpempn(empId);
-                    kronosWorkHour.setFppunc(punchDate);
-                    kronosWorkHour.setFptype(type);
-                    kronosWorkHour.setFpclck(clockS);
-
-                    kronosWorkHour.setFpbadg(badgeId);
-                    kronosWorkHour.setFpfkey("");//*
-                    kronosWorkHour.setFppcod(new BigDecimal(0));//*
-                    kronosWorkHour.setFstatus("h");//*
-
-                    kronosWorkHour.setKrnlogid(ingestLog.getId());
+                    String[] kronosPunchData = line.split(",");
+                    KronosWorkHour kronosWorkHour = getSetKronosWorkHour(kronosPunchData);
 
                     KronosWorkHour existingKronosWorkHour = null;
 
                     if(kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0  &&
                             kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0){
 
-                        //log.info("find by both");
+                        log.info("find by both");
                         existingKronosWorkHour = krnwhDao.findByPunchBadgeIdEmployeeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpbadg(), kronosWorkHour.getFpempn());
                         if(existingKronosWorkHour != null){
                             String key = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpbadg().toString() + kronosWorkHour.getFpempn().toString();
@@ -245,7 +214,7 @@ public class BaseKrnwhJob implements Job {
                     }else if(kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0 &&
                             kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) == 0){
 
-                        //log.info("find by badge id");
+                        log.info("find by badge id");
                         existingKronosWorkHour = krnwhDao.findByPunchBadgeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpbadg());
                         if(existingKronosWorkHour != null){
                             String key = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpbadg().toString();
@@ -261,7 +230,7 @@ public class BaseKrnwhJob implements Job {
                             kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) == 0){
 
                         existingKronosWorkHour = krnwhDao.findByPunchEmployeeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpempn());
-                        //log.info("find by employee id");
+                        log.info("find by employee id");
                         if(existingKronosWorkHour != null){
                             String key = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpempn().toString();
                             int value = 0;
@@ -275,7 +244,7 @@ public class BaseKrnwhJob implements Job {
                     }
 
 
-                    //if (totalProcessed == 3) kronosWorkHour.setFstatus("aa");
+                    if (totalProcessed % 3 == 0) kronosWorkHour.setFstatus("aa");
 
                     //log.info(kronosWorkHour.toString());
 
@@ -292,16 +261,9 @@ public class BaseKrnwhJob implements Job {
                             quartzJobStats.setFound(totalFound);
                         }
 
-                        /**
-                        if(totalProcessed %50==0){
-                            Gson g =  new GsonBuilder().setPrettyPrinting().create();
-                            String js = g.toJson(quartzJobStats.getExistsMap());
-                            System.out.println(js);
-                        }
-                        **/
-
 
                     } catch (Exception e) {
+                        quartzJobStats.addAuditDetails(kronosWorkHour);
                         totalError++;
                         log.warn("error");
                         e.printStackTrace();
@@ -313,9 +275,11 @@ public class BaseKrnwhJob implements Job {
                 totalProcessed++;
                 quartzJobStats.setProcessed(totalProcessed);
 
-                ingestLog.setKadtcnt(new BigDecimal(totalError));
-                ingestLog.setKproc(new BigDecimal(totalProcessed));
-                krnwhLogDao.update(ingestLog);
+
+
+                kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
+                kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
+                krnwhLogDao.update(kronosIngestLog);
             }
 
         } catch (Exception e) {
@@ -328,16 +292,67 @@ public class BaseKrnwhJob implements Job {
         log.info("totalSaved: "  + totalSaved);
         log.info("found: "       + totalFound);
 
+
+
+
+        kronosIngestLog.setKaudit(getAuditJsonRepresentation());
+        kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
+        kronosIngestLog.setKtot(new BigDecimal(totalSaved));
+        kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
+        kronosIngestLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+        krnwhLogDao.update(kronosIngestLog);
+
+    }
+
+
+    public String getAuditJsonRepresentation(){
         Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
-        String jsonStr = gsonObj.toJson(quartzJobStats.getExistsMap());
-        System.out.println(jsonStr);
+        return gsonObj.toJson(quartzJobStats.getAuditDetails());
+    }
 
-        ingestLog.setKproc(new BigDecimal(totalProcessed));
-        ingestLog.setKtot(new BigDecimal(totalSaved));
-        ingestLog.setKadtcnt(new BigDecimal(totalError));
-        ingestLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
-        krnwhLogDao.update(ingestLog);
+    public KronosWorkHour getSetKronosWorkHour(String[] kronosPunchData) {
 
+        KronosWorkHour kronosWorkHour = new KronosWorkHour();
+
+        try {
+
+            BigDecimal punchDate = getFormattedPunchDate(kronosPunchData[ApplicationConstants.KRONOS_PUNCH_DATE_COLUMN]);
+
+            String empIdS = kronosPunchData[0].replaceAll("^\"|\"$", "");
+            String badgeIdS = kronosPunchData[4].replaceAll("^\"|\"$", "");
+
+            String employeeStatus = kronosPunchData[2].replaceAll("^\"|\"$", "");
+            String terminal = kronosPunchData[3].replaceAll("^\"|\"$", "");
+
+            if (empIdS.equals("")) empIdS = "0";
+            if (badgeIdS.equals("")) badgeIdS = "0";
+
+            if (employeeStatus.equals("Active")) employeeStatus = "A";
+            if (employeeStatus.equals("LOA")) employeeStatus = "L";
+            if (!employeeStatus.equals("L") && !employeeStatus.equals("A")) employeeStatus = "O";
+
+
+            BigDecimal badgeId = new BigDecimal(badgeIdS);
+            BigDecimal empId = new BigDecimal(empIdS);
+
+            kronosWorkHour.setFpempn(empId);
+            kronosWorkHour.setFppunc(punchDate);
+            kronosWorkHour.setFptype(employeeStatus);
+            kronosWorkHour.setFpclck(terminal);
+
+            kronosWorkHour.setFpbadg(badgeId);
+            kronosWorkHour.setFpfkey("");//*
+            kronosWorkHour.setFppcod(new BigDecimal(0));//*
+            kronosWorkHour.setFstatus("h");//*
+
+            kronosWorkHour.setKrnlogid(kronosIngestLog.getId());
+
+        }catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return kronosWorkHour;
     }
 
 
@@ -345,34 +360,35 @@ public class BaseKrnwhJob implements Job {
         BigDecimal dateTime = getLogDateTimeFormatted();
         log.info("executing report : " + dateTime.toString());
 
-        QuartzIngestLog existingIngestLog = krnwhLogDao.findByDate(dateTime);
+        KronosIngestLog existingIngestLog = krnwhLogDao.findByDate(dateTime);
 
         if (existingIngestLog != null) {
-            this.ingestLog = existingIngestLog;
+            this.kronosIngestLog = existingIngestLog;
         }else{
-            QuartzIngestLog nkrnwhLog = new QuartzIngestLog();
+            KronosIngestLog nkrnwhLog = new KronosIngestLog();
             nkrnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
             nkrnwhLog.setKtot(new BigDecimal(0));
             nkrnwhLog.setKadtcnt(new BigDecimal(0));
             nkrnwhLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
             nkrnwhLog.setKdate(dateTime);
-            this.ingestLog = krnwhLogDao.save(nkrnwhLog);
+            this.kronosIngestLog = krnwhLogDao.save(nkrnwhLog);
         }
     }
 
-    public BigDecimal getFormattedPunchDate(String kdate){
-        String kpDate = kdate.replaceAll("^\"|\"$", "");
+
+    public BigDecimal getFormattedPunchDate(String unformattedDate) throws ParseException {
+        unformattedDate = unformattedDate.replaceAll("^\"|\"$", "");
         String format = "MM/dd/yyyy HH:mm'a'";
-        if (kpDate.contains("p")) {
+        if (unformattedDate.contains("p")) {
             format = "MM/dd/yyyy HH:mm'p'";
         }
-
+//they are copying my key strokes Curtis Gray
         SimpleDateFormat sdf = new SimpleDateFormat(format);
-        Date date = sdf.parse(kpDate);
+        Date date = sdf.parse(unformattedDate);
 
         DateFormat sdff = new SimpleDateFormat("yyyyMMddHHmmss");
-        String fDate = sdff.format(date);
-        return new BigDecimal(fDate);
+        String formattedDate = sdff.format(date);
+        return new BigDecimal(formattedDate);
     }
 
 
@@ -397,10 +413,10 @@ public class BaseKrnwhJob implements Job {
 
     public void setLocalDefined(JobExecutionContext context) throws SchedulerException {
         JobDetail jobDetail = context.getScheduler().getJobDetail(this.jobKey);
-        this.krnwhDao = (KrnwhDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_DAO_LOOKUP);
-        this.krnwhLogDao = (KrnwhLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
-        this.krnwhJobSettings = (KrnwhJobSettings) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP);
-        this.quartzJobStats  = (KrnwhJobStats) jobDetail.getJobDataMap().get(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP);
+        this.krnwhDao = (KronosWorkHourDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_DAO_LOOKUP);
+        this.krnwhLogDao = (KronosIngestLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
+        this.krnwhJobSettings = (KronosWorkHourSettings) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP);
+        this.quartzJobStats  = (KronosQuartzJobStats) jobDetail.getJobDataMap().get(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP);
         this.quartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
     }
 

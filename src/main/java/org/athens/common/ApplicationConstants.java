@@ -9,6 +9,13 @@ public class ApplicationConstants {
 
     public static final String EMPTY_AUDIT     = "{}";
 
+    public static final int KRONOS_PUNCH_DATE_COLUMN      = 1;
+    public static final int KRONOS_EMPLOYEE_ID_COLUMN     = 0;
+    public static final int KRONOS_BADGE_ID_COLUMN        = 4;
+    public static final int KRONOS_EMPLOYEE_STATUS_COLUMN = 2;
+    public static final int KRONOS_TERMINAL_COLUMN        = 3;
+
+
     public static final String KRONOS_TOKEN_LOOKUP          = "token";
     public static final String KRONOS_DAILY_REPORT          = "70184453";
     public static final String KRONOS_WEEKLY_REPORT         = "70165985";
@@ -28,7 +35,7 @@ public class ApplicationConstants {
     public static final String ATHENS_QUARTZ_WEEKLY_TRIGGER = "AthensQuartzWeeklyTrigger";
 
     //public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 24 6,21 * * ?";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
     public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 */3 * * * ?";
-    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 */2 * * * ?";
 
 }
