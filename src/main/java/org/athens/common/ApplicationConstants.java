@@ -5,15 +5,17 @@ public class ApplicationConstants {
     public static final String STARTED_STATUS  = "Started";
     public static final String RUNNING_STATUS  = "Running";
     public static final String COMPLETE_STATUS = "Complete";
+    public static final String STOPPED_STATUS  = "Stopped";
     public static final String ERROR_STATUS    = "Something went wrong";
 
     public static final String EMPTY_AUDIT     = "{}";
+    public static final String CSV_DELIMETER   = ",";
 
     public static final int KRONOS_PUNCH_DATE_COLUMN      = 1;
     public static final int KRONOS_EMPLOYEE_ID_COLUMN     = 0;
     public static final int KRONOS_BADGE_ID_COLUMN        = 4;
     public static final int KRONOS_EMPLOYEE_STATUS_COLUMN = 2;
-    public static final int KRONOS_TERMINAL_COLUMN        = 3;
+    public static final int KRONOS_TERMINAL_COLUMN         = 3;
 
 
     public static final String KRONOS_TOKEN_LOOKUP          = "token";
@@ -36,6 +38,6 @@ public class ApplicationConstants {
 
     //public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 24 6,21 * * ?";
     public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
-    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 */3 * * * ?";
+    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 */2 * * * ?";
 
 }

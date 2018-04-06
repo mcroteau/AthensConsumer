@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.athens.dao.KronosIngestLogDao;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,7 +22,7 @@ public class KronosIngestLogDaoImpl implements KronosIngestLogDao {
 
 
     public int count() {
-        String sql = "select count(*) from KRNLOG";
+        String sql = "select count(*) from QGPL.KRNLOG";
         int count = 0;
         try{
             count = jdbcTemplate.queryForObject(sql, Integer.class, new Object[0]);
@@ -75,17 +76,16 @@ public class KronosIngestLogDaoImpl implements KronosIngestLogDao {
 
 
     public List<KronosIngestLog> list(int max, int offset){
+        List<KronosIngestLog> krnwLogs = new ArrayList<KronosIngestLog>();
         try{
 
-            String sql = "select * from QGPL.KRNLOG limit " + max + " offset " + offset;
-            List<KronosIngestLog> krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosIngestLog>(KronosIngestLog.class));
-
-            return krnwLogs;
+            String sql = "select * from QGPL.KRNLOG order by kdate desc limit " + max + " offset " + offset;
+            krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosIngestLog>(KronosIngestLog.class));
 
         }catch (Exception e){
             e.printStackTrace();
         }
-        return null;
+        return krnwLogs;
     }
 
 

@@ -34,7 +34,7 @@ import com.google.gson.JsonParser;
 /**Im going to rename all quartz job classes**/
 
 @DisallowConcurrentExecution
-public class BaseKronosIngestJob implements Job {
+public class BaseKronosIngestJob implements InterruptableJob {
 
     final static Logger log = Logger.getLogger(BaseKronosIngestJob.class);
 
@@ -91,6 +91,13 @@ public class BaseKronosIngestJob implements Job {
             log.info("something went wrong setting up quartz job");
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void interrupt() throws UnableToInterruptJobException {
+        log.info("job interrupted");
+        kronosIngestLog.setKstatus(ApplicationConstants.STOPPED_STATUS);
+        krnwhLogDao.save(kronosIngestLog);
     }
 
 
@@ -155,12 +162,12 @@ public class BaseKronosIngestJob implements Job {
         ClientResponse response  = builder.get(ClientResponse.class);
         String csvData = response.getEntity(String.class);
 
-        readCsvDataSetTotal(csvData.toString());
-        readCsvDataString(csvData.toString());
+        readKronosCsvDataSetTotalAmount(csvData.toString());
+        readKronosCsvDataSave(csvData.toString());
     }
 
 
-    public void readCsvDataSetTotal(String csvData){
+    public void readKronosCsvDataSetTotalAmount(String csvData){
         String line = "";
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
@@ -180,7 +187,7 @@ public class BaseKronosIngestJob implements Job {
     }
 
 
-    public void readCsvDataString(String csvData){
+    public void readKronosCsvDataSave(String csvData){
         String line = "";
 
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
@@ -190,92 +197,38 @@ public class BaseKronosIngestJob implements Job {
 
                 if(totalProcessed != 0) {
 
-                    String[] kronosPunchData = line.split(",");
-                    KronosWorkHour kronosWorkHour = getSetKronosWorkHour(kronosPunchData);
+                    String[] kronosPunchData = line.split(ApplicationConstants.CSV_DELIMETER);
 
-                    KronosWorkHour existingKronosWorkHour = null;
+                    KronosWorkHour kronosWorkHour = getSetKronosWorkHourFromData(kronosPunchData);
+                    KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
 
-                    if(kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0  &&
-                            kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0){
-
-                        log.info("find by both");
-                        existingKronosWorkHour = krnwhDao.findByPunchBadgeIdEmployeeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpbadg(), kronosWorkHour.getFpempn());
-                        if(existingKronosWorkHour != null){
-                            String key = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpbadg().toString() + kronosWorkHour.getFpempn().toString();
-
-                            int value = 0;
-                            if(quartzJobStats.getExistsMap().containsKey(key)){
-                                value = quartzJobStats.getExistsMap().get(key);
-                            }
-
-                            value++;
-                            quartzJobStats.setExistsMapValue(key, value);
-                        }
-                    }else if(kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0 &&
-                            kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) == 0){
-
-                        log.info("find by badge id");
-                        existingKronosWorkHour = krnwhDao.findByPunchBadgeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpbadg());
-                        if(existingKronosWorkHour != null){
-                            String key = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpbadg().toString();
-                            int value = 0;
-                            if(quartzJobStats.getExistsMap().containsKey(key)){
-                                value = quartzJobStats.getExistsMap().get(key);
-                            }
-                            value++;
-                            quartzJobStats.setExistsMapValue(key, value);
-                        }
-
-                    }else if(kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0 &&
-                            kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) == 0){
-
-                        existingKronosWorkHour = krnwhDao.findByPunchEmployeeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpempn());
-                        log.info("find by employee id");
-                        if(existingKronosWorkHour != null){
-                            String key = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpempn().toString();
-                            int value = 0;
-                            if(quartzJobStats.getExistsMap().containsKey(key)){
-                                value = quartzJobStats.getExistsMap().get(key);
-                            }
-                            value++;
-                            quartzJobStats.setExistsMapValue(key, value);
-                        }
-
-                    }
-
-
-                    if (totalProcessed % 3 == 0) kronosWorkHour.setFstatus("aa");
-
-                    //log.info(kronosWorkHour.toString());
+                    if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
 
                     try {
 
-                        if(existingKronosWorkHour == null) {
-                            KronosWorkHour skrnwh = krnwhDao.save(kronosWorkHour);
-                            totalSaved++;
-                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
-                            quartzJobStats.setSaved(totalSaved);
-                        }else{
+                        if(existingKronosWorkHour != null) {
                             totalFound++;
                             log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
                             quartzJobStats.setFound(totalFound);
                         }
 
+                        if(existingKronosWorkHour == null){
+                            KronosWorkHour skrnwh = krnwhDao.save(kronosWorkHour);
+                            totalSaved++;
+                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
+                            quartzJobStats.setSaved(totalSaved);
+                        }
 
                     } catch (Exception e) {
                         quartzJobStats.addAuditDetails(kronosWorkHour);
                         totalError++;
                         log.warn("error");
                         e.printStackTrace();
-
                     }
-
                 }
 
                 totalProcessed++;
                 quartzJobStats.setProcessed(totalProcessed);
-
-
 
                 kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
                 kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
@@ -287,14 +240,6 @@ public class BaseKronosIngestJob implements Job {
             e.printStackTrace();
         }
 
-        log.info("processed: "   + totalProcessed);
-        log.info("error count: " + totalError);
-        log.info("totalSaved: "  + totalSaved);
-        log.info("found: "       + totalFound);
-
-
-
-
         kronosIngestLog.setKaudit(getAuditJsonRepresentation());
         kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
         kronosIngestLog.setKtot(new BigDecimal(totalSaved));
@@ -305,12 +250,61 @@ public class BaseKronosIngestJob implements Job {
     }
 
 
+    private KronosWorkHour getExistingKronosWorkHour(KronosWorkHour kronosWorkHour){
+
+        int value = 0;
+        String kronosIdentifier = "";
+
+        KronosWorkHour existingKronosWorkHour = null;
+
+        if(kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0  &&
+                kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0){
+
+            log.info("find by both");
+            existingKronosWorkHour = krnwhDao.findByPunchBadgeIdEmployeeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpbadg(), kronosWorkHour.getFpempn());
+            kronosIdentifier = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpbadg().toString() + kronosWorkHour.getFpempn().toString();
+
+        }else if(kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0 &&
+                kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) == 0){
+
+            log.info("find by badge id");
+            existingKronosWorkHour = krnwhDao.findByPunchBadgeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpbadg());
+            kronosIdentifier = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpbadg().toString();
+
+        }else if(kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0 &&
+                kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) == 0){
+
+            existingKronosWorkHour = krnwhDao.findByPunchEmployeeId(kronosWorkHour.getFppunc(), kronosWorkHour.getFpempn());
+            log.info("find by employee id");
+            kronosIdentifier = kronosWorkHour.getFppunc().toString() + kronosWorkHour.getFpempn().toString();
+
+        }
+
+        if(quartzJobStats.getExistsMap().containsKey(kronosIdentifier)){
+            value = quartzJobStats.getExistsMap().get(kronosIdentifier);
+        }
+
+        if(existingKronosWorkHour == null){
+            kronosIdentifier = "";
+        }
+
+        if(existingKronosWorkHour != null && !kronosIdentifier.equals("")){
+            value++;
+            quartzJobStats.setExistsMapValue(kronosIdentifier, value);
+        }
+
+        return existingKronosWorkHour;
+
+    }
+
+
     public String getAuditJsonRepresentation(){
         Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
         return gsonObj.toJson(quartzJobStats.getAuditDetails());
     }
 
-    public KronosWorkHour getSetKronosWorkHour(String[] kronosPunchData) {
+
+    public KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData) {
 
         KronosWorkHour kronosWorkHour = new KronosWorkHour();
 

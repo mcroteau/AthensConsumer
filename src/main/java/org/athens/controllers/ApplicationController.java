@@ -120,11 +120,11 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //kronosIngestLogs = logDao.list(m, o);
-            kronosIngestLogs = generateMockKrnwhLogs(m, o);
+            kronosIngestLogs = logDao.list(m, o);
+            //kronosIngestLogs = generateMockKrnwhLogs(m, o);
         }else{
-            //kronosIngestLogs = logDao.list(10, 0);
-            kronosIngestLogs = generateMockKrnwhLogs(10, 0);
+            kronosIngestLogs = logDao.list(10, 0);
+            //kronosIngestLogs = generateMockKrnwhLogs(10, 0);
         }
 
         //int count = logDao.count();

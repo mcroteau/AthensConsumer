@@ -52,16 +52,8 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 				kronosWorkHour.getKrnlogid() + "))";
 
 		log.info(sql);
-		KronosWorkHour skrnwh = new KronosWorkHour();
-
-		try {
-			skrnwh = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[]{},
+		KronosWorkHour skrnwh = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[]{},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
-
-		}catch(Exception e){
-			e.printStackTrace();
-			log.warn("unable to save kronosWorkHour ...");
-		}
 
 		return skrnwh;
 
@@ -94,7 +86,7 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
 
 		}catch (Exception e){
-			e.printStackTrace();
+			log.warn("exception : unable to find punch by ingest...");
 		}
 		return kronosWorkHours;
 	}
@@ -112,8 +104,7 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
 
 		}catch(Exception e){
-			log.warn("unable to find kronosWorkHours by date...");
-			e.printStackTrace();
+			log.warn("exception : unable to find kronosWorkHours by date...");
 		}
 		return kronosWorkHours;
 	}
@@ -127,8 +118,7 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 			k = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[] {},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 		}catch(Exception e){
-			log.warn("unable to find by punch badge id");
-			e.printStackTrace();
+			log.warn("exception : unable to find by punch badge id");
 		}
 		return k;
 	}
@@ -142,8 +132,7 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 			k = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[] {},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 		}catch(Exception e){
-			log.warn("unable to find by punch employee id");
-			e.printStackTrace();
+			log.warn("exception : unable to find by punch employee id");
 		}
 		return k;
 	}
@@ -158,8 +147,7 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 			k = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[] {},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 		}catch(Exception e){
-			log.warn("unable to find by punch badge id employee id");
-			e.printStackTrace();
+			log.warn("exception : unable to find by punch badge id employee id");
 		}
 		return k;
 	}
