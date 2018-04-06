@@ -7,7 +7,7 @@ import org.quartz.DisallowConcurrentExecution;
 
 
 @DisallowConcurrentExecution
-public class KronosWorkHourDailyJob extends BaseKronosIngestJob {
+public class KronosWorkHourDailyJob extends BaseQuartzJob {
 
 	final static Logger log = Logger.getLogger(KronosWorkHourDailyJob.class);
 

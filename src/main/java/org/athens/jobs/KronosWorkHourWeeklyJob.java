@@ -5,7 +5,7 @@ import org.athens.common.ApplicationConstants;
 import org.quartz.DisallowConcurrentExecution;
 
 @DisallowConcurrentExecution
-public class KronosWorkHourWeeklyJob extends BaseKronosIngestJob {
+public class KronosWorkHourWeeklyJob extends BaseQuartzJob {
 
     final static Logger log = Logger.getLogger(KronosWorkHourWeeklyJob.class);
 

@@ -33,9 +33,9 @@ import com.google.gson.JsonParser;
 /**Im going to rename all quartz job classes**/
 
 @DisallowConcurrentExecution
-public class BaseKronosIngestJob implements InterruptableJob {
+public class BaseQuartzJob implements Job {
 
-    final static Logger log = Logger.getLogger(BaseKronosIngestJob.class);
+    final static Logger log = Logger.getLogger(BaseQuartzJob.class);
 
     private String authenticationToken = "";
 
@@ -57,7 +57,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     private QuartzJobStats quartzJobStats;
 
 
-    public BaseKronosIngestJob(String jobName, String report){
+    public BaseQuartzJob(String jobName, String report){
         log.info("Initializing " + jobName);
         this.report = report;
         this.jobKey = new JobKey(jobName, ApplicationConstants.ATHENS_GROUP);
@@ -94,15 +94,8 @@ public class BaseKronosIngestJob implements InterruptableJob {
         }
     }
 
-    @Override
-    public void interrupt() throws UnableToInterruptJobException {
-        log.info("job interrupted");
-        kronosIngestLog.setKstatus(ApplicationConstants.STOPPED_STATUS);
-        krnwhLogDao.save(kronosIngestLog);
-    }
 
-
-    public void performKronosAuthentication(){
+    private void performKronosAuthentication(){
 
         JsonObject credentials = getAuthenticationCredentials();
 
@@ -149,7 +142,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public void performKronosReportRequestProcess(){
+    private void performKronosReportRequestProcess(){
         String uri = ApplicationConstants.KRONOS_BASE_REPORT_URI + this.report;
 
         DefaultClientConfig client = new DefaultClientConfig();
@@ -168,7 +161,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public void readKronosCsvDataSetTotalAmount(String csvData){
+    private void readKronosCsvDataSetTotalAmount(String csvData){
         String line = "";
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
@@ -188,7 +181,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public void readKronosCsvDataSave(String csvData){
+    private void readKronosCsvDataSave(String csvData){
         String line = "";
 
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
@@ -299,13 +292,13 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public String getAuditJsonRepresentation(){
+    private String getAuditJsonRepresentation(){
         Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
         return gsonObj.toJson(quartzJobStats.getAuditDetails());
     }
 
 
-    public KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData) {
+    private KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData) {
 
         KronosWorkHour kronosWorkHour = new KronosWorkHour();
 
@@ -377,7 +370,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public BigDecimal getFormattedPunchDate(String unformattedDate) throws ParseException {
+    private BigDecimal getFormattedPunchDate(String unformattedDate) throws ParseException {
         unformattedDate = unformattedDate.replaceAll("^\"|\"$", "");
         String format = "MM/dd/yyyy HH:mm'a'";
         if (unformattedDate.contains("p")) {
@@ -393,7 +386,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public BigDecimal getLogDateTimeFormatted(){
+    private BigDecimal getLogDateTimeFormatted(){
         Date date = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String fDate = dateFormat.format(date);
@@ -410,7 +403,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public void resetQuartzJobStats(){
+    private void resetQuartzJobStats(){
         this.quartzJobStats.setTotal(0);
         this.quartzJobStats.setSaved(0);
         this.quartzJobStats.setFound(0);
@@ -421,7 +414,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public void setLocalDefined(JobExecutionContext context) throws SchedulerException {
+    private void setLocalDefined(JobExecutionContext context) throws SchedulerException {
         JobDetail jobDetail = context.getScheduler().getJobDetail(this.jobKey);
         this.krnwhDao = (KronosWorkHourDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_DAO_LOOKUP);
         this.krnwhLogDao = (QuartzIngestLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
