@@ -5,7 +5,7 @@ import org.athens.domain.QuartzIngestLog;
 import java.util.List;
 import java.math.BigDecimal;
 
-
+/**KRNLOG**/
 public interface QuartzIngestLogDao {
 
 	public int count();
@@ -21,8 +21,6 @@ public interface QuartzIngestLogDao {
 	public QuartzIngestLog save(QuartzIngestLog kronosIngestLog);
 	
 	public QuartzIngestLog update(QuartzIngestLog kronosIngestLog);
-
-
 
 }
 

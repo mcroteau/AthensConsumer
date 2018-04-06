@@ -397,8 +397,9 @@ public class BaseQuartzJob implements Job {
     private void clearExistingLogs(){
         List<QuartzIngestLog> kronosIngestLogs = krnwhLogDao.findAllByStatus(ApplicationConstants.RUNNING_STATUS);
         for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){
+            log.info(kronosIngestLog);
             kronosIngestLog.setKstatus(ApplicationConstants.INTERRUPTED_STATUS);
-            krnwhLogDao.update(kronosIngestLog);
+            //krnwhLogDao.update(kronosIngestLog);//TODO: uncomment
         }
     }
 
