@@ -15,6 +15,7 @@ public class KronosQuartzJobStats {
     private int errored;
     private int processed;
     private String status;
+    private int kronosIngestId;
 
     private Map<String, Integer> existsMap = new HashMap<String, Integer>();
 
@@ -53,14 +54,6 @@ public class KronosQuartzJobStats {
         this.errored = errored;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public int getProcessed() {
         return processed;
     }
@@ -69,6 +62,21 @@ public class KronosQuartzJobStats {
         this.processed = processed;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public int getKronosIngestId() {
+        return kronosIngestId;
+    }
+
+    public void setKronosIngestId(int kronosIngestId) {
+        this.kronosIngestId = kronosIngestId;
+    }
 
     public Map<String, Integer> getExistsMap() {
         return existsMap;
@@ -93,7 +101,7 @@ public class KronosQuartzJobStats {
 
 
     public boolean jobRunning() {
-        return (this.status != null && this.status.equals(ApplicationConstants.RUNNING_STATUS)) ? true : false;
+        return (this.status != null && (this.status.equals(ApplicationConstants.RUNNING_STATUS) || this.status.equals(ApplicationConstants.STARTED_STATUS) ? true : false;
     }
 
 }

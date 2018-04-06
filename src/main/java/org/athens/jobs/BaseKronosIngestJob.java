@@ -75,6 +75,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
              }**/
 
             setLocalDefined(context);
+            clearExistingLogs();
             resetQuartzJobStats();
             getSetKrnwhQuartzJobLog();
 
@@ -312,29 +313,28 @@ public class BaseKronosIngestJob implements InterruptableJob {
 
             BigDecimal punchDate = getFormattedPunchDate(kronosPunchData[ApplicationConstants.KRONOS_PUNCH_DATE_COLUMN]);
 
-            String empIdS = kronosPunchData[0].replaceAll("^\"|\"$", "");
-            String badgeIdS = kronosPunchData[4].replaceAll("^\"|\"$", "");
+            String employeeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_ID_COLUMN]);
+            String badgeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_BADGE_ID_COLUMN]);
 
-            String employeeStatus = kronosPunchData[2].replaceAll("^\"|\"$", "");
-            String terminal = kronosPunchData[3].replaceAll("^\"|\"$", "");
+            String employeeStatus = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_STATUS_COLUMN]);
+            String terminal = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_TERMINAL_COLUMN]);
 
-            if (empIdS.equals("")) empIdS = "0";
-            if (badgeIdS.equals("")) badgeIdS = "0";
+            if (employeeIdString.equals("")) employeeIdString = "0";
+            if (badgeIdString.equals("")) badgeIdString = "0";
 
             if (employeeStatus.equals("Active")) employeeStatus = "A";
             if (employeeStatus.equals("LOA")) employeeStatus = "L";
             if (!employeeStatus.equals("L") && !employeeStatus.equals("A")) employeeStatus = "O";
 
+            BigDecimal employeeId = new BigDecimal(employeeIdString);
+            BigDecimal badgeId = new BigDecimal(badgeIdString);
 
-            BigDecimal badgeId = new BigDecimal(badgeIdS);
-            BigDecimal empId = new BigDecimal(empIdS);
-
-            kronosWorkHour.setFpempn(empId);
+            kronosWorkHour.setFpempn(employeeId);
             kronosWorkHour.setFppunc(punchDate);
             kronosWorkHour.setFptype(employeeStatus);
             kronosWorkHour.setFpclck(terminal);
-
             kronosWorkHour.setFpbadg(badgeId);
+
             kronosWorkHour.setFpfkey("");//*
             kronosWorkHour.setFppcod(new BigDecimal(0));//*
             kronosWorkHour.setFstatus("h");//*
@@ -350,7 +350,13 @@ public class BaseKronosIngestJob implements InterruptableJob {
     }
 
 
-    public void getSetKrnwhQuartzJobLog(){
+    private String cleanupString(String raw){
+        return raw.replaceAll("^\"|\"$", "");
+    }
+
+
+
+    private void getSetKrnwhQuartzJobLog(){
         BigDecimal dateTime = getLogDateTimeFormatted();
         log.info("executing report : " + dateTime.toString());
 
@@ -376,7 +382,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
         if (unformattedDate.contains("p")) {
             format = "MM/dd/yyyy HH:mm'p'";
         }
-//they are copying my key strokes Curtis Gray
+
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         Date date = sdf.parse(unformattedDate);
 
@@ -393,6 +399,14 @@ public class BaseKronosIngestJob implements InterruptableJob {
         return new BigDecimal(fDate);
     }
 
+
+    private void clearExistingLogs(){
+        List<KronosIngestLog> kronosIngestLogs = krnwhLogDao.findAllByStatus(ApplicationConstants.RUNNING_STATUS);
+        for(KronosIngestLog kronosIngestLog : kronosIngestLogs){
+            kronosIngestLog.setKstatus(ApplicationConstants.INTERRUPTED_STATUS);
+            krnwhLogDao.update(kronosIngestLog);
+        }
+    }
 
 
     public void resetQuartzJobStats(){

@@ -11,14 +11,18 @@ public interface KronosIngestLogDao {
 	public int count();
 
 	public List<KronosIngestLog> list(int max, int offset);
-	
+
+	public KronosIngestLog findById(BigDecimal id);
+
+	public KronosIngestLog findByDate(BigDecimal date);
+
+	public List<KronosIngestLog> findAllByStatus(String status);
+
 	public KronosIngestLog save(KronosIngestLog kronosIngestLog);
 	
 	public KronosIngestLog update(KronosIngestLog kronosIngestLog);
 
-	public KronosIngestLog find(BigDecimal id);
 
-	public KronosIngestLog findByDate(BigDecimal date);
 
 }
 

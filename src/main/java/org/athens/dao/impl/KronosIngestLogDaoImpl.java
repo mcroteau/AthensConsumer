@@ -32,48 +32,6 @@ public class KronosIngestLogDaoImpl implements KronosIngestLogDao {
         return count;
     }
 
-    public KronosIngestLog save(KronosIngestLog kronosIngestLog){
-
-        String sql = "SELECT * FROM FINAL TABLE " +
-                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, kproc ) " +
-                "values " +
-                "("   + kronosIngestLog.getKdate() + "," +
-                  "'" + kronosIngestLog.getKstatus() + "'," +
-                        kronosIngestLog.getKtot() + "," +
-                        kronosIngestLog.getKadtcnt() + "," +
-                  "'" + kronosIngestLog.getKaudit() + "'," +
-                        kronosIngestLog.getKproc() + "))";
-
-
-        KronosIngestLog skrnwhLog = new KronosIngestLog();
-
-        try {
-            skrnwhLog = (KronosIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
-                    new BeanPropertyRowMapper(KronosIngestLog.class));
-
-        }catch(Exception e){
-            e.printStackTrace();
-            log.warn("unable to save log ...");
-        }
-
-        return skrnwhLog;
-    }
-
-
-
-    public KronosIngestLog update(KronosIngestLog kronosIngestLog){
-
-        String updateSql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kdate, kaudit, kproc ) = (?, ?, ?, ?, ?, ?)  where id = ?";
-
-        jdbcTemplate.update(updateSql, new Object[] {
-                kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(), kronosIngestLog.getKadtcnt(),
-                kronosIngestLog.getKdate(), kronosIngestLog.getKaudit(), kronosIngestLog.getKproc(), kronosIngestLog.getId()
-        });
-
-        return find(kronosIngestLog.getId());
-
-    }
-
 
     public List<KronosIngestLog> list(int max, int offset){
         List<KronosIngestLog> krnwLogs = new ArrayList<KronosIngestLog>();
@@ -90,7 +48,7 @@ public class KronosIngestLogDaoImpl implements KronosIngestLogDao {
 
 
 
-    public KronosIngestLog find(BigDecimal id){
+    public KronosIngestLog findById(BigDecimal id){
         String findSql = "select * from QGPL.KRNLOG where id = " + id;
 
         KronosIngestLog kronosIngestLog = new KronosIngestLog();
@@ -122,6 +80,64 @@ public class KronosIngestLogDaoImpl implements KronosIngestLogDao {
         }
         return kronosIngestLog;
     }
+
+
+    public List<KronosIngestLog> findAllByStatus(String status){
+        List<KronosIngestLog> krnwLogs = new ArrayList<KronosIngestLog>();
+        try{
+
+            String sql = "select * from QGPL.KRNLOG where kstatus = '" + status + "'";
+            krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosIngestLog>(KronosIngestLog.class));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return krnwLogs;
+    }
+
+
+    public KronosIngestLog save(KronosIngestLog kronosIngestLog){
+
+        String sql = "SELECT * FROM FINAL TABLE " +
+                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, kproc ) " +
+                "values " +
+                "("   + kronosIngestLog.getKdate() + "," +
+                "'" + kronosIngestLog.getKstatus() + "'," +
+                kronosIngestLog.getKtot() + "," +
+                kronosIngestLog.getKadtcnt() + "," +
+                "'" + kronosIngestLog.getKaudit() + "'," +
+                kronosIngestLog.getKproc() + "))";
+
+
+        KronosIngestLog skrnwhLog = new KronosIngestLog();
+
+        try {
+            skrnwhLog = (KronosIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
+                    new BeanPropertyRowMapper(KronosIngestLog.class));
+
+        }catch(Exception e){
+            e.printStackTrace();
+            log.warn("unable to save log ...");
+        }
+
+        return skrnwhLog;
+    }
+
+
+
+    public KronosIngestLog update(KronosIngestLog kronosIngestLog){
+
+        String updateSql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kdate, kaudit, kproc ) = (?, ?, ?, ?, ?, ?)  where id = ?";
+
+        jdbcTemplate.update(updateSql, new Object[] {
+                kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(), kronosIngestLog.getKadtcnt(),
+                kronosIngestLog.getKdate(), kronosIngestLog.getKaudit(), kronosIngestLog.getKproc(), kronosIngestLog.getId()
+        });
+
+        return findById(kronosIngestLog.getId());
+
+    }
+
 
 }
 

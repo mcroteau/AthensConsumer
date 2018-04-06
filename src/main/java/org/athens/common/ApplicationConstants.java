@@ -2,19 +2,20 @@ package org.athens.common;
 
 public class ApplicationConstants {
 
-    public static final String STARTED_STATUS  = "Started";
-    public static final String RUNNING_STATUS  = "Running";
-    public static final String COMPLETE_STATUS = "Complete";
-    public static final String STOPPED_STATUS  = "Stopped";
-    public static final String ERROR_STATUS    = "Something went wrong";
+    public static final String STARTED_STATUS      = "Started";
+    public static final String RUNNING_STATUS      = "Running";
+    public static final String COMPLETE_STATUS     = "Complete";
+    public static final String STOPPED_STATUS      = "Stopped";
+    public static final String ERROR_STATUS        = "Something went wrong";
+    public static final String INTERRUPTED_STATUS  = "Stopped";
 
     public static final String EMPTY_AUDIT     = "{}";
     public static final String CSV_DELIMETER   = ",";
 
-    public static final int KRONOS_PUNCH_DATE_COLUMN      = 1;
-    public static final int KRONOS_EMPLOYEE_ID_COLUMN     = 0;
-    public static final int KRONOS_BADGE_ID_COLUMN        = 4;
-    public static final int KRONOS_EMPLOYEE_STATUS_COLUMN = 2;
+    public static final int KRONOS_PUNCH_DATE_COLUMN       = 1;
+    public static final int KRONOS_EMPLOYEE_ID_COLUMN      = 0;
+    public static final int KRONOS_BADGE_ID_COLUMN         = 4;
+    public static final int KRONOS_EMPLOYEE_STATUS_COLUMN  = 2;
     public static final int KRONOS_TERMINAL_COLUMN         = 3;
 
 
