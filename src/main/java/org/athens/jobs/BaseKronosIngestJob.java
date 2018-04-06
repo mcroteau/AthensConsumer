@@ -9,13 +9,12 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.common.ApplicationConstants;
 import org.athens.dao.impl.KronosWorkHourDaoImpl;
-import org.athens.dao.impl.KronosIngestLogDaoImpl;
-import org.athens.domain.KronosIngestLog;
+import org.athens.dao.impl.QuartzIngestLogDaoImpl;
+import org.athens.domain.QuartzIngestLog;
 import org.athens.domain.KronosWorkHour;
-import org.athens.domain.KronosWorkHourSettings;
-import org.athens.domain.KronosQuartzJobStats;
+import org.athens.domain.QuartzJobSettings;
+import org.athens.domain.QuartzJobStats;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -50,12 +49,12 @@ public class BaseKronosIngestJob implements InterruptableJob {
     private String report;
     private JobKey jobKey;
 
-    private KronosIngestLog kronosIngestLog;
+    private QuartzIngestLog kronosIngestLog;
 
     private KronosWorkHourDaoImpl krnwhDao;
-    private KronosIngestLogDaoImpl krnwhLogDao;
-    private KronosWorkHourSettings krnwhJobSettings;
-    private KronosQuartzJobStats quartzJobStats;
+    private QuartzIngestLogDaoImpl krnwhLogDao;
+    private QuartzJobSettings krnwhJobSettings;
+    private QuartzJobStats quartzJobStats;
 
 
     public BaseKronosIngestJob(String jobName, String report){
@@ -75,6 +74,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
              }**/
 
             setLocalDefined(context);
+            setQuartzJobStatsStatus();
             clearExistingLogs();
             resetQuartzJobStats();
             getSetKrnwhQuartzJobLog();
@@ -360,12 +360,12 @@ public class BaseKronosIngestJob implements InterruptableJob {
         BigDecimal dateTime = getLogDateTimeFormatted();
         log.info("executing report : " + dateTime.toString());
 
-        KronosIngestLog existingIngestLog = krnwhLogDao.findByDate(dateTime);
+        QuartzIngestLog existingIngestLog = krnwhLogDao.findByDate(dateTime);
 
         if (existingIngestLog != null) {
             this.kronosIngestLog = existingIngestLog;
         }else{
-            KronosIngestLog nkrnwhLog = new KronosIngestLog();
+            QuartzIngestLog nkrnwhLog = new QuartzIngestLog();
             nkrnwhLog.setKstatus(ApplicationConstants.STARTED_STATUS);
             nkrnwhLog.setKtot(new BigDecimal(0));
             nkrnwhLog.setKadtcnt(new BigDecimal(0));
@@ -373,6 +373,7 @@ public class BaseKronosIngestJob implements InterruptableJob {
             nkrnwhLog.setKdate(dateTime);
             this.kronosIngestLog = krnwhLogDao.save(nkrnwhLog);
         }
+        quartzJobStats.setKronosIngestId(kronosIngestLog.getId());
     }
 
 
@@ -401,8 +402,8 @@ public class BaseKronosIngestJob implements InterruptableJob {
 
 
     private void clearExistingLogs(){
-        List<KronosIngestLog> kronosIngestLogs = krnwhLogDao.findAllByStatus(ApplicationConstants.RUNNING_STATUS);
-        for(KronosIngestLog kronosIngestLog : kronosIngestLogs){
+        List<QuartzIngestLog> kronosIngestLogs = krnwhLogDao.findAllByStatus(ApplicationConstants.RUNNING_STATUS);
+        for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){
             kronosIngestLog.setKstatus(ApplicationConstants.INTERRUPTED_STATUS);
             krnwhLogDao.update(kronosIngestLog);
         }
@@ -416,38 +417,21 @@ public class BaseKronosIngestJob implements InterruptableJob {
         this.quartzJobStats.setErrored(0);
         this.quartzJobStats.setProcessed(0);
         this.quartzJobStats.setStatus(null);
+        this.quartzJobStats.setKronosIngestId(new BigDecimal(0));
     }
 
 
     public void setLocalDefined(JobExecutionContext context) throws SchedulerException {
         JobDetail jobDetail = context.getScheduler().getJobDetail(this.jobKey);
         this.krnwhDao = (KronosWorkHourDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_DAO_LOOKUP);
-        this.krnwhLogDao = (KronosIngestLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
-        this.krnwhJobSettings = (KronosWorkHourSettings) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP);
-        this.quartzJobStats  = (KronosQuartzJobStats) jobDetail.getJobDataMap().get(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP);
-        this.quartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
+        this.krnwhLogDao = (QuartzIngestLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
+        this.krnwhJobSettings = (QuartzJobSettings) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP);
+        this.quartzJobStats  = (QuartzJobStats) jobDetail.getJobDataMap().get(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP);
     }
 
 
-    public boolean currentlyRunning(JobExecutionContext context){
-        try {
-            Scheduler scheduler = new StdSchedulerFactory().getScheduler();
-            List<JobExecutionContext> runningJobs = scheduler.getCurrentlyExecutingJobs();
-            for (JobExecutionContext jobCtx : runningJobs) {
-                String thisJobName = jobCtx.getJobDetail().getKey().getName();
-                String thisGroupName = jobCtx.getJobDetail().getKey().getGroup();
-                if (this.jobKey.getName().equalsIgnoreCase(thisJobName) && this.jobKey.getGroup().equalsIgnoreCase(thisGroupName)
-                    //&& !jobCtx.getFireTime().equals(context.getFireTime())
-                        ) {
-                    return true;
-                }
-            }
-        }catch (Exception e){
-            log.warn("something went wrong currently running?");
-            return false;
-        }
-        log.info("not running...");
-        return false;
+    private void setQuartzJobStatsStatus(){
+        this.quartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
     }
 
 }

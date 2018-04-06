@@ -2,7 +2,7 @@ package org.athens.domain;
 
 import org.springframework.beans.factory.annotation.Value;
 
-public class KronosWorkHourSettings {
+public class QuartzJobSettings {
 
     @Value("${api.key}")
     private String apiKey;

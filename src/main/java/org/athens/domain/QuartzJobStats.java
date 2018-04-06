@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.math.BigDecimal;
 
-public class KronosQuartzJobStats {
+
+public class QuartzJobStats {
 
     private int total;
     private int saved;
@@ -15,7 +17,7 @@ public class KronosQuartzJobStats {
     private int errored;
     private int processed;
     private String status;
-    private int kronosIngestId;
+    private BigDecimal kronosIngestId;
 
     private Map<String, Integer> existsMap = new HashMap<String, Integer>();
 
@@ -70,11 +72,11 @@ public class KronosQuartzJobStats {
         this.status = status;
     }
 
-    public int getKronosIngestId() {
+    public BigDecimal getKronosIngestId() {
         return kronosIngestId;
     }
 
-    public void setKronosIngestId(int kronosIngestId) {
+    public void setKronosIngestId(BigDecimal kronosIngestId) {
         this.kronosIngestId = kronosIngestId;
     }
 
@@ -101,7 +103,12 @@ public class KronosQuartzJobStats {
 
 
     public boolean jobRunning() {
-        return (this.status != null && (this.status.equals(ApplicationConstants.RUNNING_STATUS) || this.status.equals(ApplicationConstants.STARTED_STATUS) ? true : false;
+        if(this.status != null &&
+                (this.status.equals(ApplicationConstants.RUNNING_STATUS) ||
+                    this.status.equals(ApplicationConstants.STARTED_STATUS))){
+            return true;
+        }
+        return false;
     }
 
 }
