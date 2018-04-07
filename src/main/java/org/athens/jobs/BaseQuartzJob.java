@@ -209,7 +209,6 @@ public class BaseQuartzJob implements Job {
 
                         if(existingKronosWorkHour == null){
                             //KronosWorkHour skrnwh = krnwhDao.save(kronosWorkHour);
-                            TimeUnit.SECONDS.sleep(1);
                             totalSaved++;
                             log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                             quartzJobStats.setSaved(totalSaved);
