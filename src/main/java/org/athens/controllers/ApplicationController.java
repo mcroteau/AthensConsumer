@@ -60,7 +60,13 @@ public class ApplicationController {
 
     @RequestMapping(value="/", method=RequestMethod.GET)
     public String list(final RedirectAttributes redirect){
-        return "redirect:list";
+        return "redirect:jobs";
+    }
+
+
+    @RequestMapping(value="/jobs", method=RequestMethod.GET)
+    public String jobs(final RedirectAttributes redirect){
+        return "jobs";
     }
 
 
