@@ -65,6 +65,12 @@
             opacity:0.63;
             text-transform:uppercase;
         }
+        h1{
+            font-size:48px;
+            font-weight:bold;
+            padding-left: 21px;
+            border-left:solid 6px #D4212F;
+        }
     </style>
 
     <decorator:head />
