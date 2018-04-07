@@ -29,6 +29,7 @@ import java.util.List;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+ import java.util.concurrent.TimeUnit;
 
 /**Im going to rename all quartz job classes**/
 
@@ -208,6 +209,7 @@ public class BaseQuartzJob implements Job {
 
                         if(existingKronosWorkHour == null){
                             //KronosWorkHour skrnwh = krnwhDao.save(kronosWorkHour);
+                            TimeUnit.SECONDS.sleep(1);
                             totalSaved++;
                             log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                             quartzJobStats.setSaved(totalSaved);
@@ -226,7 +228,7 @@ public class BaseQuartzJob implements Job {
 
                 kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
                 kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
-                krnwhLogDao.update(kronosIngestLog);
+                //krnwhLogDao.update(kronosIngestLog);
             }
 
         } catch (Exception e) {

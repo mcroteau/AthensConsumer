@@ -32,8 +32,8 @@
             top:0px;
         }
         #container{
-            width:960px;
-            padding:30px 43px 134px;
+            width:912px;
+            padding:30px 43px 74px;
             margin:30px auto 200px auto;
             text-align:left;
             background:#fff;
@@ -88,7 +88,7 @@
                 <span class="job-status-title">DAILY:&nbsp;</span>
                 <span class="job-status-value" id="daily-status-value">Running</span>
             </span>
-                <span class="job-status-container">
+            <span class="job-status-container">
                 <span class="job-status-title">WEEKLY:&nbsp;</span>
                 <span class="job-status-value" id="weekly-status-value">Idle</span>
             </span>
