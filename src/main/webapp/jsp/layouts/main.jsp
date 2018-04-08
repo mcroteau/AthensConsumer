@@ -43,6 +43,9 @@
             -moz-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
             -webkit-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
         }
+        #logo{
+            margin-top:7px;
+        }
         .clear{
             clear:both;
         }
@@ -68,6 +71,7 @@
         h1{
             font-size:48px;
             font-weight:bold;
+            margin-top: 30px;
             padding-left: 21px;
             border-left:solid 6px #D4212F;
         }
@@ -97,7 +101,7 @@
         <br class="clear"/>
     </div/>
 
-    <img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
+    <img src="${pageContext.request.contextPath}/images/athens-logo.png" id="logo"/>
 
 
     <style type="text/css">

@@ -33,6 +33,7 @@
 		<quartz.version>2.2.1</quartz.version>
 		<mysql.connector.version>8.0.8-dmr</mysql.connector.version>
         <sitemesh.version>2.4.2</sitemesh.version>
+        <joda.version>2.9.8</joda.version>
     </properties>
 
 
@@ -120,6 +121,17 @@
 		      <!---<scope>system</scope>
 		      <systemPath>src/main/resources/lib/jt400.jar</systemPath>-->
         </dependency>
+        <dependency>
+            <groupId>opensymphony</groupId>
+            <artifactId>sitemesh</artifactId>
+            <version>${sitemesh.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -134,11 +146,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>opensymphony</groupId>
-            <artifactId>sitemesh</artifactId>
-            <version>${sitemesh.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>log4j</groupId>

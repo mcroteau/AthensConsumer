@@ -17,6 +17,8 @@ public class QuartzJobStats {
     private int errored;
     private int processed;
     private String status;
+    private String runningTime;
+    private String timeStarted;
     private BigDecimal kronosIngestId;
 
     private Map<String, Integer> existsMap = new HashMap<String, Integer>();
@@ -70,6 +72,22 @@ public class QuartzJobStats {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRunningTime() {
+        return runningTime;
+    }
+
+    public void setRunningTime(String runningTime) {
+        this.runningTime = runningTime;
+    }
+
+    public String getTimeStarted() {
+        return timeStarted;
+    }
+
+    public void setTimeStarted(String timeStarted) {
+        this.timeStarted = timeStarted;
     }
 
     public BigDecimal getKronosIngestId() {

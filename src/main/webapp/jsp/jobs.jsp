@@ -89,6 +89,9 @@
             display:block;
             line-height:1.3em;
         }
+        .stats-details-title{
+            font-size:14px;
+        }
         .ten-text{
             font-size:11px;
         }
@@ -110,7 +113,7 @@
             </div>
             <div class="stats-top-right float-right">
                 <span class="time-title ten-text inline bold">Started:&nbsp;</span>
-                <span class="time-value ten-text inline bold" id="daily-time">0</span>
+                <span class="time-value ten-text inline bold" id="daily-time-started">0</span>
             </div>
             <br class="clear"/>
         </div>
@@ -142,6 +145,8 @@
             <div class="stats-details-container float-left">
                 <span class="stats-details-id-title">Id:&nbsp;#</span>
                 <span class="stats-details-id-value" id="daily-log-id"></span>
+                <br/>
+                <span class="stats-details-id-value" id="daily-running-time"></span>
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
@@ -173,9 +178,8 @@
                 <span class="indicator indicator-idle inline" id="weekly-indicator"></span>
                 <span class="status ten-text inline">Running</span>
             </div>
-            <div class="stats-top-right float-right">
-                <span class="time-title ten-text inline bold">Started:&nbsp;</span>
-                <span class="time-value ten-text inline bold" id="weekly-time">9:01am</span>
+            <div class="stats-top-right">
+                <span class="stats-details-id-value float-right" id="weekly-running-time"></span>
             </div>
             <br class="clear"/>
         </div>
@@ -205,6 +209,10 @@
 
         <div class="stats-details-outer-container">
             <div class="stats-details-container float-left">
+                <div class="stats-top-right">
+                    <span class="time-title ten-text inline bold">Started:&nbsp;</span>
+                    <span class="time-value ten-text inline bold" id="weekly-time-started">9:01am</span>
+                </div>
                 <span class="stats-details-id-title">Id:&nbsp;#</span>
                 <span class="stats-details-id-value" id="weekly-log-id"></span>
             </div>
@@ -242,6 +250,9 @@
             var $dailyIndicator = $("#daily-indicator"),
                 $weeklyIndicator = $("#weekly-indicator");
 
+            var $dailyTimeStarted = $("#daily-time-started"),
+                $weeklyTimeStarted = $("#weekly-time-started");
+
             var $dailyTotal = $("#daily-total"),
                 $weeklyTotal = $("#weekly-total");
 
@@ -253,6 +264,9 @@
 
             var $dailyLogId = $("#daily-log-id"),
                 $weeklyLogId = $("#weekly-log-id");
+
+            var $dailyRunningTime = $("#daily-running-time"),
+                $weeklyRunningTime = $("#weekly-running-time");
 
             var $dailyExists = $("#daily-exists"),
                 $dailySaved = $("#daily-saved"),
@@ -290,30 +304,43 @@
                 resetIndicators();
                 if(json.dailyJobRunning){
                     setIndicator($dailyIndicator, "indicator-idle", "indicator-running");
+                    setTimeStarted($dailyTimeStarted, json.dailyJobRunning);
                     setProcessedStatistics($dailyTotal, $dailyProcessed, $dailyPercent, json.dailyJobRunning);
-                    SET_DETAIL_STATISTICS($dailyExists, $dailySaved, $dailyErrored, json.dailyJobRunning);
+                    SET_DETAIL_STATISTICS($dailyExists, $dailySaved, $dailyErrored, json.dailyJobRunning);//Not me
                     setlogid($dailyLogId, json.dailyJobRunning);
+                    setRunningTime($dailyRunningTime, json.dailyJobRunning);
                 }
                 if(json.weeklyJobRunning){
                     setIndicator($weeklyIndicator, "indicator-idle", "indicator-running");
+                    setTimeStarted($weeklyTimeStarted, json.weeklyJobRunning);
                     setProcessedStatistics($weeklyTotal, $weeklyProcessed, $weeklyPercent, json.weeklyJobRunning);
-                    SET_DETAIL_STATISTICS($weeklyExists, $weeklySaved, $weeklyErrored, json.weeklyJobRunning);
+                    SET_DETAIL_STATISTICS($weeklyExists, $weeklySaved, $weeklyErrored, json.weeklyJobRunning);//Not me
                     setlogid($weeklyLogId, json.weeklyJobRunning);
+                    setRunningTime($weeklyRunningTime, json.weeklyJobRunning);
                 }
             }
 
-            function setlogid($logid, stats){
-$logid.html(stats.kronosIngestId);
+            function setTimeStarted($timeStarted, stats){
+                $timeStarted.html(stats.timeStarted);
             }
 
-            function SET_DETAIL_STATISTICS($exists, $SAVED, $ERRORED, STATS){
+
+            function setRunningTime($runningTime, stats){
+                $runningTime.html(stats.runningTime);
+            }
+
+            function setlogid($logid, stats){
+$logid.html(stats.kronosIngestId);//Not me
+            }
+
+            function SET_DETAIL_STATISTICS($exists, $SAVED, $ERRORED, STATS){//Not me
                 $exists.html(STATS.exists);
                 $ERRORED.html(STATS.errored);
                 $SAVED.html(STATS.saved);
             }
 
-            function setProcessedStatistics($total, $PROCESSED, $PERCENT, STATS){
-                var percent = (parseInt(STATS.processed) / parseInt(STATS.total)).toFixed(3);
+            function setProcessedStatistics($total, $PROCESSED, $PERCENT, STATS){//Not me
+                var percent = (parseInt(STATS.processed) / parseInt(STATS.total) * 100).toFixed(3);
                 $PERCENT.html(percent);
                 $total.html(STATS.total);
                 $PROCESSED.html(STATS.processed);

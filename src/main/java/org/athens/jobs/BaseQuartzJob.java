@@ -29,7 +29,9 @@ import java.util.List;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
- import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeUnit;
+import java.text.DecimalFormat;
+import org.joda.time.LocalTime;
 
 /**Im going to rename all quartz job classes**/
 
@@ -39,6 +41,8 @@ public class BaseQuartzJob implements Job {
     final static Logger log = Logger.getLogger(BaseQuartzJob.class);
 
     private String authenticationToken = "";
+
+    private long timeStarted = 0;
 
     private int totalCount     = 0;
     private int totalSaved     = 0;
@@ -75,9 +79,10 @@ public class BaseQuartzJob implements Job {
              }**/
 
             setLocalDefined(context);
-            setQuartzJobStatsStatus();
-            clearExistingLogs();
             resetQuartzJobStats();
+            setQuartzJobStatsStatus();
+            getSetTimeStarted();
+            clearExistingLogs();
             getSetKrnwhQuartzJobLog();
 
             log.info("running " + this.jobKey.getName() + "... log:"+ kronosIngestLog.getId());
@@ -185,17 +190,23 @@ public class BaseQuartzJob implements Job {
     private void readKronosCsvDataSave(String csvData){
         String line = "";
 
+
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             while ((line = br.readLine()) != null) {
+
+                getSetRunningTime();
 
                 if(totalProcessed != 0) {
 
                     String[] kronosPunchData = line.split(ApplicationConstants.CSV_DELIMETER);
 
                     KronosWorkHour kronosWorkHour = getSetKronosWorkHourFromData(kronosPunchData);
+
                     KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
+
+                    getSetRunningTime();
 
                     if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
 
@@ -221,6 +232,8 @@ public class BaseQuartzJob implements Job {
                         e.printStackTrace();
                     }
                 }
+
+                getSetRunningTime();
 
                 totalProcessed++;
                 quartzJobStats.setProcessed(totalProcessed);
@@ -425,8 +438,27 @@ public class BaseQuartzJob implements Job {
     }
 
 
+    private void getSetRunningTime(){
+        long iterationTime = System.nanoTime();
+        long difference = iterationTime - timeStarted;
+        long seconds = new BigDecimal(difference / 1000000000);
+        log.info(seconds);
+        BigDecimal minutes = new BigDecimal(seconds / 60);
+        log.info(minutes);
+        String minutesFormatted = new DecimalFormat("#.##########").format(minutes) + " minutes";
+        quartzJobStats.setRunningTime(minutesFormatted);
+    }
+
+
+    private void getSetTimeStarted(){
+        LocalTime localTime = new LocalTime();
+        quartzJobStats.setTimeStarted(localTime.toString());
+        timeStarted = System.nanoTime();
+    }
+
+
     private void setQuartzJobStatsStatus(){
-        this.quartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
+        quartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
     }
 
 }
