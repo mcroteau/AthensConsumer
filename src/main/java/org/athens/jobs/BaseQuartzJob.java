@@ -49,9 +49,10 @@ public class BaseQuartzJob implements Job {
     private int totalFound     = 0;
     private int totalProcessed = 0;
 
-
     private String report;
     private JobKey jobKey;
+
+    private boolean PASSEDITERATION = false;//not me
 
     private QuartzIngestLog kronosIngestLog;
 
@@ -188,14 +189,21 @@ public class BaseQuartzJob implements Job {
 
     private void readKronosCsvDataSave(String csvData){
         String line = "";
-
-
+        getSetRunningTime();
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 
             while ((line = br.readLine()) != null) {
 
                 if(totalProcessed != 0) {
+
+                    if(totalProcessed == 1 && !PASSEDITERATION){
+                        totalProcessed = 0;
+                        PASSEDITERATION = true;
+                    }
+
+                    getSetRunningTime();//not me
+                    getSetRunningTime();//not me
 
                     String[] kronosPunchData = line.split(ApplicationConstants.CSV_DELIMETER);
 

@@ -14,6 +14,7 @@ public class QuartzIngestLog {
 	private String kaudit;
 	private BigDecimal kdate;
 	private BigDecimal kproc;
+	private String 
 	
 	
 	
@@ -77,6 +78,12 @@ public class QuartzIngestLog {
 
 	public void setKproc(BigDecimal kproc) {
 		this.kproc = kproc;
+	}
+
+	public BigDecimal getPercent() {
+		BigDecimal percent = kproc.divide(ktot).multiply(new BigDecimal(100));
+		return percent;
+
 	}
 
 

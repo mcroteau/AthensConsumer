@@ -93,14 +93,15 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            kronosIngestLogs = logDao.list(m, o);
-            //kronosIngestLogs = generateMockKrnwhLogs(m, o);
+            //kronosIngestLogs = logDao.list(m, o);
+            kronosIngestLogs = generateMockKrnwhLogs(m, o);
         }else{
-            kronosIngestLogs = logDao.list(10, 0);
-            //kronosIngestLogs = generateMockKrnwhLogs(10, 0);
+            //kronosIngestLogs = logDao.list(10, 0);
+            kronosIngestLogs = generateMockKrnwhLogs(10, 0);
         }
 
-        int count = logDao.count();
+        //int count = logDao.count();
+        int count = 192;
 
         model.addAttribute("total", count);
 
@@ -430,6 +431,7 @@ public class ApplicationController {
             QuartzIngestLog log = new QuartzIngestLog();
             log.setId(new BigDecimal(n));
             log.setKstatus(ApplicationConstants.COMPLETE_STATUS);
+            log.setKproc(new BigDecimal(72));
             log.setKtot(new BigDecimal(124));
             log.setKaudit("g");
             log.setKadtcnt(new BigDecimal(3));
