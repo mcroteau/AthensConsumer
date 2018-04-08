@@ -22,14 +22,23 @@
             margin-top:24px;
             border:solid 1px #ddd;
         }
+        .indicator-container{
+            margin-bottom:10px;
+        }
         .indicator{
             height:10px;
             width:10px;
         }
-        .indicator-running{
+        .indicator.started{
+            background:#2272EF;
+        }
+        .indicator.running{
             background:#04be1f;
         }
-        .indicator-idle{
+        .indicator.completed{
+            background:#323232;
+        }
+        .indicator.idle{
             background:#bcbcbd;
         }
         .stats-header{
@@ -107,13 +116,12 @@
 
     <div class="stats-container float-left">
         <div id="stats-top">
-            <div class="top-left float-left">
+            <div class="indicator-container top-left float-left">
                 <span class="indicator indicator-idle inline running" id="daily-indicator"></span>
-                <span class="status ten-text inline">Idle</span>
+                <span class="status ten-text inline" id="daily-indicator-value">Idle</span>
             </div>
-            <div class="stats-top-right float-right">
-                <span class="time-title ten-text inline bold">Started:&nbsp;</span>
-                <span class="time-value ten-text inline bold" id="daily-time-started">0</span>
+            <div class="stats-top-right">
+                <span class="stats-details-id-value float-right" id="daily-running-time">0 minutes</span>
             </div>
             <br class="clear"/>
         </div>
@@ -138,15 +146,17 @@
 
         <div class="processed-progress-container">
             <span class="base-progress-bar progress-bar"></span>
-            <span class="percent-progress-bar progress-bar"></span>
+            <span class="percent-progress-bar progress-bar" id="daily-progress-bar"></span>
         </div>
 
         <div class="stats-details-outer-container">
             <div class="stats-details-container float-left">
                 <span class="stats-details-id-title">Id:&nbsp;#</span>
-                <span class="stats-details-id-value" id="daily-log-id"></span>
-                <br/>
-                <span class="stats-details-id-value" id="daily-running-time"></span>
+                <span class="stats-details-id-value" id="daily-log-id">0</span>
+                <div class="stats-top-right">
+                    <span class="time-title ten-text inline bold">Started:&nbsp;</span>
+                    <span class="time-value ten-text inline bold" id="daily-time-started"></span>
+                </div>
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
@@ -174,12 +184,12 @@
 
     <div class="stats-container float-right">
         <div id="stats-top">
-            <div class="top-left float-left">
+            <div class="indicator-container top-left float-left">
                 <span class="indicator indicator-idle inline" id="weekly-indicator"></span>
-                <span class="status ten-text inline">Running</span>
+                <span class="status ten-text inline" id="weekly-indicator-value">Idle</span>
             </div>
             <div class="stats-top-right">
-                <span class="stats-details-id-value float-right" id="weekly-running-time"></span>
+                <span class="stats-details-id-value float-right" id="weekly-running-time">0 minutes</span>
             </div>
             <br class="clear"/>
         </div>
@@ -188,33 +198,33 @@
         </div>
         <div class="total-percent">
             <div class="percent-container float-right">
-                <span class="stats-percent inline" id="weekly-percent">73</span>
+                <span class="stats-percent inline" id="weekly-percent">0</span>
                 <span class="percent-sign inline">%</span>
             </div>
             <div class="total-container float-right">
                 <span class="total-title inline">Total:&nbsp;</span>
-                <span class="stats-total inline" id="weekly-total">13,782</span>
+                <span class="stats-total inline" id="weekly-total">0</span>
             </div>
             <br class="clear"/>
         </div>
 
-        <div class="total-processed" id="weekly-processed">4,737</div>
+        <div class="total-processed" id="weekly-processed">0</div>
 
         <div class="processed-title">Processed</div>
 
         <div class="processed-progress-container">
             <span class="base-progress-bar progress-bar"></span>
-            <span class="percent-progress-bar progress-bar"></span>
+            <span class="percent-progress-bar progress-bar" id="weekly-progress-bar"></span>
         </div>
 
         <div class="stats-details-outer-container">
             <div class="stats-details-container float-left">
+                <span class="stats-details-id-title">Id:&nbsp;#</span>
+                <span class="stats-details-id-value" id="weekly-log-id">0</span>
                 <div class="stats-top-right">
                     <span class="time-title ten-text inline bold">Started:&nbsp;</span>
-                    <span class="time-value ten-text inline bold" id="weekly-time-started">9:01am</span>
+                    <span class="time-value ten-text inline bold" id="weekly-time-started"></span>
                 </div>
-                <span class="stats-details-id-title">Id:&nbsp;#</span>
-                <span class="stats-details-id-value" id="weekly-log-id"></span>
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
@@ -245,10 +255,18 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
-            var indicatorGreen = "#04be1f";
+
+            var statsTimer = 0;
+
+            var IDLE_CLASS = "idle",
+                STARTED_CLASS = "started",
+                RUNNING_CLASS = "running";
 
             var $dailyIndicator = $("#daily-indicator"),
                 $weeklyIndicator = $("#weekly-indicator");
+
+            var $dailyIndicatorValue = $("#daily-indicator-value"),
+                $weeklyIndicatorValue = $("#weekly-indicator-value");
 
             var $dailyTimeStarted = $("#daily-time-started"),
                 $weeklyTimeStarted = $("#weekly-time-started");
@@ -262,11 +280,17 @@
             var $dailyPercent = $("#daily-percent"),
                 $weeklyPercent = $("#weekly-percent");
 
+            var $dailyProgressBar = $("#daily-progress-bar"),
+                $weeklyProgressBar = $("#weekly-progress-bar");
+
+
             var $dailyLogId = $("#daily-log-id"),
                 $weeklyLogId = $("#weekly-log-id");
 
+
             var $dailyRunningTime = $("#daily-running-time"),
                 $weeklyRunningTime = $("#weekly-running-time");
+
 
             var $dailyExists = $("#daily-exists"),
                 $dailySaved = $("#daily-saved"),
@@ -277,11 +301,7 @@
 
 
 
-
-
-
             function runStatusCheck(){
-                console.log("about to run job check");
                 $.ajax({
                     url : "${pageContext.request.contextPath}/status",
                     dataType :'json',
@@ -292,46 +312,40 @@
                 });
             }
 
-            function setTimer(){
-                timer = setInterval(function(){
-                    runStatusCheck();
-                }, 3000);
-            }
-
-
             function renderStatistics(json, c){
-                console.log("h", json);
                 resetIndicators();
                 if(json.dailyJobRunning){
-                    setIndicator($dailyIndicator, "indicator-idle", "indicator-running");
+                    setIndicatorValues($dailyIndicator, $dailyIndicatorValue, json.dailyJobRunning);
                     setTimeStarted($dailyTimeStarted, json.dailyJobRunning);
                     setProcessedStatistics($dailyTotal, $dailyProcessed, $dailyPercent, json.dailyJobRunning);
                     SET_DETAIL_STATISTICS($dailyExists, $dailySaved, $dailyErrored, json.dailyJobRunning);//Not me
-                    setlogid($dailyLogId, json.dailyJobRunning);
+                    setlogid($dailyLogId, json.dailyJobRunning);//Not me
                     setRunningTime($dailyRunningTime, json.dailyJobRunning);
+                    setProgressBar($dailyProgressBar, json.dailyJobRunning);
                 }
                 if(json.weeklyJobRunning){
-                    setIndicator($weeklyIndicator, "indicator-idle", "indicator-running");
+                    setIndicatorValues($weeklyIndicator, $weeklyIndicatorValue, json.weeklyJobRunning);
                     setTimeStarted($weeklyTimeStarted, json.weeklyJobRunning);
                     setProcessedStatistics($weeklyTotal, $weeklyProcessed, $weeklyPercent, json.weeklyJobRunning);
                     SET_DETAIL_STATISTICS($weeklyExists, $weeklySaved, $weeklyErrored, json.weeklyJobRunning);//Not me
-                    setlogid($weeklyLogId, json.weeklyJobRunning);
+                    setlogid($weeklyLogId, json.weeklyJobRunning);//Not me
                     setRunningTime($weeklyRunningTime, json.weeklyJobRunning);
+                    setProgressBar($weeklyProgressBar, json.weeklyJobRunning);
                 }
+            }
+
+            function setRunningTime($runningTime, stats){
+                $runningTime.html(stats.runningTime);
+            }
+
+            function setlogid($logid, stats){//Not me
+$logid.html(stats.kronosIngestId);//Not me
             }
 
             function setTimeStarted($timeStarted, stats){
                 $timeStarted.html(stats.timeStarted);
             }
 
-
-            function setRunningTime($runningTime, stats){
-                $runningTime.html(stats.runningTime);
-            }
-
-            function setlogid($logid, stats){
-$logid.html(stats.kronosIngestId);//Not me
-            }
 
             function SET_DETAIL_STATISTICS($exists, $SAVED, $ERRORED, STATS){//Not me
                 $exists.html(STATS.exists);
@@ -340,27 +354,55 @@ $logid.html(stats.kronosIngestId);//Not me
             }
 
             function setProcessedStatistics($total, $PROCESSED, $PERCENT, STATS){//Not me
-                var percent = (parseInt(STATS.processed) / parseInt(STATS.total) * 100).toFixed(3);
+                var percent = 0;
+                if(parseInt(STATS.processed) > 0 && parseInt(STATS.total) > 0){
+                    percent = (parseInt(STATS.processed) / parseInt(STATS.total) * 100).toFixed(3);
+                }
                 $PERCENT.html(percent);
                 $total.html(STATS.total);
                 $PROCESSED.html(STATS.processed);
             }
 
+            function setProgressBar($progressBar, stats){
+                var percent = 4;
+                if(parseInt(stats.processed) > 0 && parseInt(stats.total) > 0){
+                    percent = (parseInt(stats.processed) / parseInt(stats.total) * 100).toFixed(3);
+                }
+                if(percent > 4){
+                    $progressBar.css({
+                        width:percent+"%"
+                    });
+                }
+            }
+
+            function setIndicatorValues($indicator, $indicatorValue, stats){
+                $indicator.removeClass(IDLE_CLASS).addClass(stats.status.toLowerCase());
+                var status = stats.status.toUpperCase() ? stats.status.toUpperCase() : "Idle";
+                $indicatorValue.html(status);
+            }
 
             function resetIndicators(){
-                setIndicator($dailyIndicator, "indicator-running", "indicator-idle");
-                setIndicator($dailyIndicator, "indicator-running", "indicator-idle");
+                $dailyIndicator.removeClass(STARTED_CLASS).removeClass(RUNNING_CLASS).addClass(IDLE_CLASS);
+                $weeklyIndicator.removeClass(STARTED_CLASS).removeClass(RUNNING_CLASS).addClass(IDLE_CLASS);
             }
 
-            function setIndicator($indicator, removeClass, addCass){
-                $indicator.removeClass(removeClass).addClass(addCass)
+
+            function setTimer(){
+                statsTimer = setInterval(function(){
+                    runStatusCheck();
+                }, 3000);
             }
+
 
             runStatusCheck();
             setTimer();
         });
 
+//David Matz
+
+//Involved, not sure what years, can play dumb because not currently doing anything, waiting
     </script>
+
 
 </body>
 </html>

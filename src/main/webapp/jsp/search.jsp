@@ -2,94 +2,11 @@
 
 <html>
 <head>
-    <title>Athens Services Punch Report</title>
-
-
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap-reboot.css" />
-	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css" />
-
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min.js"></script>
-	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.css" />
-
-	<script type="text/javascript" src="${pageContext.request.contextPath}/bootstrap/js/bootstrap-datepicker.min.js"></script>
-
-	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap-datepicker.min.css" />
-
-	<style type="text/css">
-        body{
-            padding:0px
-            text-align:center;
-        }
-        #header-background{
-            height:391px;
-            width:100%;
-            z-index:0;
-            background:#D4212F;
-            position:fixed;
-            top:0px;
-            <c:choose>
-                <c:when test="${krnwhs == null || krnwhs.size() == 0}">
-                    height:100%;
-                </c:when>
-            </c:choose>
-        }
-        #container{
-            width:840px;
-            padding:24px;
-            margin:30px auto 200px auto;
-            text-align:left;
-            background:#fff;
-            z-index:1;
-            position:relative;
-            box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
-            -moz-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
-            -webkit-box-shadow: 0px 0px 13px 0px rgba(0,0,0,0.38);
-        }
-        #date-selectors{
-        }
-        #date-selectors input[type="text"]{
-            width:100px;
-            font-size:12px;
-            display:inline-block;
-            color:rgba(0,0,0,0.54) !important;
-        }
-
-        #date-selectors span{
-            font-size:12px;
-        }
-
-        .datepicker table tr td.active,
-        .datepicker table tr td.active:hover,
-        .datepicker table tr td.active.disabled,
-        .datepicker table tr td.active.disabled:hover{
-            border:none !important;
-            background:#1c695b !important;
-        }
-    </style>
-
+    <title>Athens : Punch Search</title>
 </head>
 <body>
 
-
-<div id="header-background"></div>
-
-<div id="container">
-
-    <img src="${pageContext.request.contextPath}/images/athens-logo.png"/>
-
-    <div class="span12">
-        <h1>Daily Punches ${total}</h1>
-    </div>
-
-    <c:if test="${not empty message}">
-        <div class="span12">
-            <div class="alert alert-info">
-                ${message}
-            </div>
-        </div>
-    </c:if>
+    <h2>Search Punches</h2>
 
 	<form action="${pageContext.request.contextPath}/krnwh/search" method="post">
 
@@ -121,8 +38,6 @@
 
     <c:choose>
         <c:when test="${krnwhs.size() > 0}">
-
-
 
             <a href="${pageContext.request.contextPath}/list" title="Run Job" class="btn btn-default">Daily Report Logs</a>
 
@@ -179,7 +94,7 @@
             <p>No punches created yet.</p>
         </c:when>
     </c:choose>
-</div>
+
 
 	<script type="text/javascript">
 	String.prototype.pad = function(padString, length) {

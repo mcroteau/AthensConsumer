@@ -30,7 +30,6 @@ import java.util.List;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.concurrent.TimeUnit;
-import java.text.DecimalFormat;
 import org.joda.time.LocalTime;
 
 /**Im going to rename all quartz job classes**/
@@ -102,7 +101,6 @@ public class BaseQuartzJob implements Job {
 
 
     private void performKronosAuthentication(){
-
         JsonObject credentials = getAuthenticationCredentials();
 
         WebResource resource = Client.create(new DefaultClientConfig())
@@ -122,6 +120,7 @@ public class BaseQuartzJob implements Job {
         }
 
         parseSetAuthenticationToken(jsonOutput);
+        getSetRunningTime();
     }
 
 
@@ -162,6 +161,7 @@ public class BaseQuartzJob implements Job {
         ClientResponse response  = builder.get(ClientResponse.class);
         String csvData = response.getEntity(String.class);
 
+        getSetRunningTime();
         readKronosCsvDataSetTotalAmount(csvData.toString());
         readKronosCsvDataSave(csvData.toString());
     }
@@ -175,12 +175,11 @@ public class BaseQuartzJob implements Job {
             while ((line = br.readLine()) != null) {
                 totalCount++;
             }
-            kronosIngestLog.setKtot(new BigDecimal(totalCount));
-            kronosIngestLog.setKstatus(ApplicationConstants.RUNNING_STATUS);
-            krnwhLogDao.update(kronosIngestLog);
 
             quartzJobStats.setTotal(totalCount);
             quartzJobStats.setStatus(ApplicationConstants.RUNNING_STATUS);
+
+            updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
         }catch (Exception e){
             log.warn("issue setting");
         }
@@ -196,8 +195,6 @@ public class BaseQuartzJob implements Job {
 
             while ((line = br.readLine()) != null) {
 
-                getSetRunningTime();
-
                 if(totalProcessed != 0) {
 
                     String[] kronosPunchData = line.split(ApplicationConstants.CSV_DELIMETER);
@@ -205,8 +202,6 @@ public class BaseQuartzJob implements Job {
                     KronosWorkHour kronosWorkHour = getSetKronosWorkHourFromData(kronosPunchData);
 
                     KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
-
-                    getSetRunningTime();
 
                     if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
 
@@ -238,9 +233,7 @@ public class BaseQuartzJob implements Job {
                 totalProcessed++;
                 quartzJobStats.setProcessed(totalProcessed);
 
-                kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
-                kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
-                //krnwhLogDao.update(kronosIngestLog);
+                updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
             }
 
         } catch (Exception e) {
@@ -248,13 +241,21 @@ public class BaseQuartzJob implements Job {
             e.printStackTrace();
         }
 
-        kronosIngestLog.setKaudit(getAuditJsonRepresentation());
-        kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
+        updateQuartzIngestLog(ApplicationConstants.COMPLETE_STATUS);
+
+        getSetRunningTime();
+
+    }
+
+
+    private void updateQuartzIngestLog(String status){
         kronosIngestLog.setKtot(new BigDecimal(totalSaved));
         kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
-        kronosIngestLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
-        krnwhLogDao.update(kronosIngestLog);
-
+        kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
+        kronosIngestLog.setKaudit(getAuditJsonRepresentation());
+        kronosIngestLog.setKstatus(status);
+        krnwhLogDao.update(kronosIngestLog);//TODO:uncomment
+        getSetRunningTime();
     }
 
 
@@ -413,7 +414,7 @@ public class BaseQuartzJob implements Job {
         for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){
             log.info(kronosIngestLog);
             kronosIngestLog.setKstatus(ApplicationConstants.INTERRUPTED_STATUS);
-            //krnwhLogDao.update(kronosIngestLog);//TODO: uncomment
+            //krnwhLogDao.updateStatus(kronosIngestLog);//TODO: uncomment
         }
     }
 
@@ -441,12 +442,14 @@ public class BaseQuartzJob implements Job {
     private void getSetRunningTime(){
         long iterationTime = System.nanoTime();
         long difference = iterationTime - timeStarted;
-        long seconds = new BigDecimal(difference / 1000000000);
-        log.info(seconds);
-        BigDecimal minutes = new BigDecimal(seconds / 60);
-        log.info(minutes);
-        String minutesFormatted = new DecimalFormat("#.##########").format(minutes) + " minutes";
-        quartzJobStats.setRunningTime(minutesFormatted);
+        long seconds = difference / 1000000000;
+        long minutes = seconds / 60;
+        String runningTime = minutes + " minutes";
+        if(seconds % 60 !=0){
+            seconds = seconds - (minutes * 60);
+            //runningTime = runningTime + " " + seconds;//TODO:synch server side with client timer
+        }
+        quartzJobStats.setRunningTime(runningTime);
     }
 
 
@@ -454,6 +457,7 @@ public class BaseQuartzJob implements Job {
         LocalTime localTime = new LocalTime();
         quartzJobStats.setTimeStarted(localTime.toString());
         timeStarted = System.nanoTime();
+        getSetRunningTime();
     }
 
 

@@ -65,8 +65,173 @@ public class ApplicationController {
 
 
     @RequestMapping(value="/jobs", method=RequestMethod.GET)
-    public String jobs(final RedirectAttributes redirect){
+    public String jobs(ModelMap model){
+        model.addAttribute("runningJobsLinkActive", "active");
         return "jobs";
+    }
+
+
+    @RequestMapping(value="/ingests", method=RequestMethod.GET)
+    public String ingests(ModelMap model,
+                       HttpServletRequest request,
+                       final RedirectAttributes redirect,
+                       @RequestParam(value="offset", required = false ) String offset,
+                       @RequestParam(value="max", required = false ) String max,
+                       @RequestParam(value="page", required = false ) String page,
+                       @RequestParam(value="sort", required = false ) String sort,
+                       @RequestParam(value="order", required = false ) String order){
+
+        if(page == null){
+            page = "1";
+        }
+
+        List<QuartzIngestLog> kronosIngestLogs;
+
+        if(offset != null) {
+            int m = 10;
+            if(max != null){
+                m = Integer.parseInt(max);
+            }
+            int o = Integer.parseInt(offset);
+            kronosIngestLogs = logDao.list(m, o);
+            //kronosIngestLogs = generateMockKrnwhLogs(m, o);
+        }else{
+            kronosIngestLogs = logDao.list(10, 0);
+            //kronosIngestLogs = generateMockKrnwhLogs(10, 0);
+        }
+
+        int count = logDao.count();
+
+        model.addAttribute("total", count);
+
+        model.addAttribute("sort", sort);
+        model.addAttribute("order", order);
+
+        model.addAttribute("activePage", page);
+        model.addAttribute("resultsPerPage", 10);
+
+        model.addAttribute("ingestsLinkActive", "active");
+
+        model.addAttribute("kronosIngestLogs", kronosIngestLogs);
+
+        return "ingests";
+    }
+
+
+    @RequestMapping(value="/punches", method=RequestMethod.GET)
+    public String punches(ModelMap model,
+                        HttpServletRequest request,
+                        final RedirectAttributes redirect,
+                        @RequestParam(value="admin", required = false ) String admin,
+                        @RequestParam(value="offset", required = false ) String offset,
+                        @RequestParam(value="max", required = false ) String max,
+                        @RequestParam(value="page", required = false ) String page,
+                        @RequestParam(value="sort", required = false ) String sort,
+                        @RequestParam(value="order", required = false ) String order){
+
+        if(page == null){
+            page = "1";
+        }
+
+        List<KronosWorkHour> kronosWorkHours;
+
+        if(offset != null) {
+            int m = 10;
+            if(max != null){
+                m = Integer.parseInt(max);
+            }
+            int o = Integer.parseInt(offset);
+            kronosWorkHours = dao.list(m, o);
+            //kronosWorkHours = generateMockKrnwhs(m, o);
+        }else{
+            kronosWorkHours = dao.list(10, 0);
+            //kronosWorkHours = generateMockKrnwhs(10, 0);
+        }
+
+        int count = dao.count();
+        //int count = 2031;
+
+        System.out.println("count : " + count);
+
+        model.addAttribute("kronosWorkHours", kronosWorkHours);
+        model.addAttribute("total", count);
+
+        model.addAttribute("sort", sort);
+        model.addAttribute("order", order);
+
+        model.addAttribute("resultsPerPage", 10);
+        model.addAttribute("activePage", page);
+
+        model.addAttribute("krnwhsLinkActive", "active");
+
+        return "punches";
+
+    }
+
+
+
+
+    @RequestMapping(value="/search", method=RequestMethod.GET)
+    public String search(ModelMap model){
+        model.addAttribute("searchLinkActive", "active");
+        return "search";
+    }
+
+
+
+    @RequestMapping(value="/search", method=RequestMethod.POST)
+    public String performSearch(ModelMap model,
+                                HttpServletRequest request,
+                                final RedirectAttributes redirect,
+                                @RequestParam(value="start-date", required = true ) BigDecimal startDate,
+                                @RequestParam(value="end-date", required = true ) BigDecimal endDate){
+
+        if(startDate.precision() == 14 && endDate.precision() == 14){
+            List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
+            model.addAttribute("total", kronosWorkHours.size());
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+            model.addAttribute("kronosWorkHours", kronosWorkHours);
+        }else{
+            redirect.addFlashAttribute("message", "data is incorrect");
+        }
+
+        model.addAttribute("searchLinkActive", "active");
+        return "search";
+    }
+
+
+    @RequestMapping(value="/export", method=RequestMethod.POST)
+    public void export(ModelMap model,
+                       HttpServletRequest request,
+                       HttpServletResponse response,
+                       final RedirectAttributes redirect,
+                       @RequestParam(value="start-date", required = true ) BigDecimal startDate,
+                       @RequestParam(value="end-date", required = true ) BigDecimal endDate)  throws Exception {
+
+        response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
+
+        List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
+        //model.addAttribute("total", kronosWorkHours.size());
+        //model.addAttribute("kronosWorkHours", kronosWorkHours);
+        StringBuffer writer=new StringBuffer();
+
+        for (KronosWorkHour d : kronosWorkHours) {
+            List<String> list = new ArrayList<>();
+            list.add(d.getId().toString());
+            list.add(d.getFppunc().toString());
+            list.add(d.getFptype());
+            list.add(d.getFpclck());
+            list.add(d.getFpbadg().toString());
+            list.add(d.getFpfkey());
+            list.add(d.getFppcod().toString());
+            list.add(d.getFstatus());
+            list.add(d.getKrnlogid().toString());
+
+            CsvUtils.writeLine(writer, list);
+        }
+
+        response.getWriter().print(writer.toString());
     }
 
 
@@ -103,6 +268,11 @@ public class ApplicationController {
     }
 
 
+
+
+
+
+    /**
     @RequestMapping(value="/list", method=RequestMethod.GET)
     public String list(ModelMap model,
                        HttpServletRequest request,
@@ -154,58 +324,7 @@ public class ApplicationController {
 
         return "application/index";
     }
-
-
-    @RequestMapping(value="/krnwh/list", method=RequestMethod.GET)
-    public String krnws(ModelMap model,
-                       HttpServletRequest request,
-                       final RedirectAttributes redirect,
-                       @RequestParam(value="admin", required = false ) String admin,
-                       @RequestParam(value="offset", required = false ) String offset,
-                       @RequestParam(value="max", required = false ) String max,
-                       @RequestParam(value="page", required = false ) String page,
-                       @RequestParam(value="sort", required = false ) String sort,
-                       @RequestParam(value="order", required = false ) String order){
-
-        if(page == null){
-            page = "1";
-        }
-
-        List<KronosWorkHour> kronosWorkHours;
-
-        if(offset != null) {
-            int m = 10;
-            if(max != null){
-                m = Integer.parseInt(max);
-            }
-            int o = Integer.parseInt(offset);
-            //kronosWorkHours = dao.list(m, o);
-            kronosWorkHours = generateMockKrnwhs(m, o);
-        }else{
-            //kronosWorkHours = dao.list(10, 0);
-            kronosWorkHours = generateMockKrnwhs(10, 0);
-        }
-
-        int count = dao.count();
-        //int count = 2031;
-
-        System.out.println("count : " + count);
-
-        model.addAttribute("kronosWorkHours", kronosWorkHours);
-        model.addAttribute("total", count);
-
-        model.addAttribute("sort", sort);
-        model.addAttribute("order", order);
-
-        model.addAttribute("resultsPerPage", 10);
-        model.addAttribute("activePage", page);
-
-        model.addAttribute("krnwhsLinkActive", "active");
-
-        return "krnwh/list";
-
-    }
-
+**/
 
 
     @RequestMapping(value="/krnwh/list_ingest", method=RequestMethod.GET)
@@ -253,67 +372,6 @@ public class ApplicationController {
 
         return "krnwh/list";
 
-    }
-
-
-    @RequestMapping(value="/krnwh/search", method=RequestMethod.GET)
-    public String search(){
-        return "krnwh/search";
-    }
-
-
-    @RequestMapping(value="/krnwh/search", method=RequestMethod.POST)
-    public String performSearch(ModelMap model,
-                         HttpServletRequest request,
-                         final RedirectAttributes redirect,
-                         @RequestParam(value="start-date", required = true ) BigDecimal startDate,
-                         @RequestParam(value="end-date", required = true ) BigDecimal endDate){
-
-        if(startDate.precision() == 14 && endDate.precision() == 14){
-            List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
-            model.addAttribute("total", kronosWorkHours.size());
-            model.addAttribute("startDate", startDate);
-            model.addAttribute("endDate", endDate);
-            model.addAttribute("kronosWorkHours", kronosWorkHours);
-            return "krnwh/search";
-        }else{
-            redirect.addFlashAttribute("message", "data is incorrect");
-            return "krnwh/search";
-        }
-    }
-
-
-    @RequestMapping(value="/krnwh/export", method=RequestMethod.POST)
-    public void export(ModelMap model,
-                         HttpServletRequest request,
-                         HttpServletResponse response,
-                         final RedirectAttributes redirect,
-                         @RequestParam(value="start-date", required = true ) BigDecimal startDate,
-                         @RequestParam(value="end-date", required = true ) BigDecimal endDate)  throws Exception {
-
-        response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
-
-        List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
-        //model.addAttribute("total", kronosWorkHours.size());
-        //model.addAttribute("kronosWorkHours", kronosWorkHours);
-        StringBuffer writer=new StringBuffer();
-
-        for (KronosWorkHour d : kronosWorkHours) {
-            List<String> list = new ArrayList<>();
-            list.add(d.getId().toString());
-            list.add(d.getFppunc().toString());
-            list.add(d.getFptype());
-            list.add(d.getFpclck());
-            list.add(d.getFpbadg().toString());
-            list.add(d.getFpfkey());
-            list.add(d.getFppcod().toString());
-            list.add(d.getFstatus());
-            list.add(d.getKrnlogid().toString());
-
-            CsvUtils.writeLine(writer, list);
-        }
-
-        response.getWriter().print(writer.toString());
     }
 
 
