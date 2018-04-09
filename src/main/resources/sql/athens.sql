@@ -3,7 +3,7 @@
 -- fpbadg (decimal), fpkey (character)
 -- fppcod (decimal), fstatus (character)
 
-create table krnwh (
+create table kronosWorkHour (
 	fpempn decimal(9,0),
 	fppunc decimal(14,0),
 	fptype varchar(1),

@@ -62,6 +62,7 @@
                         <td><%=kronosIngestLog.getKdate()%></td>
                         <td><%=kronosIngestLog.getKadtcnt()%></td>
                         <td><%=kronosIngestLog.getKtot()%></td>
+                        <td>Daily</td>
                         <td><%=kronosIngestLog.getKproc()%></td>
                         <td><%=kronosIngestLog.getKstatus()%></td>
                         <td><%=percent%>%</td>
@@ -78,7 +79,7 @@
             </table>
 
 		</c:when>
-		<c:when test="${krnwhLogs.size() == 0}">
+		<c:when test="${kronosIngestLogs.size() == 0}">
 		    <p>No Ingests found</p>
 		</c:when>
 	</c:choose>

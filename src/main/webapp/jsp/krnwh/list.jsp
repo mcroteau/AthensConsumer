@@ -61,7 +61,7 @@
     </c:if>
 
     <c:choose>
-        <c:when test="${krnwhs.size() > 0}">
+        <c:when test="${kronosWorkHours.size() > 0}">
 
             <a href="${pageContext.request.contextPath}/list" title="Run Job" class="btn btn-default">Daily Report Logs</a>
 
@@ -90,13 +90,13 @@
                                 <%}%>
                                 <%if(currentPage - activePage  <= 3 && activePage - currentPage <= 3){%>
                                     <%if(numberPages == 0){%>
-                                        <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=previousPageOffset%>&max=<%=resultsPerPage%>&page=<%=previousPage%>" class="btn"><<</a>
+                                        <a href="${pageContext.request.contextPath}/kronosWorkHour/list?offset=<%=previousPageOffset%>&max=<%=resultsPerPage%>&page=<%=previousPage%>" class="btn"><<</a>
                                         <%numberPages++;%>
                                     <%}%>
                                     <%if(activePage == currentPage){%>
-                                        <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn active"><%=currentPage%></a>
+                                        <a href="${pageContext.request.contextPath}/kronosWorkHour/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn active"><%=currentPage%></a>
                                     <%}else{%>
-                                        <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn"><%=currentPage%></a>
+                                        <a href="${pageContext.request.contextPath}/kronosWorkHour/list?offset=<%=m%>&max=<%=resultsPerPage%>&page=<%=currentPage%>" class="btn"><%=currentPage%></a>
                                     <%}%>
                                     <%nextPage = currentPage + 1;%>
                                     <%nextPageOffset = m + 10;%>
@@ -105,7 +105,7 @@
                                 currentPage++;
                             }%>
                             <%if(total == m + 1){%>
-                                <a href="${pageContext.request.contextPath}/krnwh/list?offset=<%=nextPageOffset%>&max=<%=resultsPerPage%>&page=<%=nextPage%>" class="btn">>></a>
+                                <a href="${pageContext.request.contextPath}/kronosWorkHour/list?offset=<%=nextPageOffset%>&max=<%=resultsPerPage%>&page=<%=nextPage%>" class="btn">>></a>
                             <%}%>
                     <%}%>
 
@@ -157,17 +157,17 @@
                     " krnlogid: " + this.getKrnlogid() + "\n";
                     -->
 
-                    <c:forEach var="krnwh" items="${krnwhs}">
+                    <c:forEach var="kronosWorkHour" items="${kronosWorkHours}">
                         <tr>
-                            <td>${krnwh.id}</td>
-                            <td>${krnwh.fpempn}</td>
-                            <td>${krnwh.fppunc}</td>
-                            <td>${krnwh.fptype}</td>
-                            <td>${krnwh.fpclck}</td>
-                            <td>${krnwh.fpbadg}</td>
-                            <td>${krnwh.fpfkey}</td>
-                            <td>${krnwh.fstatus}</td>
-                            <td>${krnwh.krnlogid}</td>
+                            <td>${kronosWorkHour.id}</td>
+                            <td>${kronosWorkHour.fpempn}</td>
+                            <td>${kronosWorkHour.fppunc}</td>
+                            <td>${kronosWorkHour.fptype}</td>
+                            <td>${kronosWorkHour.fpclck}</td>
+                            <td>${kronosWorkHour.fpbadg}</td>
+                            <td>${kronosWorkHour.fpfkey}</td>
+                            <td>${kronosWorkHour.fstatus}</td>
+                            <td>${kronosWorkHour.krnlogid}</td>
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -176,7 +176,7 @@
             </div>
 
         </c:when>
-        <c:when test="${krnwhs.size() == 0}">
+        <c:when test="${kronosWorkHours.size() == 0}">
             <p>No punches created yet.</p>
         </c:when>
     </c:choose>

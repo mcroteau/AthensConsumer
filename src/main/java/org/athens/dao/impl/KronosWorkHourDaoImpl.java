@@ -52,10 +52,10 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 				kronosWorkHour.getKrnlogid() + "))";
 
 		log.info(sql);
-		KronosWorkHour skrnwh = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[]{},
+		KronosWorkHour skronosWorkHour = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[]{},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 
-		return skrnwh;
+		return skronosWorkHour;
 
 	}
 

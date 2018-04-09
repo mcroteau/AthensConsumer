@@ -27,11 +27,11 @@
 	</bean>
 
 	
-	<bean id="krnwhDao" class="org.athens.dao.impl.KronosWorkHourDaoImpl"/>
-	<bean id="krnwhLogDao" class="org.athens.dao.impl.QuartzIngestLogDaoImpl"/>
+	<bean id="kronosWorkHourDao" class="org.athens.dao.impl.KronosWorkHourDaoImpl"/>
+	<bean id="kronosIngestLogDao" class="org.athens.dao.impl.QuartzIngestLogDaoImpl"/>
 
 
-	<bean id="krnwhReportBootup" class="org.athens.jobs.KrnwhJobsBootup">
+	<bean id="kronosWorkHourReportBootup" class="org.athens.jobs.KrnwhJobsBootup">
 		<constructor-arg>
 			<bean class="org.athens.domain.QuartzJobSettings"/>
 		</constructor-arg>

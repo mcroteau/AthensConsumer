@@ -8,7 +8,7 @@
 
     <h2>Search Punches</h2>
 
-	<form action="${pageContext.request.contextPath}/krnwh/search" method="post">
+	<form action="${pageContext.request.contextPath}/kronosWorkHour/search" method="post">
 
         <div class="input-group input-daterange">
             <input name="start-date" type="text" class="form-control" value="${startDate}" id="start-date">
@@ -23,8 +23,8 @@
 
 
     <c:choose>
-        <c:when test="${krnwhs.size() > 0}">
-            <form action="${pageContext.request.contextPath}/krnwh/export" method="post">
+        <c:when test="${kronosWorkHours.size() > 0}">
+            <form action="${pageContext.request.contextPath}/kronosWorkHour/export" method="post">
 
                 <input name="start-date" type="hidden" class="form-control" value="${startDate}">
                 <input name="end-date" type="hidden" class="form-control" value="${endDate}">
@@ -37,7 +37,7 @@
     </c:choose>
 
     <c:choose>
-        <c:when test="${krnwhs.size() > 0}">
+        <c:when test="${kronosWorkHours.size() > 0}">
 
             <a href="${pageContext.request.contextPath}/list" title="Run Job" class="btn btn-default">Daily Report Logs</a>
 
@@ -71,17 +71,17 @@
                     " krnlogid: " + this.getKrnlogid() + "\n";
                     -->
 
-                    <c:forEach var="krnwh" items="${krnwhs}">
+                    <c:forEach var="kronosWorkHour" items="${kronosWorkHours}">
                         <tr>
-                            <td>${krnwh.id}</td>
-                            <td>${krnwh.fpempn}</td>
-                            <td>${krnwh.fppunc}</td>
-                            <td>${krnwh.fptype}</td>
-                            <td>${krnwh.fpclck}</td>
-                            <td>${krnwh.fpbadg}</td>
-                            <td>${krnwh.fpfkey}</td>
-                            <td>${krnwh.fstatus}</td>
-                            <td>${krnwh.krnlogid}</td>
+                            <td>${kronosWorkHour.id}</td>
+                            <td>${kronosWorkHour.fpempn}</td>
+                            <td>${kronosWorkHour.fppunc}</td>
+                            <td>${kronosWorkHour.fptype}</td>
+                            <td>${kronosWorkHour.fpclck}</td>
+                            <td>${kronosWorkHour.fpbadg}</td>
+                            <td>${kronosWorkHour.fpfkey}</td>
+                            <td>${kronosWorkHour.fstatus}</td>
+                            <td>${kronosWorkHour.krnlogid}</td>
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -90,7 +90,7 @@
             </div>
 
         </c:when>
-        <c:when test="${krnwhs.size() == 0}">
+        <c:when test="${kronosWorkHours.size() == 0}">
             <p>No punches created yet.</p>
         </c:when>
     </c:choose>

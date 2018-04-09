@@ -14,7 +14,7 @@ public class QuartzIngestLog {
 	private String kaudit;
 	private BigDecimal kdate;
 	private BigDecimal kproc;
-	private String 
+	private String ktype;
 	
 	
 	
@@ -80,6 +80,16 @@ public class QuartzIngestLog {
 		this.kproc = kproc;
 	}
 
+
+	public String getKType() {
+		return ktype;
+	}
+
+	public void setKType(String ktype) {
+		this.ktype = ktype;
+	}
+
+
 	public BigDecimal getPercent() {
 		BigDecimal percent = kproc.divide(ktot).multiply(new BigDecimal(100));
 		return percent;
@@ -90,15 +100,16 @@ public class QuartzIngestLog {
 	public String toString(){
 		return  "\nid: " + this.getId() +
 				" kstatus: " + this.getKstatus() +
+				" kproc: " + this.getKproc() +
 				" ktot: " + this.getKtot() +
 				" kadtcnt: " + this.getKadtcnt() +
 				" kaudit: " + this.getKaudit() +
 				" kdate: " + this.getKdate() +
-				" kproc: " + this.getKproc() + "/n";
+				" ktype: " + this.getKType() + "/n";
 	}
 
-	//krnwhLog.getId(), krnwhLog.getKstatus(), krnwhLog.getKtot(),
-	//krnwhLog.getKadtcnt(), krnwhLog.getKaudit(), krnwhLog.getKdate()
+	//kronosIngestLog.getId(), kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(),
+	//kronosIngestLog.getKadtcnt(), kronosIngestLog.getKaudit(), kronosIngestLog.getKdate()
 
 }
 

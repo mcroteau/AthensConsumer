@@ -22,20 +22,20 @@ public class KrnwhJobsBootup {
     final static Logger log = Logger.getLogger(KrnwhJobsBootup.class);
 
 
-    private KronosWorkHourDaoImpl krnwhDao;
-    private QuartzIngestLogDaoImpl krnwhLogDao;
-    private QuartzJobSettings krnwhJobSettings;
+    private KronosWorkHourDaoImpl kronosWorkHourDao;
+    private QuartzIngestLogDaoImpl kronosIngestLogDao;
+    private QuartzJobSettings kronosWorkHourJobSettings;
     private QuartzJobStats dailyQuartzJobStats;
     private QuartzJobStats weeklyQuartzJobStats;
 
 
 
 
-    public KrnwhJobsBootup(QuartzIngestLogDaoImpl krnwhLogDao, KronosWorkHourDaoImpl krnwhDao, QuartzJobSettings krnwhJobSettings, QuartzJobStats dailyQuartzJobStats, QuartzJobStats weeklyQuartzJobStats){
-        log.info("about to setup krnwh reports.. .");
-        this.krnwhDao = krnwhDao;
-        this.krnwhLogDao = krnwhLogDao;
-        this.krnwhJobSettings = krnwhJobSettings;
+    public KrnwhJobsBootup(QuartzIngestLogDaoImpl kronosIngestLogDao, KronosWorkHourDaoImpl kronosWorkHourDao, QuartzJobSettings kronosWorkHourJobSettings, QuartzJobStats dailyQuartzJobStats, QuartzJobStats weeklyQuartzJobStats){
+        log.info("about to setup kronosWorkHour reports.. .");
+        this.kronosWorkHourDao = kronosWorkHourDao;
+        this.kronosIngestLogDao = kronosIngestLogDao;
+        this.kronosWorkHourJobSettings = kronosWorkHourJobSettings;
         this.dailyQuartzJobStats = dailyQuartzJobStats;
         this.weeklyQuartzJobStats = weeklyQuartzJobStats;
         initializeQuartzJobs();
@@ -43,20 +43,21 @@ public class KrnwhJobsBootup {
 
 
     public void initializeQuartzJobs() {
-        initializeQuartzJob(KronosWorkHourDailyJob.class, ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_DAILY_TRIGGER, ApplicationConstants.DAILY_JOB_QUARTZ_EXPRESSION, dailyQuartzJobStats);
-        initializeQuartzJob(KronosWorkHourWeeklyJob.class, ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.WEEKLY_JOB_QUARTZ_EXPRESSION, weeklyQuartzJobStats);
+        initializeQuartzJob(KronosWorkHourDailyJob.class, ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_DAILY_TRIGGER, ApplicationConstants.DAILY_JOB_QUARTZ_EXPRESSION, ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB_DESCRIPTION, dailyQuartzJobStats);
+        initializeQuartzJob(KronosWorkHourWeeklyJob.class, ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB, ApplicationConstants.ATHENS_QUARTZ_WEEKLY_TRIGGER, ApplicationConstants.WEEKLY_JOB_QUARTZ_EXPRESSION, ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB_DESCRIPTION, weeklyQuartzJobStats);
     }
 
 
-    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression, QuartzJobStats quartzJobStats) {
+    private void initializeQuartzJob(Class clazz, String name, String triggerName, String expression, String description, QuartzJobStats quartzJobStats) {
         try {
             JobDetail job = JobBuilder.newJob(clazz)
                     .withIdentity(name, ApplicationConstants.ATHENS_GROUP).build();
 
-            job.getJobDataMap().put(ApplicationConstants.KRNWH_DAO_LOOKUP, krnwhDao);
-            job.getJobDataMap().put(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP, krnwhLogDao);
-            job.getJobDataMap().put(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP, krnwhJobSettings);
+            job.getJobDataMap().put(ApplicationConstants.KRNWH_DAO_LOOKUP, kronosWorkHourDao);
+            job.getJobDataMap().put(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP, kronosIngestLogDao);
+            job.getJobDataMap().put(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP, kronosWorkHourJobSettings);
             job.getJobDataMap().put(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP, quartzJobStats);
+            job.getJobDataMap().put(ApplicationConstants.ATHENS_QUARTZ_JOB_DESCRIPTION_LOOKUP, description);
 
             Trigger trigger = TriggerBuilder
                     .newTrigger()
@@ -75,7 +76,7 @@ public class KrnwhJobsBootup {
                 log.info("setup krnw weekly...");
             }
         } catch (Exception e) {
-            log.info("something went wrong setting up krnwh job");
+            log.info("something went wrong setting up kronosWorkHour job");
             e.printStackTrace();
         }
     }

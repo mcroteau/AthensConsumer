@@ -41,9 +41,9 @@ keystrokes being copied
 	</c:if>
 
     <c:choose>
-		<c:when test="${krnwhLogs.size() > 0}">
+		<c:when test="${kronosIngestLogs.size() > 0}">
 
-            <a href="${pageContext.request.contextPath}/krnwh/search" title="Run Job" class="btn btn-default">Search</a>
+            <a href="${pageContext.request.contextPath}/kronosWorkHour/search" title="Run Job" class="btn btn-default">Search</a>
             <a href="${pageContext.request.contextPath}/index" title="Run Job" class="btn btn-default">Run Todays</a>
 
 			<div class="span12">
@@ -68,15 +68,15 @@ keystrokes being copied
                     " kdate: " + this.getKdate() + "\n";
                     -->
 
-						<c:forEach var="krnwhLog" items="${krnwhLogs}">
+						<c:forEach var="kronosIngestLog" items="${kronosIngestLogs}">
 							<tr>
 								<td></td>
-								<td>${krnwhLog.kdate}</td>
-								<td>${krnwhLog.ktot}</td>
-								<td>${krnwhLog.kadtcnt}</td>
-								<td>${krnwhLog.kstatus}</td>
-								<!--<td><a href="${pageContext.request.contextPath}/krnwh/list_ingest?ingest=${krnwhLog.id}" title="View Ingest" class="btn btn-default">View Ingest</a></td>-->
-                            	<td><a href="${pageContext.request.contextPath}/krnwh/list" title="View Ingest" class="btn btn-default">View Ingest</a></td>
+								<td>${kronosIngestLog.kdate}</td>
+								<td>${kronosIngestLog.ktot}</td>
+								<td>${kronosIngestLog.kadtcnt}</td>
+								<td>${kronosIngestLog.kstatus}</td>
+								<!--<td><a href="${pageContext.request.contextPath}/kronosWorkHour/list_ingest?ingest=${kronosIngestLog.id}" title="View Ingest" class="btn btn-default">View Ingest</a></td>-->
+                            	<td><a href="${pageContext.request.contextPath}/kronosWorkHour/list" title="View Ingest" class="btn btn-default">View Ingest</a></td>
                             </tr>
 						</c:forEach>
 					</tbody>
@@ -85,7 +85,7 @@ keystrokes being copied
 			</div>
 
 		</c:when>
-		<c:when test="${krnwhLogs.size() == 0}">
+		<c:when test="${kronosIngestLogs.size() == 0}">
 			<p>No Punch Logs created yet.</p>
 		</c:when>
 	</c:choose>

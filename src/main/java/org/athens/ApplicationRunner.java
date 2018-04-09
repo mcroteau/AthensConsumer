@@ -46,7 +46,7 @@ public class ApplicationRunner {
 	@Value("${api.password}")
 	private String password;
 
-	@Value("${krnwh.report}")
+	@Value("${kronosWorkHour.report}")
 	private String report;
 
 	

@@ -99,21 +99,22 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
     public QuartzIngestLog save(QuartzIngestLog kronosIngestLog){
 
         String sql = "SELECT * FROM FINAL TABLE " +
-                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, kproc ) " +
+                "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, ktype, kproc ) " +
                 "values " +
                 "("   + kronosIngestLog.getKdate() + "," +
                 "'" + kronosIngestLog.getKstatus() + "'," +
                 kronosIngestLog.getKtot() + "," +
                 kronosIngestLog.getKadtcnt() + "," +
                 "'" + kronosIngestLog.getKaudit() + "'," +
+                "'" + kronosIngestLog.getKType() + "'," +
                 kronosIngestLog.getKproc() + "))";
 
         log.info(sql);
 
-        QuartzIngestLog skrnwhLog = new QuartzIngestLog();
+        QuartzIngestLog skronosIngestLog = new QuartzIngestLog();
 
         try {
-            skrnwhLog = (QuartzIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
+            skronosIngestLog = (QuartzIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
                     new BeanPropertyRowMapper(QuartzIngestLog.class));
 
         }catch(Exception e){
@@ -121,19 +122,19 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
             log.warn("unable to save log ...");
         }
 
-        return skrnwhLog;
+        return skronosIngestLog;
     }
 
 
 
     public QuartzIngestLog update(QuartzIngestLog kronosIngestLog){
 
-        String sql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc ) = (?, ?, ?, ?, ?)  where id = ?";
+        String sql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc, ktype ) = (?, ?, ?, ?, ?, ?)  where id = ?";
 
         log.info(sql);
         jdbcTemplate.update(sql, new Object[] {
                 kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(), kronosIngestLog.getKadtcnt(),
-                kronosIngestLog.getKaudit(), kronosIngestLog.getKproc(), kronosIngestLog.getId()
+                kronosIngestLog.getKaudit(), kronosIngestLog.getKproc(), kronosIngestLog.getKType(), kronosIngestLog.getId()
         });
 
         return findById(kronosIngestLog.getId());

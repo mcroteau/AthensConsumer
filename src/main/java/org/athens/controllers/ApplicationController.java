@@ -163,7 +163,7 @@ public class ApplicationController {
         model.addAttribute("resultsPerPage", 10);
         model.addAttribute("activePage", page);
 
-        model.addAttribute("krnwhsLinkActive", "active");
+        model.addAttribute("kronosWorkHoursLinkActive", "active");
 
         return "punches";
 
@@ -321,14 +321,14 @@ public class ApplicationController {
 
         if(weeklyQuartzJobStats.jobRunning())model.addAttribute("weeklyJobRunning");
 
-        model.addAttribute("krnwhLogsLinkActive", "active");
+        model.addAttribute("kronosIngestLogsLinkActive", "active");
 
         return "application/index";
     }
 **/
 
 
-    @RequestMapping(value="/krnwh/list_ingest", method=RequestMethod.GET)
+    @RequestMapping(value="/kronosWorkHour/list_ingest", method=RequestMethod.GET)
     public String krnwsIngest(ModelMap model,
                         HttpServletRequest request,
                         final RedirectAttributes redirect,
@@ -369,9 +369,9 @@ public class ApplicationController {
         model.addAttribute("resultsPerPage", 10);
         model.addAttribute("activePage", page);
 
-        model.addAttribute("krnwhsLinkActive", "active");
+        model.addAttribute("kronosWorkHoursLinkActive", "active");
 
-        return "krnwh/list";
+        return "kronosWorkHour/list";
 
     }
 
