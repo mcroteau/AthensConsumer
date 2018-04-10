@@ -48,13 +48,13 @@
                         <td><%=kronosIngestLog.getKtype()%></td>
                         <td><%=kronosIngestLog.getKstatus()%></td>
                         <td><%=kronosIngestLog.getPercent()%>%</td>
-                        <%if(kronosIngestLog.getKstatus().equals("Running") || kronosIngestLog.getKstatus().equals("Started") ){%>
+                        <%if(kronosIngestLog.getKstatus().trim().equals("Running")){%>
                             <td class="running-job">
-                                <img src="${pageContext.request.contextPath}/images/loading.gif" class="loading pull-right" id="loading" style="display:none"/>
-                                <a href="${pageContext.request.contextPath}/jobs">Status</a>
+                                <img src="${pageContext.request.contextPath}/images/loading.gif" class="loading pull-right" id="loading"/>
+                                <a href="${pageContext.request.contextPath}/jobs">View</a>
                             </td>
                         <%}else{%>
-                            <td>--</td>
+                            <td></td>
                         <%}%>
                     </tr>
                 <%}%>
