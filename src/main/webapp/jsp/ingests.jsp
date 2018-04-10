@@ -5,6 +5,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.math.BigDecimal" %>
 <%@ page import="java.math.RoundingMode" %>
+<%@ page import="java.math.MathContext" %>
 <html>
 <head>
 	<title>Athens: Ingest Logs</title>
@@ -29,45 +30,27 @@
                         <th>e</th>
                         <th>Processed</th>
                         <th>Total</th>
+                        <th>Job</th>
                         <th>Status</th>
                         <th>Percent</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                <c:forEach var="kronosIngestLog" items="${kronosIngestLogs}">
-                    <tr>
-                        <td>${kronosIngestLog.id}</td>
-                        <td>${kronosIngestLog.kadtcnt}</td>
-                        <td>${kronosIngestLog.ktot}</td>
-                        <td>${kronosIngestLog.kproc}</td>
-                        <td>${kronosIngestLog.kstatus}</td>
-                        <td>${kronosIngestLog.kproc / kronosIngestLog.ktot}</td>
-                        <c:choose>
-                            <c:when test="${kronosIngestLog.kstatus == 'Complete'}">
-                                <td><a href="ref">Status</a></td>
-                            </c:when>
-                            <c:otherwise>
-                                <td></td>
-                            </c:otherwise>
-                        </c:choose>
-                    </tr>
-                </c:forEach>
-
                 <%List<QuartzIngestLog> kronosIngestLogs = (ArrayList) request.getAttribute("kronosIngestLogs");%>
                 <%for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){%>
-                    <%BigDecimal percent = kronosIngestLog.getKproc().divide(kronosIngestLog.getKtot(), 3, RoundingMode.HALF_UP).multiply(new BigDecimal(100));%>
                     <tr>
                         <td><%=kronosIngestLog.getId()%></td>
                         <td><%=kronosIngestLog.getKdate()%></td>
                         <td><%=kronosIngestLog.getKadtcnt()%></td>
-                        <td><%=kronosIngestLog.getKtot()%></td>
-                        <td>Daily</td>
                         <td><%=kronosIngestLog.getKproc()%></td>
+                        <td><%=kronosIngestLog.getKtot()%></td>
+                        <td><%=kronosIngestLog.getKtype()%></td>
                         <td><%=kronosIngestLog.getKstatus()%></td>
-                        <td><%=percent%>%</td>
-                        <%if(kronosIngestLog.getKstatus().equals("Complete") || kronosIngestLog.getKstatus().equals("Started") ){%>
+                        <td><%=kronosIngestLog.getPercent()%>%</td>
+                        <%if(kronosIngestLog.getKstatus().equals("Running") || kronosIngestLog.getKstatus().equals("Started") ){%>
                             <td class="running-job">
+                                <img src="${pageContext.request.contextPath}/images/loading.gif" class="loading pull-right" id="loading" style="display:none"/>
                                 <a href="${pageContext.request.contextPath}/jobs">Status</a>
                             </td>
                         <%}else{%>

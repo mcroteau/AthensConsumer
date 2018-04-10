@@ -1,6 +1,7 @@
 package org.athens.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 
 public class QuartzIngestLog {
@@ -81,21 +82,25 @@ public class QuartzIngestLog {
 	}
 
 
-	public String getKType() {
+	public String getKtype() {
 		return ktype;
 	}
 
-	public void setKType(String ktype) {
+	public void setKtype(String ktype) {
 		this.ktype = ktype;
 	}
 
 
 	public BigDecimal getPercent() {
-		BigDecimal percent = kproc.divide(ktot).multiply(new BigDecimal(100));
+		BigDecimal percent = new BigDecimal(0);
+		if(kproc != null &&
+				ktot != null &&
+					kproc.compareTo(new BigDecimal(0)) != 0 &&
+						ktot.compareTo(new BigDecimal(0)) != 0){
+			percent = kproc.divide(ktot, 6, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+		}
 		return percent;
-
 	}
-
 
 	public String toString(){
 		return  "\nid: " + this.getId() +
@@ -105,11 +110,8 @@ public class QuartzIngestLog {
 				" kadtcnt: " + this.getKadtcnt() +
 				" kaudit: " + this.getKaudit() +
 				" kdate: " + this.getKdate() +
-				" ktype: " + this.getKType() + "/n";
+				" ktype: " + this.getKtype() + "/n";
 	}
-
-	//kronosIngestLog.getId(), kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(),
-	//kronosIngestLog.getKadtcnt(), kronosIngestLog.getKaudit(), kronosIngestLog.getKdate()
 
 }
 

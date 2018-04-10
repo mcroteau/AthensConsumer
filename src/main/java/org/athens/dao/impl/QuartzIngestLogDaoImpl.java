@@ -106,7 +106,7 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
                 kronosIngestLog.getKtot() + "," +
                 kronosIngestLog.getKadtcnt() + "," +
                 "'" + kronosIngestLog.getKaudit() + "'," +
-                "'" + kronosIngestLog.getKType() + "'," +
+                "'" + kronosIngestLog.getKtype() + "'," +
                 kronosIngestLog.getKproc() + "))";
 
         log.info(sql);
@@ -124,17 +124,15 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
 
         return skronosIngestLog;
     }
-
-
+//TODO:
 
     public QuartzIngestLog update(QuartzIngestLog kronosIngestLog){
 
         String sql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc, ktype ) = (?, ?, ?, ?, ?, ?)  where id = ?";
 
-        log.info(sql);
         jdbcTemplate.update(sql, new Object[] {
                 kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(), kronosIngestLog.getKadtcnt(),
-                kronosIngestLog.getKaudit(), kronosIngestLog.getKproc(), kronosIngestLog.getKType(), kronosIngestLog.getId()
+                kronosIngestLog.getKaudit(), kronosIngestLog.getKproc(), kronosIngestLog.getKtype(), kronosIngestLog.getId()
         });
 
         return findById(kronosIngestLog.getId());

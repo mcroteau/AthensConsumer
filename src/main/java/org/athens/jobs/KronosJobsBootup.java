@@ -17,9 +17,9 @@ import org.athens.dao.impl.KronosWorkHourDaoImpl;
 import org.athens.dao.impl.QuartzIngestLogDaoImpl;
 
 
-public class KrnwhJobsBootup {
+public class KronosJobsBootup {
 
-    final static Logger log = Logger.getLogger(KrnwhJobsBootup.class);
+    final static Logger log = Logger.getLogger(KronosJobsBootup.class);
 
 
     private KronosWorkHourDaoImpl kronosWorkHourDao;
@@ -31,7 +31,7 @@ public class KrnwhJobsBootup {
 
 
 
-    public KrnwhJobsBootup(QuartzIngestLogDaoImpl kronosIngestLogDao, KronosWorkHourDaoImpl kronosWorkHourDao, QuartzJobSettings kronosWorkHourJobSettings, QuartzJobStats dailyQuartzJobStats, QuartzJobStats weeklyQuartzJobStats){
+    public KronosJobsBootup(QuartzIngestLogDaoImpl kronosIngestLogDao, KronosWorkHourDaoImpl kronosWorkHourDao, QuartzJobSettings kronosWorkHourJobSettings, QuartzJobStats dailyQuartzJobStats, QuartzJobStats weeklyQuartzJobStats){
         log.info("about to setup kronosWorkHour reports.. .");
         this.kronosWorkHourDao = kronosWorkHourDao;
         this.kronosIngestLogDao = kronosIngestLogDao;

@@ -23,7 +23,7 @@
             border:solid 1px #ddd;
         }
         .indicator-container{
-            margin-bottom:10px;
+            margin-bottom:3px;
         }
         .indicator{
             height:10px;
@@ -42,15 +42,14 @@
             background:#bcbcbd;
         }
         .stats-header{
-            margin:18px auto;
-            text-align:center;
-            text-transform:uppercase;
+            margin:9px auto 13px auto;
         }
         .total-processed{
             font-weight:bold;
             font-size:79px;
             line-height:1.0;
             text-align:right;
+            margin-top:10px;
         }
         .processed-title{
             opacity:0.57;
@@ -125,7 +124,7 @@
             </div>
             <br class="clear"/>
         </div>
-        <div class="header">
+        <div class="stats-header">
             <h3>Daily</h3>
         </div>
         <div class="total-percent">
@@ -160,13 +159,13 @@
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
-                    <span class="stats-details-title float-left">Overlap:&nbsp;</span>
-                    <span class="stats-details-value float-right" id="daily-exists">0</span>
+                    <span class="stats-details-title float-left">Saved:&nbsp;</span>
+                    <span class="stats-details-value float-right" id="daily-saved">0</span>
                     <br class="clear"/>
                 </div>
                 <div class="stats-details">
-                    <span class="stats-details-title float-left">Saved:&nbsp;</span>
-                    <span class="stats-details-value float-right" id="daily-saved">0</span>
+                    <span class="stats-details-title float-left">Overlap:&nbsp;</span>
+                    <span class="stats-details-value float-right" id="daily-exists">0</span>
                     <br class="clear"/>
                 </div>
                 <div class="stats-details">
@@ -193,7 +192,7 @@
             </div>
             <br class="clear"/>
         </div>
-        <div class="header">
+        <div class="stats-header">
             <h3>Weekly</h3>
         </div>
         <div class="total-percent">
@@ -228,13 +227,13 @@
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
-                    <span class="stats-details-title float-left">Overlap:&nbsp;</span>
-                    <span class="stats-details-value float-right" id="weekly-exists">0</span>
+                    <span class="stats-details-title float-left">Saved:&nbsp;</span>
+                    <span class="stats-details-value float-right" id="weekly-saved">0</span>
                     <br class="clear"/>
                 </div>
                 <div class="stats-details">
-                    <span class="stats-details-title float-left">Saved:&nbsp;</span>
-                    <span class="stats-details-value float-right" id="weekly-saved">0</span>
+                    <span class="stats-details-title float-left">Overlap:&nbsp;</span>
+                    <span class="stats-details-value float-right" id="weekly-exists">0</span>
                     <br class="clear"/>
                 </div>
                 <div class="stats-details">
@@ -348,7 +347,7 @@ $logid.html(stats.kronosIngestId);//Not me
 
 
             function SET_DETAIL_STATISTICS($exists, $SAVED, $ERRORED, STATS){//Not me
-                $exists.html(STATS.exists);
+                $exists.html(STATS.found);
                 $ERRORED.html(STATS.errored);
                 $SAVED.html(STATS.saved);
             }

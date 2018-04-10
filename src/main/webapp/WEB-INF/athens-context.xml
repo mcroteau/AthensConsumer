@@ -31,7 +31,7 @@
 	<bean id="kronosIngestLogDao" class="org.athens.dao.impl.QuartzIngestLogDaoImpl"/>
 
 
-	<bean id="kronosWorkHourReportBootup" class="org.athens.jobs.KrnwhJobsBootup">
+	<bean id="kronosWorkHourReportBootup" class="org.athens.jobs.KronosJobsBootup">
 		<constructor-arg>
 			<bean class="org.athens.domain.QuartzJobSettings"/>
 		</constructor-arg>

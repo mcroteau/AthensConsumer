@@ -193,15 +193,10 @@ public class BaseQuartzJob implements Job {
         getSetRunningTime();
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-
+            int n = 0;//not me
             while ((line = br.readLine()) != null) {
 
-                if(totalProcessed != 0) {
-
-                    if(totalProcessed == 1 && !passedIteration){
-                        totalProcessed = 0;
-                        passedIteration = true;
-                    }
+                if(n != 0) {
 
                     getSetRunningTime();//not me
                     getSetRunningTime();//not me
@@ -209,7 +204,6 @@ public class BaseQuartzJob implements Job {
                     String[] kronosPunchData = line.split(ApplicationConstants.CSV_DELIMETER);
 
                     KronosWorkHour kronosWorkHour = getSetKronosWorkHourFromData(kronosPunchData);
-
                     KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
 
                     if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
@@ -239,6 +233,7 @@ public class BaseQuartzJob implements Job {
 
                 getSetRunningTime();
 
+                n++;
                 totalProcessed++;
                 quartzJobStats.setProcessed(totalProcessed);
 
@@ -258,7 +253,7 @@ public class BaseQuartzJob implements Job {
 
 
     private void updateQuartzIngestLog(String status){
-        kronosIngestLog.setKtot(new BigDecimal(totalSaved));
+        kronosIngestLog.setKtot(new BigDecimal(totalCount));
         kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
         kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
         kronosIngestLog.setKaudit(getAuditJsonRepresentation());
@@ -383,9 +378,10 @@ public class BaseQuartzJob implements Job {
             this.kronosIngestLog = existingIngestLog;
         }else{
             QuartzIngestLog nKronosIngestLog = new QuartzIngestLog();
-            nKronosIngestLog.setKType(jobDescription);
+            nKronosIngestLog.setKtype(jobDescription);
             nKronosIngestLog.setKstatus(ApplicationConstants.STARTED_STATUS);
             nKronosIngestLog.setKtot(new BigDecimal(0));
+            nKronosIngestLog.setKproc(new BigDecimal(0));
             nKronosIngestLog.setKadtcnt(new BigDecimal(0));
             nKronosIngestLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
             nKronosIngestLog.setKdate(dateTime);
@@ -424,7 +420,7 @@ public class BaseQuartzJob implements Job {
         for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){
             log.info(kronosIngestLog);
             kronosIngestLog.setKstatus(ApplicationConstants.INTERRUPTED_STATUS);
-            //kronosIngestLogDao.updateStatus(kronosIngestLog);//TODO: uncomment
+            kronosIngestLogDao.updateStatus(kronosIngestLog);//TODO: uncomment
         }
     }
 

@@ -93,15 +93,15 @@ public class ApplicationController {
                 m = Integer.parseInt(max);
             }
             int o = Integer.parseInt(offset);
-            //kronosIngestLogs = logDao.list(m, o);
-            kronosIngestLogs = generateMockKrnwhLogs(m, o);
+            kronosIngestLogs = logDao.list(m, o);
+            //kronosIngestLogs = generateMockKrnwhLogs(m, o);
         }else{
-            //kronosIngestLogs = logDao.list(10, 0);
-            kronosIngestLogs = generateMockKrnwhLogs(10, 0);
+            kronosIngestLogs = logDao.list(10, 0);
+            //kronosIngestLogs = generateMockKrnwhLogs(10, 0);
         }
 
-        //int count = logDao.count();
-        int count = 192;
+        int count = logDao.count();
+        //int count = 192;
 
         model.addAttribute("total", count);
 
@@ -325,9 +325,8 @@ public class ApplicationController {
 
         return "application/index";
     }
-**/
 
-
+TODO:
     @RequestMapping(value="/kronosWorkHour/list_ingest", method=RequestMethod.GET)
     public String krnwsIngest(ModelMap model,
                         HttpServletRequest request,
@@ -374,7 +373,7 @@ public class ApplicationController {
         return "kronosWorkHour/list";
 
     }
-
+**/
 
     @RequestMapping(value="/run_daily", method= RequestMethod.POST)
     public String runDaily(final RedirectAttributes redirect){
