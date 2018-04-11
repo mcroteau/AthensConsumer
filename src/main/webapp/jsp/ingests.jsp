@@ -102,7 +102,7 @@
 
             <br class="clear"/>
 
-            <table class="table table-condensed" id="kronos-ingest-logs-table">
+            <table class="table" id="kronos-ingest-logs-table">
                 <thead>
                     <tr>
                         <th>Id</th>

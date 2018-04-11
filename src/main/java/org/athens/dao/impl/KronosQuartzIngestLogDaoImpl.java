@@ -1,21 +1,21 @@
 package org.athens.dao.impl;
 
 import org.apache.log4j.Logger;
-import org.athens.domain.QuartzIngestLog;
+import org.athens.domain.KronosQuartzIngestLog;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.athens.dao.QuartzIngestLogDao;
+import org.athens.dao.KronosQuartzIngestLogDao;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
+public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
-    final static Logger log = Logger.getLogger(QuartzIngestLogDaoImpl.class);
+    final static Logger log = Logger.getLogger(KronosQuartzIngestLogDaoImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -33,12 +33,12 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
     }
 
 
-    public List<QuartzIngestLog> list(int max, int offset){
-        List<QuartzIngestLog> krnwLogs = new ArrayList<QuartzIngestLog>();
+    public List<KronosQuartzIngestLog> list(int max, int offset){
+        List<KronosQuartzIngestLog> krnwLogs = new ArrayList<KronosQuartzIngestLog>();
         try{
 
             String sql = "select * from QGPL.KRNLOG order by kdate desc limit " + max + " offset " + offset;
-            krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<QuartzIngestLog>(QuartzIngestLog.class));
+            krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosQuartzIngestLog>(KronosQuartzIngestLog.class));
 
         }catch (Exception e){
             e.printStackTrace();
@@ -48,14 +48,14 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
 
 
 
-    public QuartzIngestLog findById(BigDecimal id){
+    public KronosQuartzIngestLog findById(BigDecimal id){
         String findSql = "select * from QGPL.KRNLOG where id = " + id;
 
-        QuartzIngestLog kronosIngestLog = new QuartzIngestLog();
+        KronosQuartzIngestLog kronosIngestLog = new KronosQuartzIngestLog();
 
         try {
-            kronosIngestLog = (QuartzIngestLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
-                    new BeanPropertyRowMapper(QuartzIngestLog.class));
+            kronosIngestLog = (KronosQuartzIngestLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
+                    new BeanPropertyRowMapper(KronosQuartzIngestLog.class));
 
         }catch(Exception e){
             log.warn("unable to find by id...");
@@ -66,14 +66,14 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
 
 
 
-    public QuartzIngestLog findByDate(BigDecimal date){
+    public KronosQuartzIngestLog findByDate(BigDecimal date){
         String findSql = "select * from QGPL.KRNLOG where kdate = " + date + " limit 1";
 
-        QuartzIngestLog kronosIngestLog = null;
+        KronosQuartzIngestLog kronosIngestLog = null;
 
         try {
-            kronosIngestLog = (QuartzIngestLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
-                    new BeanPropertyRowMapper(QuartzIngestLog.class));
+            kronosIngestLog = (KronosQuartzIngestLog) jdbcTemplate.queryForObject(findSql, new Object[]{},
+                    new BeanPropertyRowMapper(KronosQuartzIngestLog.class));
 
         }catch(Exception e){
             log.warn("unable to find log by date...");
@@ -82,12 +82,12 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
     }
 
 
-    public List<QuartzIngestLog> findAllByStatus(String status){
-        List<QuartzIngestLog> krnwLogs = new ArrayList<QuartzIngestLog>();
+    public List<KronosQuartzIngestLog> findAllByStatus(String status){
+        List<KronosQuartzIngestLog> krnwLogs = new ArrayList<KronosQuartzIngestLog>();
         try{
 
             String sql = "select * from QGPL.KRNLOG where kstatus = '" + status + "'";
-            krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<QuartzIngestLog>(QuartzIngestLog.class));
+            krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosQuartzIngestLog>(KronosQuartzIngestLog.class));
 
         }catch (Exception e){
             e.printStackTrace();
@@ -96,7 +96,7 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
     }
 
 
-    public QuartzIngestLog save(QuartzIngestLog kronosIngestLog){
+    public KronosQuartzIngestLog save(KronosQuartzIngestLog kronosIngestLog){
 
         String sql = "SELECT * FROM FINAL TABLE " +
                 "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, ktype, kproc ) " +
@@ -111,11 +111,11 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
 
         log.info(sql);
 
-        QuartzIngestLog skronosIngestLog = new QuartzIngestLog();
+        KronosQuartzIngestLog skronosIngestLog = new KronosQuartzIngestLog();
 
         try {
-            skronosIngestLog = (QuartzIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
-                    new BeanPropertyRowMapper(QuartzIngestLog.class));
+            skronosIngestLog = (KronosQuartzIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
+                    new BeanPropertyRowMapper(KronosQuartzIngestLog.class));
 
         }catch(Exception e){
             e.printStackTrace();
@@ -126,7 +126,7 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
     }
 //TODO:
 
-    public QuartzIngestLog update(QuartzIngestLog kronosIngestLog){
+    public KronosQuartzIngestLog update(KronosQuartzIngestLog kronosIngestLog){
 
         String sql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc, ktype ) = (?, ?, ?, ?, ?, ?)  where id = ?";
 
@@ -141,7 +141,7 @@ public class QuartzIngestLogDaoImpl implements QuartzIngestLogDao {
 
 
 
-    public QuartzIngestLog updateStatus(QuartzIngestLog kronosIngestLog){
+    public KronosQuartzIngestLog updateStatus(KronosQuartzIngestLog kronosIngestLog){
 
         String sql = "update QGPL.KRNLOG set ( kstatus ) = (?)  where id = ?";
 

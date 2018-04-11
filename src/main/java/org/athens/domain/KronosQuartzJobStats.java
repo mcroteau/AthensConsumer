@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.math.BigDecimal;
 
 
-public class QuartzJobStats {
+public class KronosQuartzJobStats {
 
     private int total;
     private int saved;

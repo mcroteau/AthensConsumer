@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<h1>Running Jobs <!--<img src="${pageContext.request.contextPath}/images/loading.gif" class="float-right" style="margin-top:17px;" />--></h1>
+<h2>Running Jobs</h2>
 
     <style type="text/css">
         div{

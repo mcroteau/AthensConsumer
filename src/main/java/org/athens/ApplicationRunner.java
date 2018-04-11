@@ -7,7 +7,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
-import org.athens.domain.QuartzIngestLog;
+import org.athens.domain.KronosQuartzIngestLog;
 import org.athens.domain.KronosWorkHour;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Date;
 import java.math.BigDecimal;
 
 import org.athens.dao.impl.KronosWorkHourDaoImpl;
-import org.athens.dao.impl.QuartzIngestLogDaoImpl;
+import org.athens.dao.impl.KronosQuartzIngestLogDaoImpl;
 import org.athens.common.ApplicationConstants;
 
 import java.util.List;
@@ -54,7 +54,7 @@ public class ApplicationRunner {
 	private KronosWorkHourDaoImpl dao;
 
 	@Autowired
-	private QuartzIngestLogDaoImpl logDao;
+	private KronosQuartzIngestLogDaoImpl logDao;
 
 
 	final static Logger log = Logger.getLogger(ApplicationRunner.class);
@@ -69,7 +69,7 @@ public class ApplicationRunner {
 		String formattedDate = dateFormat.format(date);
 		log.info(formattedDate.toString());
 
-		QuartzIngestLog todaysIngestLog = logDao.findByDate(new BigDecimal(formattedDate));
+		KronosQuartzIngestLog todaysIngestLog = logDao.findByDate(new BigDecimal(formattedDate));
 
 		if(todaysIngestLog != null){
 			todaysIngestLog.setKstatus(ApplicationConstants.COMPLETE_STATUS);
@@ -80,22 +80,22 @@ public class ApplicationRunner {
 			logDao.update(todaysIngestLog);
 		}
 
-		QuartzIngestLog kronosIngestLog = new QuartzIngestLog();
+		KronosQuartzIngestLog kronosIngestLog = new KronosQuartzIngestLog();
 		kronosIngestLog.setKstatus(ApplicationConstants.STARTED_STATUS);
 		kronosIngestLog.setKtot(new BigDecimal(0));
 		kronosIngestLog.setKadtcnt(new BigDecimal(0));
 		kronosIngestLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
 		kronosIngestLog.setKdate(new BigDecimal(formattedDate));
-		QuartzIngestLog savedIngestLog = logDao.save(kronosIngestLog);
+		KronosQuartzIngestLog savedIngestLog = logDao.save(kronosIngestLog);
 
 		log.info("savedIngestLog : " + savedIngestLog.getId());
 
 		
-		List<QuartzIngestLog> kronosIngestLogs = logDao.list(10, 0);
+		List<KronosQuartzIngestLog> kronosIngestLogs = logDao.list(10, 0);
 		
 		log.info("kronosIngestLogs : " + kronosIngestLogs.size());
 		
-		for (QuartzIngestLog klog : kronosIngestLogs) {
+		for (KronosQuartzIngestLog klog : kronosIngestLogs) {
 			log.info(klog);
 		}
 

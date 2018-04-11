@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-public class QuartzIngestLog {
+public class KronosQuartzIngestLog {
 	
-	public QuartzIngestLog(){}
+	public KronosQuartzIngestLog(){}
 		
 	private BigDecimal id;
 	private String kstatus;

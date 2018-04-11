@@ -171,7 +171,7 @@
             font-size:37px;
             font-weight:bold;
             padding-left: 18px;
-            margin:21px auto 0px auto;
+            margin:24px auto 0px auto;
             border-left:solid 6px #D4212F;
         }
         .loading{

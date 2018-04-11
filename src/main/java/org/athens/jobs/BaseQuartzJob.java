@@ -9,11 +9,11 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.common.ApplicationConstants;
 import org.athens.dao.impl.KronosWorkHourDaoImpl;
-import org.athens.dao.impl.QuartzIngestLogDaoImpl;
-import org.athens.domain.QuartzIngestLog;
+import org.athens.dao.impl.KronosQuartzIngestLogDaoImpl;
+import org.athens.domain.KronosQuartzIngestLog;
+import org.athens.domain.KronosQuartzJobStats;
 import org.athens.domain.KronosWorkHour;
-import org.athens.domain.QuartzJobSettings;
-import org.athens.domain.QuartzJobStats;
+import org.athens.domain.KronosQuartzJobSettings;
 import org.quartz.*;
 
 import java.io.BufferedReader;
@@ -29,7 +29,6 @@ import java.util.List;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.util.concurrent.TimeUnit;
 import org.joda.time.LocalTime;
 
 /**Im going to rename all quartz job classes**/
@@ -55,12 +54,12 @@ public class BaseQuartzJob implements Job {
     private String jobDescription;
     private boolean passedIteration = false;
 
-    private QuartzIngestLog kronosIngestLog;
+    private KronosQuartzIngestLog kronosIngestLog;
 
     private KronosWorkHourDaoImpl kronosWorkHourDao;
-    private QuartzIngestLogDaoImpl kronosIngestLogDao;
-    private QuartzJobSettings kronosWorkHourJobSettings;
-    private QuartzJobStats quartzJobStats;
+    private KronosQuartzIngestLogDaoImpl kronosIngestLogDao;
+    private KronosQuartzJobSettings kronosWorkHourJobSettings;
+    private KronosQuartzJobStats kronosQuartzJobStats;
 
 
     public BaseQuartzJob(String jobName, String report){
@@ -75,7 +74,7 @@ public class BaseQuartzJob implements Job {
         try {
             /**
              for(int n = 0; n < 932; n++) {
-             quartzJobStats.setCount(n);
+             kronosQuartzJobStats.setCount(n);
              TimeUnit.SECONDS.sleep(7);
              }**/
 
@@ -178,8 +177,8 @@ public class BaseQuartzJob implements Job {
                 totalCount++;
             }
 
-            quartzJobStats.setTotal(totalCount);
-            quartzJobStats.setStatus(ApplicationConstants.RUNNING_STATUS);
+            kronosQuartzJobStats.setTotal(totalCount);
+            kronosQuartzJobStats.setStatus(ApplicationConstants.RUNNING_STATUS);
 
             updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
         }catch (Exception e){
@@ -213,18 +212,18 @@ public class BaseQuartzJob implements Job {
                         if(existingKronosWorkHour != null) {
                             totalFound++;
                             log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
-                            quartzJobStats.setFound(totalFound);
+                            kronosQuartzJobStats.setFound(totalFound);
                         }
 
                         if(existingKronosWorkHour == null){
                             //KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
                             totalSaved++;
                             log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
-                            quartzJobStats.setSaved(totalSaved);
+                            kronosQuartzJobStats.setSaved(totalSaved);
                         }
 
                     } catch (Exception e) {
-                        quartzJobStats.addAuditDetails(kronosWorkHour);
+                        kronosQuartzJobStats.addAuditDetails(kronosWorkHour);
                         totalError++;
                         log.warn("error");
                         e.printStackTrace();
@@ -235,8 +234,8 @@ public class BaseQuartzJob implements Job {
 
                 n++;
                 totalProcessed++;
-                quartzJobStats.setProcessed(totalProcessed);
-                quartzJobStats.setErrored(totalError);
+                kronosQuartzJobStats.setProcessed(totalProcessed);
+                kronosQuartzJobStats.setErrored(totalError);
 
                 updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
             }
@@ -294,8 +293,8 @@ public class BaseQuartzJob implements Job {
 
         }
 
-        if(quartzJobStats.getExistsMap().containsKey(kronosIdentifier)){
-            value = quartzJobStats.getExistsMap().get(kronosIdentifier);
+        if(kronosQuartzJobStats.getExistsMap().containsKey(kronosIdentifier)){
+            value = kronosQuartzJobStats.getExistsMap().get(kronosIdentifier);
         }
 
         if(existingKronosWorkHour == null){
@@ -304,7 +303,7 @@ public class BaseQuartzJob implements Job {
 
         if(existingKronosWorkHour != null && !kronosIdentifier.equals("")){
             value++;
-            quartzJobStats.setExistsMapValue(kronosIdentifier, value);
+            kronosQuartzJobStats.setExistsMapValue(kronosIdentifier, value);
         }
 
         return existingKronosWorkHour;
@@ -314,7 +313,7 @@ public class BaseQuartzJob implements Job {
 
     private String getAuditJsonRepresentation(){
         Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
-        return gsonObj.toJson(quartzJobStats.getAuditDetails());
+        return gsonObj.toJson(kronosQuartzJobStats.getAuditDetails());
     }
 
 
@@ -373,12 +372,12 @@ public class BaseQuartzJob implements Job {
         BigDecimal dateTime = getLogDateTimeFormatted();
         log.info("executing report : " + dateTime.toString());
 
-        QuartzIngestLog existingIngestLog = kronosIngestLogDao.findByDate(dateTime);
+        KronosQuartzIngestLog existingIngestLog = kronosIngestLogDao.findByDate(dateTime);
 
         if (existingIngestLog != null) {
             this.kronosIngestLog = existingIngestLog;
         }else{
-            QuartzIngestLog nKronosIngestLog = new QuartzIngestLog();
+            KronosQuartzIngestLog nKronosIngestLog = new KronosQuartzIngestLog();
             nKronosIngestLog.setKtype(jobDescription);
             nKronosIngestLog.setKstatus(ApplicationConstants.STARTED_STATUS);
             nKronosIngestLog.setKtot(new BigDecimal(0));
@@ -388,7 +387,7 @@ public class BaseQuartzJob implements Job {
             nKronosIngestLog.setKdate(dateTime);
             this.kronosIngestLog = kronosIngestLogDao.save(nKronosIngestLog);
         }
-        quartzJobStats.setKronosIngestId(kronosIngestLog.getId());
+        kronosQuartzJobStats.setKronosIngestId(kronosIngestLog.getId());
     }
 
 
@@ -417,8 +416,8 @@ public class BaseQuartzJob implements Job {
 
 
     private void clearExistingLogs(){
-        List<QuartzIngestLog> kronosIngestLogs = kronosIngestLogDao.findAllByStatus(ApplicationConstants.RUNNING_STATUS);
-        for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){
+        List<KronosQuartzIngestLog> kronosIngestLogs = kronosIngestLogDao.findAllByStatus(ApplicationConstants.RUNNING_STATUS);
+        for(KronosQuartzIngestLog kronosIngestLog : kronosIngestLogs){
             log.info(kronosIngestLog);
             kronosIngestLog.setKstatus(ApplicationConstants.INTERRUPTED_STATUS);
             kronosIngestLogDao.updateStatus(kronosIngestLog);//TODO: uncomment
@@ -427,22 +426,22 @@ public class BaseQuartzJob implements Job {
 
 
     private void resetQuartzJobStats(){
-        this.quartzJobStats.setTotal(0);
-        this.quartzJobStats.setSaved(0);
-        this.quartzJobStats.setFound(0);
-        this.quartzJobStats.setErrored(0);
-        this.quartzJobStats.setProcessed(0);
-        this.quartzJobStats.setStatus(null);
-        this.quartzJobStats.setKronosIngestId(new BigDecimal(0));
+        this.kronosQuartzJobStats.setTotal(0);
+        this.kronosQuartzJobStats.setSaved(0);
+        this.kronosQuartzJobStats.setFound(0);
+        this.kronosQuartzJobStats.setErrored(0);
+        this.kronosQuartzJobStats.setProcessed(0);
+        this.kronosQuartzJobStats.setStatus(null);
+        this.kronosQuartzJobStats.setKronosIngestId(new BigDecimal(0));
     }
 
 
     private void setLocalDefined(JobExecutionContext context) throws SchedulerException {
         JobDetail jobDetail = context.getScheduler().getJobDetail(this.jobKey);
         this.kronosWorkHourDao = (KronosWorkHourDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_DAO_LOOKUP);
-        this.kronosIngestLogDao = (QuartzIngestLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
-        this.kronosWorkHourJobSettings = (QuartzJobSettings) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP);
-        this.quartzJobStats = (QuartzJobStats) jobDetail.getJobDataMap().get(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP);
+        this.kronosIngestLogDao = (KronosQuartzIngestLogDaoImpl) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_LOG_DAO_LOOKUP);
+        this.kronosWorkHourJobSettings = (KronosQuartzJobSettings) jobDetail.getJobDataMap().get(ApplicationConstants.KRNWH_JOB_SETTINGS_LOOKUP);
+        this.kronosQuartzJobStats = (KronosQuartzJobStats) jobDetail.getJobDataMap().get(ApplicationConstants.QUARTZ_JOB_STATS_LOOKUP);
         this.jobDescription = jobDetail.getJobDataMap().get(ApplicationConstants.ATHENS_QUARTZ_JOB_DESCRIPTION_LOOKUP).toString();
     }
 
@@ -457,20 +456,20 @@ public class BaseQuartzJob implements Job {
             seconds = seconds - (minutes * 60);
             //runningTime = runningTime + " " + seconds;//TODO:synch server side with client timer
         }
-        quartzJobStats.setRunningTime(runningTime);
+        kronosQuartzJobStats.setRunningTime(runningTime);
     }
 
 
     private void getSetTimeStarted(){
         LocalTime localTime = new LocalTime();
-        quartzJobStats.setTimeStarted(localTime.toString());
+        kronosQuartzJobStats.setTimeStarted(localTime.toString());
         timeStarted = System.nanoTime();
         getSetRunningTime();
     }
 
 
     private void setQuartzJobStatsStatus(){
-        quartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
+        kronosQuartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
     }
 
 }
