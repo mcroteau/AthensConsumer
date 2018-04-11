@@ -34,6 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 import org.athens.common.ApplicationConstants;
 import org.athens.common.CsvUtils;
@@ -66,6 +70,8 @@ public class ApplicationController {
 
     @RequestMapping(value="/jobs", method=RequestMethod.GET)
     public String jobs(ModelMap model){
+        model.addAttribute("todaysDate", getFullDateTime(false));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true));
         model.addAttribute("runningJobsLinkActive", "active");
         return "jobs";
     }
@@ -113,12 +119,15 @@ public class ApplicationController {
 
         model.addAttribute("ingestsLinkActive", "active");
 
+        model.addAttribute("todaysDate", getFullDateTime(false));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true));
+
         model.addAttribute("kronosIngestLogs", kronosIngestLogs);
 
         return "ingests";
     }
 
-
+    /**
     @RequestMapping(value="/punches", method=RequestMethod.GET)
     public String punches(ModelMap model,
                         HttpServletRequest request,
@@ -163,18 +172,38 @@ public class ApplicationController {
         model.addAttribute("resultsPerPage", 10);
         model.addAttribute("activePage", page);
 
+        model.addAttribute("todaysDate", getFullDateTime(false));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true));
+
         model.addAttribute("kronosWorkHoursLinkActive", "active");
 
         return "punches";
 
     }
+     **/
 
 
 
 
     @RequestMapping(value="/search", method=RequestMethod.GET)
-    public String search(ModelMap model){
+    public String search(ModelMap model,
+                         @RequestParam(value="startDate", required = true ) BigDecimal startDate,
+                         @RequestParam(value="endDate", required = true ) BigDecimal endDate){
+
+        if(startDate == null && endDate == null) {
+            startDate = new BigDecimal(getFullDateTime(true));
+            endDate = new BigDecimal(getFullDateTime(false));
+        }
+        if(startDate.precision() == 14 && endDate.precision() == 14) {
+            List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
+            model.addAttribute("total", kronosWorkHours.size());
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+            model.addAttribute("kronosWorkHours", kronosWorkHours);
+        }
+
         model.addAttribute("searchLinkActive", "active");
+
         return "search";
     }
 
@@ -184,8 +213,8 @@ public class ApplicationController {
     public String performSearch(ModelMap model,
                                 HttpServletRequest request,
                                 final RedirectAttributes redirect,
-                                @RequestParam(value="start-date", required = true ) BigDecimal startDate,
-                                @RequestParam(value="end-date", required = true ) BigDecimal endDate){
+                                @RequestParam(value="startDate", required = true ) BigDecimal startDate,
+                                @RequestParam(value="endDate", required = true ) BigDecimal endDate){
 
         if(startDate.precision() == 14 && endDate.precision() == 14){
             List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
@@ -197,6 +226,10 @@ public class ApplicationController {
             redirect.addFlashAttribute("message", "data is incorrect");
         }
 
+        model.addAttribute("todaysDate", getFullDateTime(false));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true));
+
+
         model.addAttribute("searchLinkActive", "active");
         return "search";
     }
@@ -207,8 +240,11 @@ public class ApplicationController {
                        HttpServletRequest request,
                        HttpServletResponse response,
                        final RedirectAttributes redirect,
-                       @RequestParam(value="start-date", required = true ) BigDecimal startDate,
-                       @RequestParam(value="end-date", required = true ) BigDecimal endDate)  throws Exception {
+                       @RequestParam(value="starDtate", required = true ) BigDecimal startDate,
+                       @RequestParam(value="endDate", required = true ) BigDecimal endDate)  throws Exception {
+
+        model.addAttribute("todaysDate", getFullDateTime(false));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true));
 
         response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
 
@@ -405,6 +441,14 @@ TODO:
     }
 
 
+    private String getFullDateTime(boolean yesterday) {
+        Calendar cal = Calendar.getInstance();
+        if (yesterday) cal.add(Calendar.DATE, -1);
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String fullDate = dateFormat.format(cal.getTime()) + "000000";
+        return fullDate;
+    }
+
 
     public List<KronosWorkHour> generateMockKrnwhs(int max, int offset){
         List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
@@ -423,6 +467,7 @@ TODO:
         }
         return kronosWorkHours;
     }
+
 
     public List<QuartzIngestLog> generateMockKrnwhLogs(int max, int offset){
         List<QuartzIngestLog> logs = new ArrayList<QuartzIngestLog>();

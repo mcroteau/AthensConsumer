@@ -18,7 +18,7 @@ public class ApplicationConstants {
     public static final int KRONOS_TERMINAL_COLUMN         = 3;
 
     public static final String KRONOS_TOKEN_LOOKUP          = "token";
-    public static final String KRONOS_DAILY_REPORT          = "70184453";
+    public static final String KRONOS_DAILY_REPORT          = "70184283";
     public static final String KRONOS_WEEKLY_REPORT         = "70165985";
     public static final String KRONOS_LOGIN_URI             = "https://secure4.saashr.com/ta/rest/v1/login";
     public static final String KRONOS_BASE_REPORT_URI       = "https://secure4.saashr.com/ta/rest/v1/report/saved/";
@@ -39,8 +39,8 @@ public class ApplicationConstants {
     public static final String ATHENS_QUARTZ_DAILY_TRIGGER  = "AthensQuartzDailyTrigger";
     public static final String ATHENS_QUARTZ_WEEKLY_TRIGGER = "AthensQuartzWeeklyTrigger";
 
-    //public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 24 6,21 * * ?";
-    public static final String DAILY_JOB_QUARTZ_EXPRESSION   = "0 0 0 1 1 ? 2200";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 */3 * * * ?";
+    //public static final String DAILY_JOB_QUARTZ_EXPRESSION   = "0 0 0 1 1 ? 2200";
     public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "1 */1 * * * ?";
     //public static final String WEEKLY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
 

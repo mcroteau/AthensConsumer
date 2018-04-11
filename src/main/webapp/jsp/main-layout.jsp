@@ -41,7 +41,7 @@
             </c:choose>
         }
         #container{
-            width:912px;
+            width:893px;
             padding:30px 43px 74px;
             margin:30px auto 200px auto;
             text-align:left;
@@ -165,7 +165,6 @@
             border-left:solid 6px #D4212F;
         }
         .loading{
-            float:right;
             height:13px;
         }
         .clear{
@@ -205,7 +204,7 @@
 		<div id="navigation">
 			<ul>
 				<li><a href="${pageContext.request.contextPath}/ingests" class="${ingestsLinkActive}">Ingests</a></li>
-				<li><a href="${pageContext.request.contextPath}/search" class="${searchLinkActive}">Search</a></li>
+				<li><a href="${pageContext.request.contextPath}/search?startDate=${yesterdaysDate}&endDate=${todaysDate}" class="${searchLinkActive}">Search</a></li>
 				<li><a href="${pageContext.request.contextPath}/jobs" class="${runningJobsLinkActive}">Jobs</a></li>
 			</ul>
 		</div>
@@ -277,6 +276,7 @@
                     runStatusCheckGlobal();
                 }, 4000);
             }
+
 
             runStatusCheckGlobal();
             setTimerGlobal()

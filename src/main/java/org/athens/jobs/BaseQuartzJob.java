@@ -236,6 +236,7 @@ public class BaseQuartzJob implements Job {
                 n++;
                 totalProcessed++;
                 quartzJobStats.setProcessed(totalProcessed);
+                quartzJobStats.setErrored(totalError);
 
                 updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
             }
@@ -349,7 +350,7 @@ public class BaseQuartzJob implements Job {
 
             kronosWorkHour.setFpfkey("");//*
             kronosWorkHour.setFppcod(new BigDecimal(0));//*
-            kronosWorkHour.setFstatus("h");//*
+            kronosWorkHour.setFstatus("q");//*
 
             kronosWorkHour.setKrnlogid(kronosIngestLog.getId());
 
