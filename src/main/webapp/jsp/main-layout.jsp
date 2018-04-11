@@ -22,6 +22,7 @@
             padding:0px
             text-align:center;
 			font-family:arial;
+			color:black;
         }
         #top-header{
             padding:0px;
@@ -130,6 +131,15 @@
              text-transform:uppercase;
              border:solid 0px #ddd;
          }
+        .total-title{
+            font-size:13px;
+            text-align:right;
+            padding-right: 3px;
+        }
+        .total-value{
+            font-weight:bold;
+            text-align:right;
+        }
         #date-selectors{
         }
         #date-selectors input[type="text"]{
@@ -160,8 +170,8 @@
         h2{
             font-size:37px;
             font-weight:bold;
-            margin-top: 30px;
-            padding-left: 21px;
+            padding-left: 18px;
+            margin:21px auto 0px auto;
             border-left:solid 6px #D4212F;
         }
         .loading{

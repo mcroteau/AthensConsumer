@@ -70,8 +70,8 @@ public class ApplicationController {
 
     @RequestMapping(value="/jobs", method=RequestMethod.GET)
     public String jobs(ModelMap model){
-        model.addAttribute("todaysDate", getFullDateTime(false));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true));
+        model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
         model.addAttribute("runningJobsLinkActive", "active");
         return "jobs";
     }
@@ -119,8 +119,8 @@ public class ApplicationController {
 
         model.addAttribute("ingestsLinkActive", "active");
 
-        model.addAttribute("todaysDate", getFullDateTime(false));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true));
+        model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("kronosIngestLogs", kronosIngestLogs);
 
@@ -187,20 +187,28 @@ public class ApplicationController {
 
     @RequestMapping(value="/search", method=RequestMethod.GET)
     public String search(ModelMap model,
-                         @RequestParam(value="startDate", required = true ) BigDecimal startDate,
-                         @RequestParam(value="endDate", required = true ) BigDecimal endDate){
+                         @RequestParam(value="startDate", required = false ) BigDecimal startDate,
+                         @RequestParam(value="endDate", required = false ) BigDecimal endDate){
+
 
         if(startDate == null && endDate == null) {
-            startDate = new BigDecimal(getFullDateTime(true));
-            endDate = new BigDecimal(getFullDateTime(false));
+            startDate = new BigDecimal(getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+            endDate = new BigDecimal(getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
         }
         if(startDate.precision() == 14 && endDate.precision() == 14) {
             List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
             model.addAttribute("total", kronosWorkHours.size());
-            model.addAttribute("startDate", startDate);
-            model.addAttribute("endDate", endDate);
             model.addAttribute("kronosWorkHours", kronosWorkHours);
         }
+
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        model.addAttribute("startDateDisplay", parseDateDisplay(startDate));
+        model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
+
+        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("searchLinkActive", "active");
 
@@ -219,16 +227,17 @@ public class ApplicationController {
         if(startDate.precision() == 14 && endDate.precision() == 14){
             List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
             model.addAttribute("total", kronosWorkHours.size());
+            model.addAttribute("kronosWorkHours", kronosWorkHours);
             model.addAttribute("startDate", startDate);
             model.addAttribute("endDate", endDate);
-            model.addAttribute("kronosWorkHours", kronosWorkHours);
+            model.addAttribute("startDateDisplay", parseDateDisplay(startDate));
+            model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
         }else{
-            redirect.addFlashAttribute("message", "data is incorrect");
+            redirect.addFlashAttribute("message", "data is incorrect, select a date");
         }
 
-        model.addAttribute("todaysDate", getFullDateTime(false));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true));
-
+        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("searchLinkActive", "active");
         return "search";
@@ -240,11 +249,17 @@ public class ApplicationController {
                        HttpServletRequest request,
                        HttpServletResponse response,
                        final RedirectAttributes redirect,
-                       @RequestParam(value="starDtate", required = true ) BigDecimal startDate,
+                       @RequestParam(value="startDate", required = true ) BigDecimal startDate,
                        @RequestParam(value="endDate", required = true ) BigDecimal endDate)  throws Exception {
 
-        model.addAttribute("todaysDate", getFullDateTime(false));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true));
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
+        model.addAttribute("startDateDisplay", parseDateDisplay(startDate));
+        model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
+
+        model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
 
@@ -415,7 +430,7 @@ TODO:
     public String runDaily(final RedirectAttributes redirect){
         String message = runJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB);
         redirect.addFlashAttribute("message", message);
-        return "redirect:list";
+        return "redirect:jobs";
     }
 
 
@@ -423,7 +438,7 @@ TODO:
     public String runWeekly(final RedirectAttributes redirect){
         String message = runJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB);
         redirect.addFlashAttribute("message", message);
-        return "redirect:list";
+        return "redirect:jobs";
     }
 
     private String runJob(String job){
@@ -441,12 +456,21 @@ TODO:
     }
 
 
-    private String getFullDateTime(boolean yesterday) {
-        Calendar cal = Calendar.getInstance();
+    private String getFullDateTime(boolean yesterday, String format) {
+        Calendar cal = Calendar.getInstance();//
         if (yesterday) cal.add(Calendar.DATE, -1);
-        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        String fullDate = dateFormat.format(cal.getTime()) + "000000";
+        DateFormat dateFormat = new SimpleDateFormat(format);
+        String fullDate = dateFormat.format(cal.getTime());
         return fullDate;
+    }
+
+
+    private String parseDateDisplay(BigDecimal date){
+        String dateString = date.toString();
+        String month = dateString.substring(4, 6);
+        String day = dateString.substring(6, 8);
+        String year = dateString.substring(0, 4);
+        return month +"/" + day + "/" + year;
     }
 
 

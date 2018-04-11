@@ -6,54 +6,67 @@
     <style type="text/css">
         .search-criteria-container{
             float:right;
-            width:400px;
-            border:solid 1px #3e3e3e;
+            width:324px;
             text-align:right;
             margin-top:21px;
+            border:solid 0px #ddd;
         }
         .search-button{
             margin-top:13px;
         }
+        .export-container{
+            line-height:1.0;
+            margin:20px auto 0px auto;
+            border:solid 0px #ddd;
+        }
+        .search-header-left{
+            margin-bottom:13px;
+        }
+        h2{
+            padding-bottom:0px;
+         }
     </style>
 </head>
 <body>
 
-    <h2 class="float-left">Search Work Hour</h2>
-
-    <div class="search-criteria-container">
-
-        <div class="search-criteria">
-            <form action="${pageContext.request.contextPath}/kronosWorkHour/search" method="post">
-
-                <div class="input-group input-daterange">
-                    <input name="start-date" type="text" class="form-control" value="${startDate}" id="start-date">
-                    <div class="input-group-addon">to</div>
-                    <input name="end-date" type="text" class="form-control" value="${endDate}" id="end-date">
-
-                    <input name="startDate" type="text" class="form-control" value="" id="startDate">
-                    <input name="endDate" type="text" class="form-control" value="" id="endDate">
-                </div>
-
-                <div class="form-group">
-                    <input type="submit" value="Search" class="search-button btn btn-primary">
-                </div>
-            </form>
-        </div>
-
-        <div class="export-container">
-            <c:choose>
-                <c:when test="${kronosWorkHours.size() == 0}">
-                    <form action="${pageContext.request.contextPath}/kronosWorkHour/export" method="post">
+    <div class="search-header-left float-left">
+        <h2 class="">Search Work Hour</h2>
+        <c:choose>
+            <c:when test="${kronosWorkHours.size() > 0}">
+                <div class="export-container">
+                    <form action="${pageContext.request.contextPath}/export" method="post">
 
                         <input name="startDate" type="hidden" class="form-control" value="${startDate}">
                         <input name="endDate" type="hidden" class="form-control" value="${endDate}">
 
-                        <div class="form-group">
-                            <input type="submit" value="Export Data" class="btn btn-primary">
-                        </div>
+                        <input type="submit" value="Export Data" class="btn btn-default float-left">
+                        <p class="float-left" style="margin:10px 0px 0px 13px"><span class="total-title">Total:&nbsp</span><span class="total-value">${total}</span></p>
+
+                        <br class="clear"/>
                     </form>
-                </c:when>
-            </c:choose>
+                </div>
+            </c:when>
+        </c:choose>
+    </div>
+
+    <div class="search-criteria-container">
+
+        <div class="search-criteria">
+            <form action="${pageContext.request.contextPath}/search" method="post">
+
+                <div class="input-group input-daterange">
+                    <input name="startDateDisplay" type="text" class="form-control" value="${startDateDisplay}" id="startDateDisplay">
+                    <div class="input-group-addon">to</div>
+                    <input name="endDateDisplay" type="text" class="form-control" value="${endDateDisplay}" id="endDateDisplay">
+
+                    <input name="startDate" type="hidden" class="form-control" value="${startDate}" id="startDate">
+                    <input name="endDate" type="hidden" class="form-control" value="${endDate}" id="endDate">
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Search" class="search-button btn btn-success">
+                </div>
+            </form>
         </div>
     </div>
 
@@ -105,59 +118,43 @@
 
 
 	<script type="text/javascript">
-	String.prototype.pad = function(padString, length) {
-        var str = this;
-        while (str.length < length)
-            str = padString + str;
-        return str;
-    }
 
-	$(document).ready(function(){
+        String.prototype.pad = function(padString, length) {
+            var str = this;
+            while (str.length < length)
+                str = padString + str;
+            return str;
+        }
 
-        var $startDate = $("#start-date"),
-            $endDate = $("#end-date");
+        $(document).ready(function(){
 
-        var $startDateValue = $("#startDate"),
-            $endDatValue = $("#endDate");
+            var $startDate = $("#startDateDisplay"),
+                $endDate = $("#endDateDisplay");
 
-        $startDate.datepicker(getFormat());
-        $endDate.datepicker(getFormat());
+            var $startDateValue = $("#startDate"),
+                $endDatValue = $("#endDate");
 
-        $startDate.on("changeDate", dateChangedEvent($startDateValue));
-        $endDate.on("changeDate", dateChangedEvent($endDatValue));
+            $startDate.datepicker(getConfiguration());
+            $endDate.datepicker(getConfiguration());
 
-        function dateChangedEvent($input){
-            return function(data){
-                console.log("date changed", data);
-                console.log(data.date.getDate());
-                var date = data.date.getFullYear().toString() + (data.date.getMonth() +1 ).toString().pad("0", 2) + data.date.getDate().toString().pad("0", 2) + "000000";
-                console.log(date);
-                $input.val(date);
+            $startDate.on("changeDate", dateChangedEvent($startDateValue));
+            $endDate.on("changeDate", dateChangedEvent($endDatValue));
+
+            function dateChangedEvent($input){
+                return function(data){
+                    var date = data.date.getFullYear().toString() + (data.date.getMonth() +1 ).toString().pad("0", 2) + data.date.getDate().toString().pad("0", 2) + "000000";
+                    $input.val(date);
+                }
             }
-        }
 
-        if($startDate.val() == ""){
-            $startDate.datepicker("update", getYesterday());
-        }
+            function getConfiguration(){
+                return {
+                   autoclose:true
+               }
+            }
 
-        if($endDate.val() == ""){
-            $endDate.datepicker("update", new Date());
-        }
+        });
 
-
-        function getYesterday(){
-            var d = new Date();
-            d.setDate(d.getDate() - 2);
-            return d;
-        }
-
-        function getFormat(){
-            return {
-               autoclose:true
-           }
-        }
-
-	});
 	</script>
 </body>
 </html>

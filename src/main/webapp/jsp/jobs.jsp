@@ -71,16 +71,16 @@
             position:relative;
         }
         .progress-bar{
+            height:7px;
             display:block;
             position:absolute;
+            border-bottom:solid 0px #999;
         }
         .base-progress-bar{
-            height:6px;
             width:100%;
             background:#bcbcbd;
         }
         .percent-progress-bar{
-            height:6px;
             width:3%;
             background:#D4212F;
         }

@@ -8,15 +8,9 @@ import java.util.List;
 
 public interface KronosWorkHourDao {
 
-	public int count();
-
 	public KronosWorkHour save(KronosWorkHour kronosWorkHour);
 
-	public List<KronosWorkHour> list(int max, int offset);
-
 	public List<KronosWorkHour> findByDate(BigDecimal startDate, BigDecimal endDate);
-
-	public List<KronosWorkHour> findByIngest(int max, int offset, BigDecimal ingest);
 
 	public KronosWorkHour findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg);
 

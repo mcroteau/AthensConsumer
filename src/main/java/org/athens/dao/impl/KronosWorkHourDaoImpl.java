@@ -22,20 +22,6 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 	private JdbcTemplate jdbcTemplate;
 
 
-	public int count() {
-		String sql = "select count(*) from QGPL.KRNWH";
-		int count = 0;
-		try{
-			count = jdbcTemplate.queryForObject(sql, Integer.class, new Object[0]);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		return count;
-	}
-
-
-
-
 	public KronosWorkHour save(KronosWorkHour kronosWorkHour){
 
 		String sql = "SELECT * FROM FINAL TABLE " +
@@ -61,40 +47,8 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 
 
 
-	public List<KronosWorkHour> list(int max, int offset){
-		List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
-		try{
-
-			String sql = "select * from QGPL.KRNWH limit " + max + " offset " + offset;
-			System.out.println("find all " + sql);
-			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
-
-		}catch (Exception e){
-			e.printStackTrace();
-		}	
-		return kronosWorkHours;
-	}
-
-
-
-	public List<KronosWorkHour> findByIngest(int max, int offset, BigDecimal ingest){
-		List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
-		try{
-
-			String sql = "select * from QGPL.KRNWH where krnlogid = " + ingest + " limit " + max + " offset " + offset;
-			System.out.println("find all " + sql);
-			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
-
-		}catch (Exception e){
-			log.warn("exception : unable to find punch by ingest...");
-		}
-		return kronosWorkHours;
-	}
-
-
-
 	public List<KronosWorkHour> findByDate(BigDecimal startDate, BigDecimal endDate){
-		String sql = "select * from QGPL.KRNWH where fppunc between " + startDate + " and " + endDate;
+		String sql = "select * from QGPL.KRNWH where fppunc between " + startDate + " and " + endDate + " order by id asc";
 
 		log.info("find by date : " + sql);
 
