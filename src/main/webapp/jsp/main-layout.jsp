@@ -250,9 +250,9 @@
 
             function checkDisplayRunningJobsGlobal(json, b){
                 resetGlobalStatusLoading();
-                if(json.dailyJobRunning || json.weeklyJobRunning){
+                if((json.dailyJobRunning && json.dailyJobRunning != "Complete") ||
+                        (json.weeklyJobRunning && json.weeklyJobRunning != "Complete")){
                     $loading.show();
-                    $loadingStopped.hide();
                 }
                 if(json.dailyJobRunning){
                     $dailyStatusValue.html(json.dailyJobRunning.status.toUpperCase());
@@ -264,7 +264,6 @@
 
             function resetGlobalStatusLoading(){
                 $loading.hide();
-                //$loadingStopped.show();
                 $dailyStatusValue.html(IDLE_VALUE);
                 $weeklyStatusValue.html(IDLE_VALUE);
             }

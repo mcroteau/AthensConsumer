@@ -171,8 +171,10 @@ public class BaseQuartzJob implements Job {
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
             totalCount = 0;
+            int count = 0;
             while ((line = br.readLine()) != null) {
-                totalCount++;
+                if(count != 0) totalCount++;
+                count++;
             }
 
             kronosQuartzJobStats.setTotal(totalCount);

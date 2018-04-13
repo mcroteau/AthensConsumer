@@ -80,7 +80,7 @@
             height:7px;
             display:block;
             position:absolute;
-            border-bottom:solid 1px #999;
+            border-bottom:solid 0px #999;
         }
         .base-progress-bar{
             width:100%;
@@ -198,7 +198,7 @@
             <br class="clear"/>
             <div class="running-times">
                 <p class="float-left" style="margin:10px 0px 0px 0px">
-                    <span class="total-title">Next Run:&nbsp</span><span class="total-value">4:45pm, 11:45pm</span>
+                    <span class="total-title">Run Times:&nbsp</span><span class="total-value">4:45pm, 11:45pm</span>
                 </p>
             </div>
         </div>
@@ -276,7 +276,7 @@
             <br class="clear"/>
             <div class="running-times">
                 <p class="float-left" style="margin:10px 0px 0px 0px">
-                    <span class="total-title">Next Run:&nbsp</span><span class="total-value">12:30am</span>
+                    <span class="total-title">Run Times:&nbsp</span><span class="total-value">12:30am</span>
                 </p>
             </div>
         </div>
@@ -292,6 +292,8 @@
         $(document).ready(function(){
 
             var statsTimer = 0;
+
+            var formatter = new Intl.NumberFormat();
 
             var IDLE_CLASS = "idle",
                 STARTED_CLASS = "started",
@@ -395,9 +397,9 @@ $logid.html(stats.kronosIngestId);//Not me
 
 
             function SET_DETAIL_STATISTICS($exists, $SAVED, $ERRORED, STATS){//Not me
-                $exists.html(STATS.found);
-                $ERRORED.html(STATS.errored);
-                $SAVED.html(STATS.saved);
+                $exists.html(formatter.format(STATS.found));
+                $ERRORED.html(formatter.format(STATS.errored));
+                $SAVED.html(formatter.format(STATS.saved));
             }
 
             function setProcessedStatistics($total, $PROCESSED, $PERCENT, STATS){//Not me
@@ -406,8 +408,8 @@ $logid.html(stats.kronosIngestId);//Not me
                     percent = (parseInt(STATS.processed) / parseInt(STATS.total) * 100).toFixed(3);
                 }
                 $PERCENT.html(percent);
-                $total.html(STATS.total);
-                $PROCESSED.html(STATS.processed);
+                $total.html(formatter.format(STATS.total));
+                $PROCESSED.html(formatter.format(STATS.processed));
             }
 
             function setProgressBar($progressBar, stats){
