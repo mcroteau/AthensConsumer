@@ -154,7 +154,6 @@ public class BaseQuartzJob implements Job {
                 .resource(uri);
 
         WebResource.Builder builder = resource.accept("text/csv");
-        log.info("setting bearer token " + this.authenticationToken);
         builder.header("Authentication", "Bearer " + this.authenticationToken);
 
         ClientResponse response  = builder.get(ClientResponse.class);

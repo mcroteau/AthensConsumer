@@ -110,7 +110,7 @@
         }
 
         #jobs-status-container{
-            font-size:10px;
+            font-size:12px;
             text-align:right;
         }
         .job-status-container{
@@ -250,8 +250,8 @@
 
             function checkDisplayRunningJobsGlobal(json, b){
                 resetGlobalStatusLoading();
-                if((json.dailyJobRunning && json.dailyJobRunning != "Complete") ||
-                        (json.weeklyJobRunning && json.weeklyJobRunning != "Complete")){
+                if((json.dailyJobRunning && json.dailyJobRunning.status != "Complete") ||
+                        (json.weeklyJobRunning && json.weeklyJobRunning.status != "Complete")){
                     $loading.show();
                 }
                 if(json.dailyJobRunning){
