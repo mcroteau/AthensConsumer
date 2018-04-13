@@ -215,6 +215,7 @@ public class ApplicationController {
         for (KronosWorkHour d : kronosWorkHours) {
             List<String> list = new ArrayList<>();
             list.add(d.getId().toString());
+            list.add(d.getFpempn().toString());
             list.add(d.getFppunc().toString());
             list.add(d.getFptype());
             list.add(d.getFpclck());
