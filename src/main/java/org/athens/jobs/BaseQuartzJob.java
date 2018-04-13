@@ -85,8 +85,6 @@ public class BaseQuartzJob implements Job {
             clearExistingLogs();
             getSetKrnwhQuartzJobLog();
 
-            log.info("running " + this.jobKey.getName() + "... log:"+ kronosIngestLog.getId());
-
             performKronosAuthentication();
             performKronosReportRequestProcess();
 
@@ -216,7 +214,7 @@ public class BaseQuartzJob implements Job {
                         }
 
                         if(existingKronosWorkHour == null){
-                            //KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
+                            KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
                             totalSaved++;
                             log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                             kronosQuartzJobStats.setSaved(totalSaved);
@@ -471,5 +469,6 @@ public class BaseQuartzJob implements Job {
     private void setQuartzJobStatsStatus(){
         kronosQuartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
     }
+
 
 }

@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="org.athens.common.ApplicationConstants" %>
-<%@ page import="org.athens.domain.QuartzIngestLog" %>
+<%@ page import="org.athens.domain.KronosQuartzIngestLog" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.math.BigDecimal" %>
@@ -116,8 +116,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                <%List<QuartzIngestLog> kronosIngestLogs = (ArrayList) request.getAttribute("kronosIngestLogs");%>
-                <%for(QuartzIngestLog kronosIngestLog : kronosIngestLogs){%>
+                <%List<KronosQuartzIngestLog> kronosIngestLogs = (ArrayList) request.getAttribute("kronosIngestLogs");%>
+                <%for(KronosQuartzIngestLog kronosIngestLog : kronosIngestLogs){%>
                     <tr>
                         <td><%=kronosIngestLog.getId()%></td>
                         <td><%=kronosIngestLog.getKdate()%></td>

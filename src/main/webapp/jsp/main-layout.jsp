@@ -42,7 +42,7 @@
             </c:choose>
         }
         #container{
-            width:893px;
+            width:897px;
             padding:30px 43px 74px;
             margin:30px auto 200px auto;
             text-align:left;
@@ -214,7 +214,7 @@
 		<div id="navigation">
 			<ul>
 				<li><a href="${pageContext.request.contextPath}/ingests" class="${ingestsLinkActive}">Ingests</a></li>
-				<li><a href="${pageContext.request.contextPath}/search?startDate=${yesterdaysDate}&endDate=${todaysDate}" class="${searchLinkActive}">Search</a></li>
+				<li><a href="${pageContext.request.contextPath}/search?startDate=${todaysDate}&endDate=${tomorrowsDate}" class="${searchLinkActive}">Search</a></li>
 				<li><a href="${pageContext.request.contextPath}/jobs" class="${runningJobsLinkActive}">Jobs</a></li>
 			</ul>
 		</div>
@@ -222,12 +222,11 @@
         <br class="clear"/>
 
         <c:if test="${not empty message}">
-            <div class="span12">
-                <div class="alert alert-info">
-                    ${message}Test
-                </div>
+            <div class="alert alert-info" style="margin-top:20px;">
+                ${message}
             </div>
         </c:if>
+
 
         <decorator:body />
 

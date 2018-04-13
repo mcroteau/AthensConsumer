@@ -42,7 +42,13 @@
             background:#bcbcbd;
         }
         .stats-header{
-            margin:9px auto 13px auto;
+            margin:0px auto 0px auto;
+        }
+        .stats-header h3{
+            margin:4px auto 7px auto;
+        }
+        .total-percent{
+            margin:0px auto 10px auto;
         }
         .total-processed{
             font-weight:bold;
@@ -74,7 +80,7 @@
             height:7px;
             display:block;
             position:absolute;
-            border-bottom:solid 0px #999;
+            border-bottom:solid 1px #999;
         }
         .base-progress-bar{
             width:100%;
@@ -100,14 +106,24 @@
         .stats-details-title{
             font-size:14px;
         }
+        .manually-run-container{
+            margin-top:13px;
+            display:none;
+        }
+        .run-btn{
+            padding:4px 12px;
+            background:#fff;
+            border:solid 1px #ddd;
+        }
+        .run-btn:hover{
+            background:#efefef;
+        }
         .ten-text{
             font-size:11px;
         }
-
         .inline{
             display:inline-block;
         }
-
         .bold{
             font-weight:bold;
         }
@@ -156,6 +172,11 @@
                     <span class="time-title ten-text inline bold">Started:&nbsp;</span>
                     <span class="time-value ten-text inline bold" id="daily-time-started"></span>
                 </div>
+                <div id="run-daily-container" class="manually-run-container">
+                    <form action="${pageContext.request.contextPath}/run_daily" method="post">
+                        <input type="submit" value="Start" class="run-btn">
+                    </form>
+                </div>
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
@@ -175,6 +196,11 @@
                 </div>
             </div>
             <br class="clear"/>
+            <div class="running-times">
+                <p class="float-left" style="margin:10px 0px 0px 0px">
+                    <span class="total-title">Next Run:&nbsp</span><span class="total-value">9:00am, 12:01am</span>
+                </p>
+            </div>
         </div>
 
     </div>
@@ -224,6 +250,11 @@
                     <span class="time-title ten-text inline bold">Started:&nbsp;</span>
                     <span class="time-value ten-text inline bold" id="weekly-time-started"></span>
                 </div>
+                <div id="run-weekly-container" class="manually-run-container">
+                    <form action="${pageContext.request.contextPath}/run_weekly" method="post">
+                        <input type="submit" value="Start" class="run-btn">
+                    </form>
+                </div>
             </div>
             <div class="stats-details-container float-right">
                 <div class="stats-details">
@@ -243,6 +274,11 @@
                 </div>
             </div>
             <br class="clear"/>
+            <div class="running-times">
+                <p class="float-left" style="margin:10px 0px 0px 0px">
+                    <span class="total-title">Next Run:&nbsp</span><span class="total-value">12:30am</span>
+                </p>
+            </div>
         </div>
 
     </div>
@@ -291,6 +327,10 @@
                 $weeklyRunningTime = $("#weekly-running-time");
 
 
+            var $runDailyContainer = $("#run-daily-container"),
+                $runWeeklyContainer = $("#run-weekly-container");
+
+
             var $dailyExists = $("#daily-exists"),
                 $dailySaved = $("#daily-saved"),
                 $dailyErrored = $("#daily-errored"),
@@ -312,7 +352,7 @@
             }
 
             function renderStatistics(json, c){
-                resetIndicators();
+                resetIndicatorsResetstart();
                 if(json.dailyJobRunning){
                     setIndicatorValues($dailyIndicator, $dailyIndicatorValue, json.dailyJobRunning);
                     setTimeStarted($dailyTimeStarted, json.dailyJobRunning);
@@ -330,6 +370,14 @@
                     setlogid($weeklyLogId, json.weeklyJobRunning);//Not me
                     setRunningTime($weeklyRunningTime, json.weeklyJobRunning);
                     setProgressBar($weeklyProgressBar, json.weeklyJobRunning);
+                }
+
+                if(!json.dailyJobRunning){
+                    showManuallyRun($runDailyContainer);
+                }
+
+                if(!json.weeklyJobRunning){
+                    showManuallyRun($runWeeklyContainer);
                 }
             }
 
@@ -374,15 +422,21 @@ $logid.html(stats.kronosIngestId);//Not me
                 }
             }
 
+            function showManuallyRun($runContainer){
+                $runContainer.show();
+            }
+
             function setIndicatorValues($indicator, $indicatorValue, stats){
                 $indicator.removeClass(IDLE_CLASS).addClass(stats.status.toLowerCase());
                 var status = stats.status.toUpperCase() ? stats.status.toUpperCase() : "Idle";
                 $indicatorValue.html(status);
             }
 
-            function resetIndicators(){
+            function resetIndicatorsResetstart(){
                 $dailyIndicator.removeClass(STARTED_CLASS).removeClass(RUNNING_CLASS).addClass(IDLE_CLASS);
                 $weeklyIndicator.removeClass(STARTED_CLASS).removeClass(RUNNING_CLASS).addClass(IDLE_CLASS);
+                $runDailyContainer.hide();
+                $runWeeklyContainer.hide();
             }
 
 
@@ -397,9 +451,6 @@ $logid.html(stats.kronosIngestId);//Not me
             setTimer();
         });
 
-//David Matz
-
-//Involved, not sure what years, can play dumb because not currently doing anything, waiting
     </script>
 
 

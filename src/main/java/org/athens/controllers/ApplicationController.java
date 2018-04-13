@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.athens.domain.KronosQuartzJobStats;
 import org.athens.domain.KronosQuartzIngestLog;
 import org.athens.domain.KronosWorkHour;
+import org.quartz.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -70,7 +71,7 @@ public class ApplicationController {
     @RequestMapping(value="/jobs", method=RequestMethod.GET)
     public String jobs(ModelMap model){
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("tomorrowsDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
         model.addAttribute("runningJobsLinkActive", "active");
         return "jobs";
     }
@@ -119,68 +120,12 @@ public class ApplicationController {
         model.addAttribute("ingestsLinkActive", "active");
 
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("tomorrowsDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("kronosIngestLogs", kronosIngestLogs);
 
         return "ingests";
     }
-
-    /**
-    @RequestMapping(value="/punches", method=RequestMethod.GET)
-    public String punches(ModelMap model,
-                        HttpServletRequest request,
-                        final RedirectAttributes redirect,
-                        @RequestParam(value="admin", required = false ) String admin,
-                        @RequestParam(value="offset", required = false ) String offset,
-                        @RequestParam(value="max", required = false ) String max,
-                        @RequestParam(value="page", required = false ) String page,
-                        @RequestParam(value="sort", required = false ) String sort,
-                        @RequestParam(value="order", required = false ) String order){
-
-        if(page == null){
-            page = "1";
-        }
-
-        List<KronosWorkHour> kronosWorkHours;
-
-        if(offset != null) {
-            int m = 10;
-            if(max != null){
-                m = Integer.parseInt(max);
-            }
-            int o = Integer.parseInt(offset);
-            kronosWorkHours = dao.list(m, o);
-            //kronosWorkHours = generateMockKrnwhs(m, o);
-        }else{
-            kronosWorkHours = dao.list(10, 0);
-            //kronosWorkHours = generateMockKrnwhs(10, 0);
-        }
-
-        int count = dao.count();
-        //int count = 2031;
-
-        System.out.println("count : " + count);
-
-        model.addAttribute("kronosWorkHours", kronosWorkHours);
-        model.addAttribute("total", count);
-
-        model.addAttribute("sort", sort);
-        model.addAttribute("order", order);
-
-        model.addAttribute("resultsPerPage", 10);
-        model.addAttribute("activePage", page);
-
-        model.addAttribute("todaysDate", getFullDateTime(false));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true));
-
-        model.addAttribute("kronosWorkHoursLinkActive", "active");
-
-        return "punches";
-
-    }
-     **/
-
 
 
 
@@ -206,7 +151,7 @@ public class ApplicationController {
         model.addAttribute("startDateDisplay", parseDateDisplay(startDate));
         model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
 
-        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("tomorrowsDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("searchLinkActive", "active");
@@ -235,7 +180,7 @@ public class ApplicationController {
             redirect.addFlashAttribute("message", "data is incorrect, select a date");
         }
 
-        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("tomorrowsDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("searchLinkActive", "active");
@@ -258,7 +203,7 @@ public class ApplicationController {
         model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
 
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
-        model.addAttribute("yesterdaysDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
+        model.addAttribute("tomorrowsDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
 
@@ -376,7 +321,7 @@ public class ApplicationController {
         return "application/index";
     }
 
-TODO:
+
     @RequestMapping(value="/kronosWorkHour/list_ingest", method=RequestMethod.GET)
     public String krnwsIngest(ModelMap model,
                         HttpServletRequest request,
@@ -441,7 +386,7 @@ TODO:
     }
 
     private String runJob(String job){
-        String message = "Successfully ran report...";
+        String message = "Successfully started job...";
         try {
             Scheduler scheduler = new StdSchedulerFactory().getScheduler();
             JobKey jobKey = new JobKey(job, ApplicationConstants.ATHENS_GROUP);
@@ -455,9 +400,9 @@ TODO:
     }
 
 
-    private String getFullDateTime(boolean yesterday, String format) {
+    private String getFullDateTime(boolean tomorrow, String format) {
         Calendar cal = Calendar.getInstance();//
-        if (yesterday) cal.add(Calendar.DATE, -1);
+        if (tomorrow) cal.add(Calendar.DATE, 1);
         DateFormat dateFormat = new SimpleDateFormat(format);
         String fullDate = dateFormat.format(cal.getTime());
         return fullDate;
