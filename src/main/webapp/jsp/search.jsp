@@ -88,6 +88,7 @@
                             <th>Badge Id</th>
                             <th>Key</th>
                             <th>COD</th>
+                            <th>Status</th>
                             <th>Ingest #</th>
                         </tr>
                     </thead>
@@ -101,6 +102,7 @@
                             <td>${kronosWorkHour.fpclck}</td>
                             <td>${kronosWorkHour.fpbadg}</td>
                             <td>${kronosWorkHour.fpfkey}</td>
+                            <td>${kronosWorkHour.fppcod}</td>
                             <td>${kronosWorkHour.fstatus}</td>
                             <td>${kronosWorkHour.krnlogid}</td>
                         </tr>
