@@ -35,7 +35,7 @@
         .indicator.running{
             background:#04be1f;
         }
-        .indicator.completed{
+        .indicator.complete{
             background:#323232;
         }
         .indicator.idle{
@@ -198,7 +198,7 @@
             <br class="clear"/>
             <div class="running-times">
                 <p class="float-left" style="margin:10px 0px 0px 0px">
-                    <span class="total-title">Next Run:&nbsp</span><span class="total-value">9:00am, 12:01am</span>
+                    <span class="total-title">Next Run:&nbsp</span><span class="total-value">4:45pm, 11:45pm</span>
                 </p>
             </div>
         </div>
@@ -372,11 +372,11 @@
                     setProgressBar($weeklyProgressBar, json.weeklyJobRunning);
                 }
 
-                if(!json.dailyJobRunning){
+                if(!json.dailyJobRunning || json.dailyJobRunning.status == 'Complete'){
                     showManuallyRun($runDailyContainer);
                 }
 
-                if(!json.weeklyJobRunning){
+                if(!json.weeklyJobRunning || json.weeklyJobRunning.status == 'Complete'){
                     showManuallyRun($runWeeklyContainer);
                 }
             }

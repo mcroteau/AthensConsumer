@@ -203,20 +203,20 @@ public class BaseQuartzJob implements Job {
                     KronosWorkHour kronosWorkHour = getSetKronosWorkHourFromData(kronosPunchData);
                     KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
 
-                    if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
+                    //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
 
                     try {
 
                         if(existingKronosWorkHour != null) {
                             totalFound++;
-                            log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
+                            //log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
                             kronosQuartzJobStats.setFound(totalFound);
                         }
 
                         if(existingKronosWorkHour == null){
                             KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
                             totalSaved++;
-                            log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
+                            //log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                             kronosQuartzJobStats.setSaved(totalSaved);
                         }
 
@@ -226,13 +226,14 @@ public class BaseQuartzJob implements Job {
                         log.warn("error");
                         e.printStackTrace();
                     }
+                    
+                    totalProcessed++;
+                    kronosQuartzJobStats.setProcessed(totalProcessed);
                 }
 
                 getSetRunningTime();
 
                 n++;
-                totalProcessed++;
-                kronosQuartzJobStats.setProcessed(totalProcessed);
                 kronosQuartzJobStats.setErrored(totalError);
 
                 updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
@@ -257,6 +258,7 @@ public class BaseQuartzJob implements Job {
         kronosIngestLog.setKaudit(getAuditJsonRepresentation());
         kronosIngestLog.setKstatus(status);
         kronosIngestLogDao.update(kronosIngestLog);//TODO:uncomment
+        kronosQuartzJobStats.setStatus(status);
         getSetRunningTime();
     }
 

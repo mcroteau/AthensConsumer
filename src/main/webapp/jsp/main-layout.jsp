@@ -7,11 +7,11 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min.js"></script>
+
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap-reboot.css" />
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.css" />
-
-	<script type="text/javascript" src="${pageContext.request.contextPath}/js/lib/jquery/jquery.min.js"></script>
 
 	<script type="text/javascript" src="${pageContext.request.contextPath}/bootstrap/js/bootstrap-datepicker.min.js"></script>
 	<link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap-datepicker.min.css" />
@@ -33,8 +33,9 @@
             width:100%;
             z-index:0;
             background:#D4212F;
-            position:fixed;
+            position:absolute;
             top:0px;
+            height:100%;
             <c:choose>
                 <c:when test="${kronosIngestLogs == null || kronosIngestLogs.size() == 0}">
                     height:100%;
@@ -42,7 +43,7 @@
             </c:choose>
         }
         #container{
-            width:897px;
+            width:897px !important;
             padding:30px 43px 74px;
             margin:30px auto 200px auto;
             text-align:left;
@@ -272,6 +273,7 @@
                 $.ajax({
                     url : "${pageContext.request.contextPath}/status",
                     dataType :'json',
+                    crossDomain: true,
                     success : checkDisplayRunningJobsGlobal,
                     error : function(){
                         console.log("error");

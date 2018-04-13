@@ -37,7 +37,6 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 				"'" + kronosWorkHour.getFstatus() + "'," +
 				kronosWorkHour.getKrnlogid() + "))";
 
-		log.info(sql);
 		KronosWorkHour skronosWorkHour = (KronosWorkHour) jdbcTemplate.queryForObject(sql, new Object[]{},
 					new BeanPropertyRowMapper(KronosWorkHour.class));
 

@@ -109,7 +109,6 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
                 "'" + kronosIngestLog.getKtype() + "'," +
                 kronosIngestLog.getKproc() + "))";
 
-        log.info(sql);
 
         KronosQuartzIngestLog skronosIngestLog = new KronosQuartzIngestLog();
 

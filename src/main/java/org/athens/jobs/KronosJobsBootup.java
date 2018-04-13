@@ -32,7 +32,7 @@ public class KronosJobsBootup {
 
 
     public KronosJobsBootup(KronosQuartzIngestLogDaoImpl kronosIngestLogDao, KronosWorkHourDaoImpl kronosWorkHourDao, KronosQuartzJobSettings kronosWorkHourJobSettings, KronosQuartzJobStats dailyKronosQuartzJobStats, KronosQuartzJobStats weeklyKronosQuartzJobStats){
-        log.info("about to setup kronosWorkHour reports.. .");
+        log.info("about to setup Kronos work hour ingest jobs.. .");
         this.kronosWorkHourDao = kronosWorkHourDao;
         this.kronosIngestLogDao = kronosIngestLogDao;
         this.kronosWorkHourJobSettings = kronosWorkHourJobSettings;
@@ -71,12 +71,12 @@ public class KronosJobsBootup {
             scheduler.scheduleJob(job, trigger);
 
             if(name.equals(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB)){
-                log.info("setup krnw daily...");
+                log.info("Configured Kronos daily...");
             } else {
-                log.info("setup krnw weekly...");
+                log.info("Configured Kronos weekly...");
             }
         } catch (Exception e) {
-            log.info("something went wrong setting up kronosWorkHour job");
+            log.info("Something went wrong setting up Kronos work hour job");
             e.printStackTrace();
         }
     }
