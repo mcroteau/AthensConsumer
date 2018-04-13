@@ -143,7 +143,7 @@
 		<c:when test="${kronosIngestLogs.size() == 0}">
 	        <h2 class="float-left">Ingests</h2>
             <br class="clear"/>
-		    <p>No Ingests found</p>
+            <p style="margin-top:63px">No ingests performed yet.</p>
 		</c:when>
 	</c:choose>
 

@@ -34,6 +34,7 @@
 		<mysql.connector.version>8.0.8-dmr</mysql.connector.version>
         <sitemesh.version>2.4.2</sitemesh.version>
         <joda.version>2.9.8</joda.version>
+        <jstl.version>1.2</jstl.version>
     </properties>
 
 
@@ -50,6 +51,12 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${google.gson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>${jstl.version}</version>
         </dependency>
 
         <dependency>
@@ -229,7 +236,18 @@
            	         <target>${java.version}</target>
            	     </configuration>
            	</plugin>
-			
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
         	<plugin>
         	    <groupId>org.eclipse.jetty</groupId>
         	    <artifactId>jetty-maven-plugin</artifactId>

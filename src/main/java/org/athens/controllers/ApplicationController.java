@@ -205,7 +205,7 @@ public class ApplicationController {
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
         model.addAttribute("tomorrowsDate", getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
 
-        response.setHeader("Content-Disposition", "attachment; filename=\"a.csv\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"q.csv\"");
 
         List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
         //model.addAttribute("total", kronosWorkHours.size());
