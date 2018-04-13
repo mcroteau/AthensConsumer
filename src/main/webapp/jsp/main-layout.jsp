@@ -23,6 +23,7 @@
             text-align:center;
 			font-family:arial;
 			color:black;
+            background:#D4212F;
         }
         #top-header{
             padding:0px;
@@ -36,11 +37,6 @@
             position:absolute;
             top:0px;
             height:100%;
-            <c:choose>
-                <c:when test="${kronosIngestLogs == null || kronosIngestLogs.size() == 0}">
-                    height:100%;
-                </c:when>
-            </c:choose>
         }
         #container{
             width:897px !important;
