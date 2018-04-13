@@ -110,7 +110,7 @@
         }
 
         #jobs-status-container{
-            font-size:11px;
+            font-size:10px;
             text-align:right;
         }
         .job-status-container{
