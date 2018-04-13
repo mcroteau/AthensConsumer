@@ -203,7 +203,6 @@
                     <span class="job-status-value" id="weekly-status-value">-</span>
                 </span>
                 <img src="${pageContext.request.contextPath}/images/loading.gif" class="loading pull-right" id="loading" style="display:none"/>
-                <img src="${pageContext.request.contextPath}/images/loading-stopped.png" class="loading pull-right" id="loading-stopped" style="display:none"/>
             </div>
             <br class="clear"/>
         </div/>
