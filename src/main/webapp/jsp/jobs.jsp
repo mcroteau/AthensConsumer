@@ -13,7 +13,7 @@
             padding:0px;
             margin:0px;
             border:solid 0px #ddd;
-            line-height:1.3em;
+            line-height:1.0em;
         }
         .stats-container{
             width:382px;
@@ -44,49 +44,53 @@
             margin:0px auto 0px auto;
         }
         .stats-header h3{
-            margin:4px auto 7px auto;
+            margin:4px auto 3px auto;
         }
-        .total-percent{
-            margin:0px auto 10px auto;
+        .total-processed-container{
+            font-size:17px;
+            border:solid 0px #ddd;
         }
         .total-processed{
-            font-weight:bold;
-            font-size:79px;
-            font-size:54px;
-            font-size:21px;
-            line-height:1.0;
+        }
+        .processed-separator{
+            font-size:14px;
+            margin:0px 6px;
+        }
+        .total-title{
+            display:none;
+            opacity:0.64;
+            font-size:10px;
+            margin:0px 17px 0px auto;
+        }
+        .stats-total{
+        }
+        .percent-container{
+            padding:0px;
             text-align:right;
-            /**margin-top:10px;**/
+            margin:13px auto 7px auto;
+            border:solid 0px #ddd;
+        }
+        .stats-percent{
+            font-size:67px;
+            line-height:1.0em;
+            font-weight:bold;
+        }
+        .percent-sign{
+            height:inherit;
+            font-size:21px;
+            padding-top:13px;
+            border:solid 0px #ddd;
         }
         .processed-title{
             opacity:0.57;
             font-size:13px;
             text-align:right;
-            line-height:1.0em;
             text-transform:uppercase;
-        }
-        .stats-total{
-            margin-right:20px;
-        }
-        .stats-percent{
-            font-size:21px;
-            font-size:54px;
-            font-weight:bold;
-            text-align:right;
-            margin-top:10px;
-        }
-        #daily-percent{
-            margin:0px auto 00px auto !important;
-            font-size:21px !important;
-        }
-        #daily-processed{
-            font-size:54px !important;
-            margin-top:10px !important;
-            margin-bottom:7px;
+            border:solid 0px #ddd;
         }
         .processed-progress-container{
             height:6px;
-            margin-top:16px;
+            margin-top:12px;
             position:relative;
         }
         .progress-bar{
@@ -140,6 +144,9 @@
         .inline{
             display:inline-block;
         }
+        .block{
+            display:block;
+        }
         .bold{
             font-weight:bold;
         }
@@ -159,19 +166,20 @@
         <div class="stats-header">
             <h3>Daily</h3>
         </div>
-        <div class="total-percent">
-            <div class="percent-container float-right">
-                <span class="stats-percent inline" id="daily-percent">0</span>
-                <span class="percent-sign inline">%</span>
-            </div>
-            <div class="total-container float-right">
-                <span class="total-title inline">Total:&nbsp;</span>
-                <span class="stats-total inline" id="daily-total">0</span>
-            </div>
+
+        <div class="total-processed-container">
+            <span class="stats-total inline float-right" id="daily-total">0</span>
+            <span class="processed-separator inline float-right">/</span>
+            <span class="total-processed inline float-right" id="daily-processed">0</span>
+            <span class="total-title inline float-right">Total&nbsp;</span>
             <br class="clear"/>
         </div>
 
-        <div class="total-processed" id="daily-processed">0</div>
+        <div class="percent-container">
+            <span class="percent-sign block float-right">%</span>
+            <span class="stats-percent block float-right" id="daily-percent">0</span>
+            <br class="clear"/>
+        </div>
 
         <div class="processed-title">Processed</div>
 
@@ -237,20 +245,21 @@
         <div class="stats-header">
             <h3>Weekly</h3>
         </div>
-        <div class="total-percent">
+
+        <div class="total-processed-container">
             <span class="stats-total inline float-right" id="weekly-total">0</span>
-            <span class="stats-total inline float-right" style="margin:0px 3px !important">/</span>
-            <span class="total-processed float-right" id="weekly-processed">0</span>
-            <span class="total-title inline float-right">Total:&nbsp;</span>
+            <span class="processed-separator inline float-right">/</span>
+            <span class="total-processed inline float-right" id="weekly-processed">0</span>
+            <span class="total-title inline float-right">Total&nbsp;</span>
             <br class="clear"/>
         </div>
 
-
-        <div class="percent-container" style="clear:both;">
-            <span class="percent-sign inline float-right" style="margin-top:10px">%</span>
-            <span class="stats-percent inline float-right" id="weekly-percent" style="line-height:1.3em;height:70px;margin:0px;padding:0px;">0</span>
+        <div class="percent-container">
+            <span class="percent-sign block float-right">%</span>
+            <span class="stats-percent block float-right" id="weekly-percent">0</span>
+            <br class="clear"/>
         </div>
-        <br class="clear"/>
+
 
         <div class="processed-title">Processed</div>
 
@@ -422,7 +431,7 @@ $logid.html(stats.kronosIngestId);//Not me
             function setProcessedStatistics($total, $PROCESSED, $PERCENT, STATS){//Not me
                 var percent = 0;
                 if(parseInt(STATS.processed) > 0 && parseInt(STATS.total) > 0){
-                    percent = (parseInt(STATS.processed) / parseInt(STATS.total) * 100).toFixed(3);
+                    percent = (parseInt(STATS.processed) / parseInt(STATS.total) * 100).toFixed(2);
                 }
                 $PERCENT.html(percent);
                 $total.html(formatter.format(STATS.total));
@@ -432,7 +441,7 @@ $logid.html(stats.kronosIngestId);//Not me
             function setProgressBar($progressBar, stats){
                 var percent = 4;
                 if(parseInt(stats.processed) > 0 && parseInt(stats.total) > 0){
-                    percent = (parseInt(stats.processed) / parseInt(stats.total) * 100).toFixed(3);
+                    percent = (parseInt(stats.processed) / parseInt(stats.total) * 100).toFixed(1);
                 }
                 if(percent > 4){
                     $progressBar.css({

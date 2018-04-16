@@ -387,6 +387,7 @@ public class BaseQuartzJob implements Job {
             nKronosIngestLog.setKaudit(ApplicationConstants.EMPTY_AUDIT);
             nKronosIngestLog.setKdate(dateTime);
             this.kronosIngestLog = kronosIngestLogDao.save(nKronosIngestLog);
+            //this.kronosIngestLog = new KronosQuartzIngestLog();
         }
         kronosQuartzJobStats.setKronosIngestId(kronosIngestLog.getId());
     }
