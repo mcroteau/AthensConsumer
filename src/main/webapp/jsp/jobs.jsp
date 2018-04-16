@@ -3,7 +3,6 @@
 <html>
 <head>
 	<title>Athens: Running Jobs</title>
-
 </head>
 <body>
 
@@ -53,9 +52,11 @@
         .total-processed{
             font-weight:bold;
             font-size:79px;
+            font-size:54px;
+            font-size:21px;
             line-height:1.0;
             text-align:right;
-            margin-top:10px;
+            /**margin-top:10px;**/
         }
         .processed-title{
             opacity:0.57;
@@ -69,7 +70,19 @@
         }
         .stats-percent{
             font-size:21px;
+            font-size:54px;
             font-weight:bold;
+            text-align:right;
+            margin-top:10px;
+        }
+        #daily-percent{
+            margin:0px auto 00px auto !important;
+            font-size:21px !important;
+        }
+        #daily-processed{
+            font-size:54px !important;
+            margin-top:10px !important;
+            margin-bottom:7px;
         }
         .processed-progress-container{
             height:6px;
@@ -120,6 +133,9 @@
         }
         .ten-text{
             font-size:11px;
+        }
+        .align-right{
+            text-align:right;
         }
         .inline{
             display:inline-block;
@@ -222,18 +238,19 @@
             <h3>Weekly</h3>
         </div>
         <div class="total-percent">
-            <div class="percent-container float-right">
-                <span class="stats-percent inline" id="weekly-percent">0</span>
-                <span class="percent-sign inline">%</span>
-            </div>
-            <div class="total-container float-right">
-                <span class="total-title inline">Total:&nbsp;</span>
-                <span class="stats-total inline" id="weekly-total">0</span>
-            </div>
+            <span class="stats-total inline float-right" id="weekly-total">0</span>
+            <span class="stats-total inline float-right" style="margin:0px 3px !important">/</span>
+            <span class="total-processed float-right" id="weekly-processed">0</span>
+            <span class="total-title inline float-right">Total:&nbsp;</span>
             <br class="clear"/>
         </div>
 
-        <div class="total-processed" id="weekly-processed">0</div>
+
+        <div class="percent-container" style="clear:both;">
+            <span class="percent-sign inline float-right" style="margin-top:10px">%</span>
+            <span class="stats-percent inline float-right" id="weekly-percent" style="line-height:1.3em;height:70px;margin:0px;padding:0px;">0</span>
+        </div>
+        <br class="clear"/>
 
         <div class="processed-title">Processed</div>
 
