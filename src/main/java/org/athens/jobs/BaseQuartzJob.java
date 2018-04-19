@@ -248,10 +248,8 @@ public class BaseQuartzJob implements Job {
             }
 
             if(existingKronosWorkHour == null){
-
                 //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
-
-                //KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
+                KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
                 totalSaved++;
                 log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                 kronosQuartzJobStats.setSaved(totalSaved);
