@@ -243,7 +243,7 @@ public class BaseQuartzJob implements Job {
 
             if(existingKronosWorkHour != null) {
                 totalFound++;
-                log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
+                //log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
                 kronosQuartzJobStats.setFound(totalFound);
             }
 
@@ -251,7 +251,7 @@ public class BaseQuartzJob implements Job {
                 //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
                 KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
                 totalSaved++;
-                log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
+                //log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
                 kronosQuartzJobStats.setSaved(totalSaved);
             }
 
