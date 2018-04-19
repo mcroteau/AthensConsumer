@@ -11,15 +11,17 @@ public class ApplicationConstants {
     public static final String EMPTY_AUDIT     = "{}";
     public static final String CSV_DELIMETER   = ",";
 
-    public static final int KRONOS_PUNCH_DATE_COLUMN       = 1;
+    public static final int KRONOS_DATE_STAMP_COLUMN       = 1;
     public static final int KRONOS_EMPLOYEE_ID_COLUMN      = 0;
-    public static final int KRONOS_BADGE_ID_COLUMN         = 4;
-    public static final int KRONOS_EMPLOYEE_STATUS_COLUMN  = 2;
-    public static final int KRONOS_TERMINAL_COLUMN         = 3;
+    public static final int KRONOS_WORK_HOUR_START_COLUMN  = 2;
+    public static final int KRONOS_WORK_HOUR_END_COLUMN   = 3;
+    public static final int KRONOS_EMPLOYEE_STATUS_COLUMN  = 4;
+    public static final int KRONOS_BADGE_ID_COLUMN         = 5;
+    public static final int KRONOS_TERMINAL_COLUMN         = 7;
 
     public static final String KRONOS_TOKEN_LOOKUP          = "token";
-    public static final String KRONOS_DAILY_REPORT          = "70184283";
-    public static final String KRONOS_WEEKLY_REPORT         = "70165985";
+    public static final String KRONOS_DAILY_REPORT          = "70204867";
+    public static final String KRONOS_WEEKLY_REPORT         = "70204866";
     public static final String KRONOS_LOGIN_URI             = "https://secure4.saashr.com/ta/rest/v1/login";
     public static final String KRONOS_BASE_REPORT_URI       = "https://secure4.saashr.com/ta/rest/v1/report/saved/";
 
@@ -39,10 +41,10 @@ public class ApplicationConstants {
     public static final String ATHENS_QUARTZ_DAILY_TRIGGER  = "AthensQuartzDailyTrigger";
     public static final String ATHENS_QUARTZ_WEEKLY_TRIGGER = "AthensQuartzWeeklyTrigger";
 
-    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 45 16,23 * * ?";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 59 14,23 * * ?";
     //public static final String DAILY_JOB_QUARTZ_EXPRESSION   = "0 0 0 1 1 ? 2200";
-    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "0 30 0 * * ?";
-    //public static final String WEEKLY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
+    //public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "0 30 0 * * ?";
+    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
 
     public static final String DATE_SEARCH_FORMAT  = "yyyyMMdd000000";
     public static final String DATE_DISPLAY_FORMAT = "MM/dd/yyyy";

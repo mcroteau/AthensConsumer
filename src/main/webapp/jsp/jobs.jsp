@@ -1,4 +1,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.text.ParseException" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.text.DateFormat" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="org.joda.time.DateTime" %>
+<%@ page import="java.util.Locale" %>
+
 
 <html>
 <head>
@@ -151,6 +158,30 @@
             font-weight:bold;
         }
     </style>
+    <%
+        String r = "04/09/2018 21:34:00:416 PDT";
+        r = "04/09/2018 00:02:34:430 PDT";
+        r = "04/09/2018 13:33:32:021 PDT";
+        String t = "11:52p";
+        //t = "12:00a";
+        //t = "03:54a";
+
+        r = r.replaceAll("^\"|\"$", "");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        Date date = sdf.parse(r);
+
+        DateFormat sdf2 = new SimpleDateFormat("MM/dd/yyyy");
+        String dateTimeString = sdf2.format(date) + " " + t + "m";
+
+        DateFormat sdf3 = new SimpleDateFormat("MM/dd/yyyy hh:mmaa");
+        Date dateTime = sdf3.parse(dateTimeString);
+
+        DateFormat sdf4 = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fullDateTime = sdf4.format(dateTime);
+
+    %>
+
 
     <div class="stats-container float-left">
         <div id="stats-top">

@@ -258,7 +258,7 @@
         	            <contextPath>/athens</contextPath>
         	        </webApp>
         	        <httpConnector>
-        	            <port>9763</port>
+        	            <port>9463</port>
         	        </httpConnector>
         	    </configuration>
         	</plugin>

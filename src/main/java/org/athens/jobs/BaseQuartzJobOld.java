@@ -2,18 +2,22 @@ package org.athens.jobs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.apache.log4j.Logger;
 import org.athens.common.ApplicationConstants;
-import org.athens.dao.impl.KronosWorkHourDaoImpl;
 import org.athens.dao.impl.KronosQuartzIngestLogDaoImpl;
+import org.athens.dao.impl.KronosWorkHourDaoImpl;
 import org.athens.domain.KronosQuartzIngestLog;
+import org.athens.domain.KronosQuartzJobSettings;
 import org.athens.domain.KronosQuartzJobStats;
 import org.athens.domain.KronosWorkHour;
-import org.athens.domain.KronosQuartzJobSettings;
+import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
 import org.quartz.*;
 
 import java.io.BufferedReader;
@@ -25,19 +29,14 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.List;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.joda.time.LocalTime;
 
 /**Im going to rename all quartz job classes**/
 
 @DisallowConcurrentExecution
-public class BaseQuartzJob implements Job {
+public class BaseQuartzJobOld implements Job {
 
-    final static Logger log = Logger.getLogger(BaseQuartzJob.class);
+    final static Logger log = Logger.getLogger(BaseQuartzJobOld.class);
 
     private String authenticationToken = "";
 
@@ -63,7 +62,7 @@ public class BaseQuartzJob implements Job {
     private KronosQuartzJobStats kronosQuartzJobStats;
 
 
-    public BaseQuartzJob(String jobName, String report){
+    public BaseQuartzJobOld(String jobName, String report){
         log.info("Initializing " + jobName);
         this.report = report;
         this.jobKey = new JobKey(jobName, ApplicationConstants.ATHENS_GROUP);
@@ -85,6 +84,7 @@ public class BaseQuartzJob implements Job {
             getSetTimeStarted();
             clearExistingLogs();
             getSetKrnwhQuartzJobLog();
+
 
             performKronosAuthentication();
             performKronosReportRequestProcess();
@@ -197,33 +197,48 @@ public class BaseQuartzJob implements Job {
 
                 if(n != 0) {
 
-                    getSetRunningTime();
+                    getSetRunningTime();//not me
+                    getSetRunningTime();//not me
 
                     String[] kronosPunchData = line.split(ApplicationConstants.CSV_DELIMETER);
 
-                    String startTime = getWorkHourTime(kronosPunchData, true);
-                    String endTime = getWorkHourTime(kronosPunchData, false);
+                    KronosWorkHour kronosWorkHour = getSetKronosWorkHourFromData(kronosPunchData);
+                    KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
 
-                    if(!startTime.equals("")){
-                        KronosWorkHour kronosWorkHourStart = getSetKronosWorkHourFromData(kronosPunchData, startTime);
-                        KronosWorkHour existingKronosWorkHourStart = getExistingKronosWorkHour(kronosWorkHourStart);
-                        checkExistingPersist(kronosWorkHourStart, existingKronosWorkHourStart);
+                    //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
+
+                    try {
+
+                        if(existingKronosWorkHour != null) {
+                            totalFound++;
+                            //log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
+                            kronosQuartzJobStats.setFound(totalFound);
+                        }
+
+                        if(existingKronosWorkHour == null){
+                            KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
+                            totalSaved++;
+                            //log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
+                            kronosQuartzJobStats.setSaved(totalSaved);
+                        }
+
+                    } catch (Exception e) {
+                        kronosQuartzJobStats.addAuditDetails(kronosWorkHour);
+                        totalError++;
+                        log.warn("error");
+                        e.printStackTrace();
                     }
-
-                    if(!endTime.equals("")){
-                        KronosWorkHour kronosWorkHourEnd = getSetKronosWorkHourFromData(kronosPunchData, endTime);
-                        KronosWorkHour existingKronosWorkHourEnd = getExistingKronosWorkHour(kronosWorkHourEnd);
-                        checkExistingPersist(kronosWorkHourEnd, existingKronosWorkHourEnd);
-                    }
-
+                    
+                    totalProcessed++;
+                    kronosQuartzJobStats.setProcessed(totalProcessed);
                 }
 
                 getSetRunningTime();
 
-                kronosQuartzJobStats.setErrored(totalError);
-                updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
-
                 n++;
+                kronosQuartzJobStats.setErrored(totalError);
+
+                updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
             }
 
         } catch (Exception e) {
@@ -238,34 +253,15 @@ public class BaseQuartzJob implements Job {
     }
 
 
-    private void checkExistingPersist(KronosWorkHour kronosWorkHour, KronosWorkHour existingKronosWorkHour){
-        try {
-
-            if(existingKronosWorkHour != null) {
-                totalFound++;
-                log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
-                kronosQuartzJobStats.setFound(totalFound);
-            }
-
-            if(existingKronosWorkHour == null){
-
-                //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
-
-                //KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
-                totalSaved++;
-                log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
-                kronosQuartzJobStats.setSaved(totalSaved);
-            }
-
-        } catch (Exception e) {
-            kronosQuartzJobStats.addAuditDetails(kronosWorkHour);
-            totalError++;
-            log.warn("error");
-            e.printStackTrace();
-        }
-
-        totalProcessed++;
-        kronosQuartzJobStats.setProcessed(totalProcessed);
+    private void updateQuartzIngestLog(String status){
+        kronosIngestLog.setKtot(new BigDecimal(totalCount));
+        kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
+        kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
+        kronosIngestLog.setKaudit(getAuditJsonRepresentation());
+        kronosIngestLog.setKstatus(status);
+        kronosIngestLogDao.update(kronosIngestLog);//TODO:uncomment
+        kronosQuartzJobStats.setStatus(status);
+        getSetRunningTime();
     }
 
 
@@ -317,41 +313,47 @@ public class BaseQuartzJob implements Job {
     }
 
 
-    private KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData, String time) {
+    private String getAuditJsonRepresentation(){
+        Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
+        return gsonObj.toJson(kronosQuartzJobStats.getAuditDetails());
+    }
+
+
+    private KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData) {
 
         KronosWorkHour kronosWorkHour = new KronosWorkHour();
 
         try {
-            BigDecimal punchDate = getFormattedPunchDate(kronosPunchData[ApplicationConstants.KRONOS_DATE_STAMP_COLUMN], kronosPunchData, time);
 
-            if(punchDate != null) {
-                String employeeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_ID_COLUMN]);
-                String badgeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_BADGE_ID_COLUMN]);
+            BigDecimal punchDate = getFormattedPunchDate(kronosPunchData[ApplicationConstants.KRONOS_DATE_STAMP_COLUMN]);
 
-                String employeeStatus = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_STATUS_COLUMN]);
+            String employeeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_ID_COLUMN]);
+            String badgeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_BADGE_ID_COLUMN]);
 
-                if (employeeIdString.equals("")) employeeIdString = "0";
-                if (badgeIdString.equals("")) badgeIdString = "0";
+            String employeeStatus = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_STATUS_COLUMN]);
+            String terminal = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_TERMINAL_COLUMN]);
 
-                if (employeeStatus.equals("Active")) employeeStatus = "A";
-                if (employeeStatus.equals("LOA")) employeeStatus = "L";
-                if (!employeeStatus.equals("L") && !employeeStatus.equals("A")) employeeStatus = "O";
+            if (employeeIdString.equals("")) employeeIdString = "0";
+            if (badgeIdString.equals("")) badgeIdString = "0";
 
-                BigDecimal employeeId = new BigDecimal(employeeIdString);
-                BigDecimal badgeId = new BigDecimal(badgeIdString);
+            if (employeeStatus.equals("Active")) employeeStatus = "A";
+            if (employeeStatus.equals("LOA")) employeeStatus = "L";
+            if (!employeeStatus.equals("L") && !employeeStatus.equals("A")) employeeStatus = "O";
 
-                kronosWorkHour.setFpempn(employeeId);
-                kronosWorkHour.setFppunc(punchDate);
-                kronosWorkHour.setFptype(employeeStatus);
-                kronosWorkHour.setFpbadg(badgeId);
+            BigDecimal employeeId = new BigDecimal(employeeIdString);
+            BigDecimal badgeId = new BigDecimal(badgeIdString);
 
-                kronosWorkHour.setFpfkey("");//*
-                kronosWorkHour.setFppcod(new BigDecimal(0));//*
-                kronosWorkHour.setFstatus("q");//*
+            kronosWorkHour.setFpempn(employeeId);
+            kronosWorkHour.setFppunc(punchDate);
+            kronosWorkHour.setFptype(employeeStatus);
+            kronosWorkHour.setFpclck(terminal);
+            kronosWorkHour.setFpbadg(badgeId);
 
-                kronosWorkHour.setKrnlogid(kronosIngestLog.getId());
+            kronosWorkHour.setFpfkey("");//*
+            kronosWorkHour.setFppcod(new BigDecimal(0));//*
+            kronosWorkHour.setFstatus("q");//*
 
-            }
+            kronosWorkHour.setKrnlogid(kronosIngestLog.getId());
 
         }catch (Exception e) {
 
@@ -391,49 +393,19 @@ public class BaseQuartzJob implements Job {
     }
 
 
-    private String getAuditJsonRepresentation(){
-        Gson gsonObj =  new GsonBuilder().setPrettyPrinting().create();
-        return gsonObj.toJson(kronosQuartzJobStats.getAuditDetails());
-    }
-
-
-    private BigDecimal getFormattedPunchDate(String rawDate, String[] kronosPunchData, String time) throws ParseException {
-        String cleanDate = cleanupString(rawDate);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        Date date = sdf.parse(cleanDate);
-
-        DateFormat sdf2 = new SimpleDateFormat("MM/dd/yyyy");
-
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(sdf2.format(date));
-        stringBuffer.append(time);
-
-        String dateTimeString = stringBuffer.toString();
-
-        DateFormat sdf3 = new SimpleDateFormat("MM/dd/yyyy hh:mmaa");
-        Date dateTime = sdf3.parse(dateTimeString);
-
-        DateFormat sdf4 = new SimpleDateFormat("yyyyMMddHHmmss");
-        String fullDateTime = sdf4.format(dateTime);
-
-        return new BigDecimal(fullDateTime);
-    }
-
-
-    private String getWorkHourTime(String[] kronosPunchData, boolean workHourStart) {
-        StringBuffer timeBuffer = new StringBuffer();
-
-        String time = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_WORK_HOUR_START_COLUMN]);
-        if (!workHourStart) {
-            time = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_WORK_HOUR_END_COLUMN]);
+    private BigDecimal getFormattedPunchDate(String unformattedDate) throws ParseException {
+        unformattedDate = unformattedDate.replaceAll("^\"|\"$", "");
+        String format = "MM/dd/yyyy HH:mm'a'";
+        if (unformattedDate.contains("p")) {
+            format = "MM/dd/yyyy HH:mm'p'";
         }
 
-        timeBuffer.append(" ");
-        timeBuffer.append(time);
-        timeBuffer.append("m");
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date date = sdf.parse(unformattedDate);
 
-        return timeBuffer.toString();
+        DateFormat sdff = new SimpleDateFormat("yyyyMMddHHmmss");
+        String formattedDate = sdff.format(date);
+        return new BigDecimal(formattedDate);
     }
 
 
@@ -442,18 +414,6 @@ public class BaseQuartzJob implements Job {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String fDate = dateFormat.format(date);
         return new BigDecimal(fDate);
-    }
-
-
-    private void updateQuartzIngestLog(String status){
-        kronosIngestLog.setKtot(new BigDecimal(totalCount));
-        kronosIngestLog.setKadtcnt(new BigDecimal(totalError));
-        kronosIngestLog.setKproc(new BigDecimal(totalProcessed));
-        kronosIngestLog.setKaudit(getAuditJsonRepresentation());
-        kronosIngestLog.setKstatus(status);
-        kronosIngestLogDao.update(kronosIngestLog);//TODO:uncomment
-        kronosQuartzJobStats.setStatus(status);
-        getSetRunningTime();
     }
 
 
