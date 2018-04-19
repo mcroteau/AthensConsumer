@@ -136,9 +136,10 @@ public class ApplicationController {
 
 
         if(startDate == null && endDate == null) {
-            startDate = new BigDecimal(getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
-            endDate = new BigDecimal(getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
+            startDate = new BigDecimal(getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
+            endDate = new BigDecimal(getFullDateTime(true, ApplicationConstants.DATE_SEARCH_FORMAT));
         }
+
         if(startDate.precision() == 14 && endDate.precision() == 14) {
             List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
             model.addAttribute("total", kronosWorkHours.size());
@@ -166,16 +167,27 @@ public class ApplicationController {
                                 HttpServletRequest request,
                                 final RedirectAttributes redirect,
                                 @RequestParam(value="startDate", required = true ) BigDecimal startDate,
-                                @RequestParam(value="endDate", required = true ) BigDecimal endDate){
+                                @RequestParam(value="endDate", required = true ) BigDecimal endDate,
+                                @RequestParam(value="employeeId", required = false ) BigDecimal employeeId){
 
-        if(startDate.precision() == 14 && endDate.precision() == 14){
+        if(employeeId != null && employeeId.precision() < 3){
+            redirect.addFlashAttribute("message", "Employee Id must be at least 3 in length");
+            return "redirect:search";
+        }
+
+
+        if(startDate.precision() == 14 && endDate.precision() == 14 && employeeId == null){
             List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
-            model.addAttribute("total", kronosWorkHours.size());
-            model.addAttribute("kronosWorkHours", kronosWorkHours);
-            model.addAttribute("startDate", startDate);
-            model.addAttribute("endDate", endDate);
-            model.addAttribute("startDateDisplay", parseDateDisplay(startDate));
-            model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
+            setRequestModelAttributes(model, kronosWorkHours, startDate, endDate);
+        }else{
+            redirect.addFlashAttribute("message", "data is incorrect, select a date");
+        }
+
+
+        if(startDate.precision() == 14 && endDate.precision() == 14 && employeeId != null){
+            List<KronosWorkHour> kronosWorkHours = dao.findByDateEmployeeId(startDate, endDate, employeeId);
+            setRequestModelAttributes(model, kronosWorkHours, startDate, endDate);
+            model.addAttribute("employeeId", employeeId);
         }else{
             redirect.addFlashAttribute("message", "data is incorrect, select a date");
         }
@@ -184,6 +196,7 @@ public class ApplicationController {
         model.addAttribute("todaysDate", getFullDateTime(false, ApplicationConstants.DATE_SEARCH_FORMAT));
 
         model.addAttribute("searchLinkActive", "active");
+
         return "search";
     }
 
@@ -194,7 +207,8 @@ public class ApplicationController {
                        HttpServletResponse response,
                        final RedirectAttributes redirect,
                        @RequestParam(value="startDate", required = true ) BigDecimal startDate,
-                       @RequestParam(value="endDate", required = true ) BigDecimal endDate)  throws Exception {
+                       @RequestParam(value="endDate", required = true ) BigDecimal endDate,
+                       @RequestParam(value="employeeId", required = false ) BigDecimal employeeId)  throws Exception {
 
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
@@ -207,23 +221,30 @@ public class ApplicationController {
 
         response.setHeader("Content-Disposition", "attachment; filename=\"q.csv\"");
 
-        List<KronosWorkHour> kronosWorkHours = dao.findByDate(startDate, endDate);
-        //model.addAttribute("total", kronosWorkHours.size());
-        //model.addAttribute("kronosWorkHours", kronosWorkHours);
+        List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
+
+        if(startDate.precision() == 14 && endDate.precision() == 14 && employeeId == null){
+            kronosWorkHours = dao.findByDate(startDate, endDate);
+        }
+
+        if(startDate.precision() == 14 && endDate.precision() == 14 && employeeId != null) {
+            kronosWorkHours = dao.findByDateEmployeeId(startDate, endDate, employeeId);
+        }
+
         StringBuffer writer=new StringBuffer();
 
-        for (KronosWorkHour d : kronosWorkHours) {
+        for (KronosWorkHour kronosWorkHour : kronosWorkHours) {
             List<String> list = new ArrayList<>();
-            list.add(d.getId().toString());
-            list.add(d.getFpempn().toString());
-            list.add(d.getFppunc().toString());
-            list.add(d.getFptype());
-            list.add(d.getFpclck());
-            list.add(d.getFpbadg().toString());
-            list.add(d.getFpfkey());
-            list.add(d.getFppcod().toString());
-            list.add(d.getFstatus());
-            list.add(d.getKrnlogid().toString());
+            list.add(kronosWorkHour.getId().toString());
+            list.add(kronosWorkHour.getFpempn().toString());
+            list.add(kronosWorkHour.getFppunc().toString());
+            list.add(kronosWorkHour.getFptype());
+            list.add(kronosWorkHour.getFpclck());
+            list.add(kronosWorkHour.getFpbadg().toString());
+            list.add(kronosWorkHour.getFpfkey());
+            list.add(kronosWorkHour.getFppcod().toString());
+            list.add(kronosWorkHour.getFstatus());
+            list.add(kronosWorkHour.getKrnlogid().toString());
 
             CsvUtils.writeLine(writer, list);
         }
@@ -265,112 +286,6 @@ public class ApplicationController {
     }
 
 
-
-
-
-
-    /**
-    @RequestMapping(value="/list", method=RequestMethod.GET)
-    public String list(ModelMap model,
-                       HttpServletRequest request,
-                       final RedirectAttributes redirect,
-                       @RequestParam(value="admin", required = false ) String admin,
-                       @RequestParam(value="offset", required = false ) String offset,
-                       @RequestParam(value="max", required = false ) String max,
-                       @RequestParam(value="page", required = false ) String page,
-                       @RequestParam(value="sort", required = false ) String sort,
-                       @RequestParam(value="order", required = false ) String order){
-
-        if(page == null){
-            page = "1";
-        }
-
-        List<KronosQuartzIngestLog> kronosIngestLogs;
-
-        if(offset != null) {
-            int m = 10;
-            if(max != null){
-                m = Integer.parseInt(max);
-            }
-            int o = Integer.parseInt(offset);
-            kronosIngestLogs = logDao.list(m, o);
-            //kronosIngestLogs = generateMockKrnwhLogs(m, o);
-        }else{
-            kronosIngestLogs = logDao.list(10, 0);
-            //kronosIngestLogs = generateMockKrnwhLogs(10, 0);
-        }
-
-        //int count = logDao.count();
-        int count = 304;
-
-
-        model.addAttribute("kronosIngestLogs", kronosIngestLogs);
-        model.addAttribute("total", count);
-
-        model.addAttribute("sort", sort);
-        model.addAttribute("order", order);
-
-        model.addAttribute("resultsPerPage", 10);
-        model.addAttribute("activePage", page);
-
-        if(dailyKronosQuartzJobStats.jobRunning())model.addAttribute("dailyJobRunning");
-
-        if(weeklyKronosQuartzJobStats.jobRunning())model.addAttribute("weeklyJobRunning");
-
-        model.addAttribute("kronosIngestLogsLinkActive", "active");
-
-        return "application/index";
-    }
-
-
-    @RequestMapping(value="/kronosWorkHour/list_ingest", method=RequestMethod.GET)
-    public String krnwsIngest(ModelMap model,
-                        HttpServletRequest request,
-                        final RedirectAttributes redirect,
-                        @RequestParam(value="ingest", required = true ) BigDecimal ingest,
-                        @RequestParam(value="admin", required = false ) String admin,
-                        @RequestParam(value="offset", required = false ) String offset,
-                        @RequestParam(value="max", required = false ) String max,
-                        @RequestParam(value="page", required = false ) String page,
-                        @RequestParam(value="sort", required = false ) String sort,
-                        @RequestParam(value="order", required = false ) String order){
-
-        if(page == null){
-            page = "1";
-        }
-
-        List<KronosWorkHour> kronosWorkHours;
-
-        if(offset != null) {
-            int m = 10;
-            if(max != null){
-                m = Integer.parseInt(max);
-            }
-            int o = Integer.parseInt(offset);
-            //kronosWorkHours = dao.listByIngest(m, o, ingest);
-            kronosWorkHours = generateMockKrnwhs(m, o);
-        }else{
-            //kronosWorkHours = dao.listByIngest(10, 0, ingest);
-            kronosWorkHours = generateMockKrnwhs(10, 0);
-        }
-
-        //int count = dao.count();
-        int count = 2031;
-        System.out.println("count : " + count);
-
-        model.addAttribute("kronosWorkHours", kronosWorkHours);
-        model.addAttribute("total", count);
-
-        model.addAttribute("resultsPerPage", 10);
-        model.addAttribute("activePage", page);
-
-        model.addAttribute("kronosWorkHoursLinkActive", "active");
-
-        return "kronosWorkHour/list";
-
-    }
-**/
-
     @RequestMapping(value="/run_daily", method= RequestMethod.POST)
     public String runDaily(final RedirectAttributes redirect){
         String message = runJob(ApplicationConstants.ATHENS_DAILY_QUARTZ_JOB);
@@ -384,6 +299,16 @@ public class ApplicationController {
         String message = runJob(ApplicationConstants.ATHENS_WEEKLY_QUARTZ_JOB);
         redirect.addFlashAttribute("message", message);
         return "redirect:jobs";
+    }
+
+
+    private void setRequestModelAttributes(ModelMap model, List<KronosWorkHour> kronosWorkHours, BigDecimal startDate, BigDecimal endDate){
+        model.addAttribute("total", kronosWorkHours.size());
+        model.addAttribute("kronosWorkHours", kronosWorkHours);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("startDateDisplay", parseDateDisplay(startDate));
+        model.addAttribute("endDateDisplay", parseDateDisplay(endDate));
     }
 
     private String runJob(String job){

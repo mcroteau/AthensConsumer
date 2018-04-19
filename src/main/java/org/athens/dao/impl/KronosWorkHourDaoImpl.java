@@ -64,6 +64,24 @@ public class KronosWorkHourDaoImpl implements KronosWorkHourDao {
 
 
 
+	public List<KronosWorkHour> findByDateEmployeeId(BigDecimal startDate, BigDecimal endDate, BigDecimal fpempn){
+		String sql = "select * from QGPL.KRNWH where fppunc between " + startDate + " and " + endDate + " and fpempn like '" + fpempn + "%' order by id asc";
+
+		log.info("find by date : " + sql);
+
+		List<KronosWorkHour> kronosWorkHours = new ArrayList<KronosWorkHour>();
+
+		try {
+			kronosWorkHours = jdbcTemplate.query(sql, new BeanPropertyRowMapper(KronosWorkHour.class));
+
+		}catch(Exception e){
+			log.warn("exception : unable to find kronosWorkHours by date and employee id...");
+		}
+		return kronosWorkHours;
+	}
+
+
+
 	public KronosWorkHour findByPunchBadgeId(BigDecimal fppunc, BigDecimal fpbadg){
 		KronosWorkHour k = null;
 		try{
