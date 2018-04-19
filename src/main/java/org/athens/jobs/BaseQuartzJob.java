@@ -206,18 +206,12 @@ public class BaseQuartzJob implements Job {
 
                     if(!startTime.equals("")){
                         KronosWorkHour kronosWorkHourStart = getSetKronosWorkHourFromData(kronosPunchData, startTime);
-                        if(kronosWorkHourStart != null) {
-                            KronosWorkHour existingKronosWorkHourStart = getExistingKronosWorkHour(kronosWorkHourStart);
-                            checkExistingKronosWorkHourPersist(kronosWorkHourStart, existingKronosWorkHourStart);
-                        }
+                        checkExistingKronosWorkHourPersist(kronosWorkHourStart);
                     }
 
                     if(!endTime.equals("")){
                         KronosWorkHour kronosWorkHourEnd = getSetKronosWorkHourFromData(kronosPunchData, endTime);
-                        if(kronosWorkHourEnd != null) {
-                            KronosWorkHour existingKronosWorkHourEnd = getExistingKronosWorkHour(kronosWorkHourEnd);
-                            checkExistingKronosWorkHourPersist(kronosWorkHourEnd, existingKronosWorkHourEnd);
-                        }
+                        checkExistingKronosWorkHourPersist(kronosWorkHourEnd);
                     }
 
                 }
@@ -242,21 +236,29 @@ public class BaseQuartzJob implements Job {
     }
 
 
-    private void checkExistingKronosWorkHourPersist(KronosWorkHour kronosWorkHour, KronosWorkHour existingKronosWorkHour){
+    private void checkExistingKronosWorkHourPersist(KronosWorkHour kronosWorkHour){
         try {
 
-            if(existingKronosWorkHour != null) {
-                totalFound++;
-                //log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
-                kronosQuartzJobStats.setFound(totalFound);
-            }
+            if(kronosWorkHour.getFppunc() != null &&
+                    ((kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0) ||
+                            (kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0))) {
 
-            if(existingKronosWorkHour == null){
                 //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
-                KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
-                totalSaved++;
-                //log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
-                kronosQuartzJobStats.setSaved(totalSaved);
+
+                KronosWorkHour existingKronosWorkHour = getExistingKronosWorkHour(kronosWorkHour);
+
+                if (existingKronosWorkHour != null) {
+                    totalFound++;
+                    //log.info(this.jobKey.getName() + ": found: " + totalFound +  ", processed: " + totalProcessed);
+                    kronosQuartzJobStats.setFound(totalFound);
+                }
+
+                if (existingKronosWorkHour == null) {
+                    KronosWorkHour skronosWorkHour = kronosWorkHourDao.save(kronosWorkHour);
+                    totalSaved++;
+                    //log.info(this.jobKey.getName() + ": saved: " + totalSaved + ", processed: " + totalProcessed);
+                    kronosQuartzJobStats.setSaved(totalSaved);
+                }
             }
 
         } catch (Exception e) {
@@ -321,19 +323,19 @@ public class BaseQuartzJob implements Job {
 
     private KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData, String time) {
 
-        KronosWorkHour kronosWorkHour = null;
+        KronosWorkHour kronosWorkHour = new KronosWorkHour();
 
         try {
             BigDecimal punchDate = getFormattedPunchDate(kronosPunchData[ApplicationConstants.KRONOS_DATE_STAMP_COLUMN], kronosPunchData, time);
 
             if(punchDate != null) {
+
                 String employeeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_ID_COLUMN]);
                 String badgeIdString = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_BADGE_ID_COLUMN]);
-
                 String employeeStatus = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_EMPLOYEE_STATUS_COLUMN]);
 
-                if (employeeIdString.equals("")) employeeIdString = "0";
-                if (badgeIdString.equals("")) badgeIdString = "0";
+                if (employeeIdString == null || employeeIdString.equals("")) employeeIdString = "0";
+                if (badgeIdString == null || badgeIdString.equals("")) badgeIdString = "0";
 
                 if (employeeStatus.equals("Active")) employeeStatus = "A";
                 if (employeeStatus.equals("LOA")) employeeStatus = "L";
@@ -361,11 +363,6 @@ public class BaseQuartzJob implements Job {
         }
 
         return kronosWorkHour;
-    }
-
-
-    private String cleanupString(String raw){
-        return raw.replaceAll("^\"|\"$", "");
     }
 
 
@@ -427,13 +424,16 @@ public class BaseQuartzJob implements Job {
         StringBuffer timeBuffer = new StringBuffer();
 
         String time = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_WORK_HOUR_START_COLUMN]);
+
         if (!workHourStart) {
             time = cleanupString(kronosPunchData[ApplicationConstants.KRONOS_WORK_HOUR_END_COLUMN]);
         }
 
-        timeBuffer.append(" ");
-        timeBuffer.append(time);
-        timeBuffer.append("m");
+        if(!time.equals("")) {
+            timeBuffer.append(" ");
+            timeBuffer.append(time);
+            timeBuffer.append("m");
+        }
 
         return timeBuffer.toString();
     }
@@ -516,5 +516,8 @@ public class BaseQuartzJob implements Job {
         kronosQuartzJobStats.setStatus(ApplicationConstants.STARTED_STATUS);
     }
 
+    private String cleanupString(String raw){
+        return raw.replaceAll("^\"|\"$", "");
+    }
 
 }

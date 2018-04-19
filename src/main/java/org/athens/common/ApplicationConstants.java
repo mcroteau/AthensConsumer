@@ -14,7 +14,7 @@ public class ApplicationConstants {
     public static final int KRONOS_DATE_STAMP_COLUMN       = 1;
     public static final int KRONOS_EMPLOYEE_ID_COLUMN      = 0;
     public static final int KRONOS_WORK_HOUR_START_COLUMN  = 2;
-    public static final int KRONOS_WORK_HOUR_END_COLUMN   = 3;
+    public static final int KRONOS_WORK_HOUR_END_COLUMN    = 3;
     public static final int KRONOS_EMPLOYEE_STATUS_COLUMN  = 4;
     public static final int KRONOS_BADGE_ID_COLUMN         = 5;
     public static final int KRONOS_TERMINAL_COLUMN         = 7;
