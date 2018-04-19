@@ -321,7 +321,7 @@ public class BaseQuartzJob implements Job {
 
     private KronosWorkHour getSetKronosWorkHourFromData(String[] kronosPunchData, String time) {
 
-        KronosWorkHour kronosWorkHour = new KronosWorkHour();
+        KronosWorkHour kronosWorkHour = null;
 
         try {
             BigDecimal punchDate = getFormattedPunchDate(kronosPunchData[ApplicationConstants.KRONOS_DATE_STAMP_COLUMN], kronosPunchData, time);
