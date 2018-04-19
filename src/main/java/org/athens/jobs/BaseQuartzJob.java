@@ -207,13 +207,13 @@ public class BaseQuartzJob implements Job {
                     if(!startTime.equals("")){
                         KronosWorkHour kronosWorkHourStart = getSetKronosWorkHourFromData(kronosPunchData, startTime);
                         KronosWorkHour existingKronosWorkHourStart = getExistingKronosWorkHour(kronosWorkHourStart);
-                        checkExistingPersist(kronosWorkHourStart, existingKronosWorkHourStart);
+                        checkExistingKronosWorkHourPersist(kronosWorkHourStart, existingKronosWorkHourStart);
                     }
 
                     if(!endTime.equals("")){
                         KronosWorkHour kronosWorkHourEnd = getSetKronosWorkHourFromData(kronosPunchData, endTime);
                         KronosWorkHour existingKronosWorkHourEnd = getExistingKronosWorkHour(kronosWorkHourEnd);
-                        checkExistingPersist(kronosWorkHourEnd, existingKronosWorkHourEnd);
+                        checkExistingKronosWorkHourPersist(kronosWorkHourEnd, existingKronosWorkHourEnd);
                     }
 
                 }
@@ -238,7 +238,7 @@ public class BaseQuartzJob implements Job {
     }
 
 
-    private void checkExistingPersist(KronosWorkHour kronosWorkHour, KronosWorkHour existingKronosWorkHour){
+    private void checkExistingKronosWorkHourPersist(KronosWorkHour kronosWorkHour, KronosWorkHour existingKronosWorkHour){
         try {
 
             if(existingKronosWorkHour != null) {
