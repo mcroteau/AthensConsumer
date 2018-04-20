@@ -139,7 +139,6 @@ public class BaseQuartzJob implements Job {
         innerObject.addProperty("password", kronosWorkHourJobSettings.getPassword());
         innerObject.addProperty("company", kronosWorkHourJobSettings.getCompany());
 
-
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("credentials", innerObject);
 
@@ -214,6 +213,9 @@ public class BaseQuartzJob implements Job {
                         checkExistingKronosWorkHourPersist(kronosWorkHourEnd);
                     }
 
+                    totalProcessed++;
+                    kronosQuartzJobStats.setProcessed(totalProcessed);
+
                 }
 
                 getSetRunningTime();
@@ -268,8 +270,6 @@ public class BaseQuartzJob implements Job {
             e.printStackTrace();
         }
 
-        totalProcessed++;
-        kronosQuartzJobStats.setProcessed(totalProcessed);
     }
 
 

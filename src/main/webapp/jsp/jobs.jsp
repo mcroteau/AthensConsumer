@@ -202,7 +202,7 @@
             <span class="stats-total inline float-right" id="daily-total">0</span>
             <span class="processed-separator inline float-right">/</span>
             <span class="total-processed inline float-right" id="daily-processed">0</span>
-            <span class="total-title inline float-right">Total&nbsp;</span>
+            <span class="total-title inline float-right">Total Lines</span>
             <br class="clear"/>
         </div>
 
@@ -253,7 +253,7 @@
             <br class="clear"/>
             <div class="running-times">
                 <p class="float-left" style="margin:10px 0px 0px 0px">
-                    <span class="total-title">Run Times:&nbsp</span><span class="total-value">4:45pm, 11:45pm</span>
+                    <span class="total-title">Run Times:&nbsp</span><span class="total-value">2:45pm, 11:45pm</span>
                 </p>
             </div>
         </div>
@@ -281,7 +281,7 @@
             <span class="stats-total inline float-right" id="weekly-total">0</span>
             <span class="processed-separator inline float-right">/</span>
             <span class="total-processed inline float-right" id="weekly-processed">0</span>
-            <span class="total-title inline float-right">Total&nbsp;</span>
+            <span class="total-title inline float-right">Total Lines</span>
             <br class="clear"/>
         </div>
 

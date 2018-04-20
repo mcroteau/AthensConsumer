@@ -121,7 +121,6 @@
                             <th>Employee Id</th>
                             <th>Punch</th>
                             <th>Type</th>
-                            <th>Clock</th>
                             <th>Badge Id</th>
                             <th>Key</th>
                             <th>COD</th>
@@ -136,7 +135,6 @@
                             <td>${kronosWorkHour.fpempn}</td>
                             <td>${kronosWorkHour.fppunc}</td>
                             <td>${kronosWorkHour.fptype}</td>
-                            <td>${kronosWorkHour.fpclck}</td>
                             <td>${kronosWorkHour.fpbadg}</td>
                             <td>${kronosWorkHour.fpfkey}</td>
                             <td>${kronosWorkHour.fppcod}</td>

@@ -41,10 +41,10 @@ public class ApplicationConstants {
     public static final String ATHENS_QUARTZ_DAILY_TRIGGER  = "AthensQuartzDailyTrigger";
     public static final String ATHENS_QUARTZ_WEEKLY_TRIGGER = "AthensQuartzWeeklyTrigger";
 
-    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 59 14,23 * * ?";
+    public static final String DAILY_JOB_QUARTZ_EXPRESSION  = "1 45 14,23 * * ?";
     //public static final String DAILY_JOB_QUARTZ_EXPRESSION   = "0 0 0 1 1 ? 2200";
-    //public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "0 30 0 * * ?";
-    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
+    public static final String WEEKLY_JOB_QUARTZ_EXPRESSION = "0 30 0 * * ?";
+    //public static final String WEEKLY_JOB_QUARTZ_EXPRESSION  = "0 0 0 1 1 ? 2200";
 
     public static final String DATE_SEARCH_FORMAT  = "yyyyMMdd000000";
     public static final String DATE_DISPLAY_FORMAT = "MM/dd/yyyy";
