@@ -43,7 +43,7 @@ public class BaseQuartzJob implements Job {
 
     private long timeStarted = 0;
 
-    private int totalCount     = 0;
+    private int totalLines     = 0;
     private int totalSaved     = 0;
     private int totalError     = 0;
     private int totalFound     = 0;
@@ -169,14 +169,14 @@ public class BaseQuartzJob implements Job {
         String line = "";
         InputStream is = new ByteArrayInputStream(csvData.getBytes());
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            totalCount = 0;
+            totalLines = 0;
             int count = 0;
             while ((line = br.readLine()) != null) {
-                if(count != 0) totalCount++;
+                if(count != 0) totalLines++;
                 count++;
             }
 
-            kronosQuartzJobStats.setTotal(totalCount);
+            kronosQuartzJobStats.setTotal(totalLines);
             kronosQuartzJobStats.setStatus(ApplicationConstants.RUNNING_STATUS);
 
             updateQuartzIngestLog(ApplicationConstants.RUNNING_STATUS);
