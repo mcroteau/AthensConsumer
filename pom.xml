@@ -183,6 +183,7 @@
                 <includes>
                     <include>log4j.properties</include>
                     <include>application.properties</include>
+                    <include>*</include>
                 </includes>
             </resource>
         </resources>
@@ -258,7 +259,7 @@
         	            <contextPath>/athens</contextPath>
         	        </webApp>
         	        <httpConnector>
-        	            <port>9463</port>
+        	            <port>9461</port>
         	        </httpConnector>
         	    </configuration>
         	</plugin>
