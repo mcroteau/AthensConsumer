@@ -385,8 +385,8 @@ public class BaseQuartzJob implements Job {
         try {
 
             if(kronosWorkHour.getFppunc() != null &&
-                    ((kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0) ||
-                            (kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0))) {
+                    kronosWorkHour.getFpbadg().compareTo(new BigDecimal(0)) != 0 &&
+                        kronosWorkHour.getFpempn().compareTo(new BigDecimal(0)) != 0) {
 
                 //if (totalProcessed % 2 == 0) kronosWorkHour.setFstatus("aa");
 
