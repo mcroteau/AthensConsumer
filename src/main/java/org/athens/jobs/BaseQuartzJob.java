@@ -233,19 +233,27 @@ public class BaseQuartzJob implements Job {
                     }
                      **/
 
-                    BigDecimal startDate = getPunchDateDataTimeFile(kronosPunchData[8]);
-                    BigDecimal endDate = getPunchDateDataTimeFile(kronosPunchData[9]);
+                    if(kronosPunchData.length > 8 && kronosPunchData[8] != null) {
+                        BigDecimal startDate = getPunchDateDataTimeFile(kronosPunchData[8]);
 
-                    if(startDate != null && startDate.compareTo(new BigDecimal("20180410000000")) < 0){
-                        KronosWorkHour kronosWorkHourStart = getSetKronosWorkHourFromDataFile(kronosPunchData, startDate);
-                        checkExistingKronosWorkHourPersist(kronosWorkHourStart);
+                        if (startDate != null
+                                //&& startDate.compareTo(new BigDecimal("20180410000000")) < 0
+                                ) {
+                            KronosWorkHour kronosWorkHourStart = getSetKronosWorkHourFromDataFile(kronosPunchData, startDate);
+                            checkExistingKronosWorkHourPersist(kronosWorkHourStart);
+                        }
                     }
 
-                    if(endDate != null && startDate.compareTo(new BigDecimal("20180410000000")) < 0){
-                        KronosWorkHour kronosWorkHourEnd = getSetKronosWorkHourFromDataFile(kronosPunchData, endDate);
-                        checkExistingKronosWorkHourPersist(kronosWorkHourEnd);
-                    }
+                    if(kronosPunchData.length > 9 && kronosPunchData[9] != null) {
+                        BigDecimal endDate = getPunchDateDataTimeFile(kronosPunchData[9]);
 
+                        if (endDate != null
+                                //&& endDate.compareTo(new BigDecimal("20180410000000")) < 0
+                                ) {
+                            KronosWorkHour kronosWorkHourEnd = getSetKronosWorkHourFromDataFile(kronosPunchData, endDate);
+                            checkExistingKronosWorkHourPersist(kronosWorkHourEnd);
+                        }
+                    }
                     totalProcessed++;
                     kronosQuartzJobStats.setProcessed(totalProcessed);
 
