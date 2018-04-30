@@ -13,15 +13,23 @@
 
     <context:property-placeholder location="classpath*:application.properties"/>
 
-	
+	<!--
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.ibm.as400.access.AS400JDBCDriver" />
 		<property name="url" value="jdbc:as400://${db.host}/${db.database}"/>
 		<property name="username" value="${db.username}"/>
 		<property name="password" value="${db.password}"/>
 	</bean>
-	
-	
+	-->
+
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://${mysql.host}/${mysql.database}"/>
+		<property name="username" value="${mysql.username}"/>
+		<property name="password" value="${mysql.password}"/>
+	</bean>
+
+
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
