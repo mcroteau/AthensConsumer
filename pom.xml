@@ -31,7 +31,9 @@
         <servlet.version>2.5</servlet.version>
         <java.version>1.8</java.version>
 		<quartz.version>2.2.1</quartz.version>
-		<mysql.connector.version>8.0.8-dmr</mysql.connector.version>
+		<!--<mysql.connector.version>8.0.8-dmr</mysql.connector.version>-->
+        <mysql.connector.version>5.1.40</mysql.connector.version>
+        <postgresql.version>9.1-901.jdbc4</postgresql.version>
         <sitemesh.version>2.4.2</sitemesh.version>
         <joda.version>2.9.8</joda.version>
         <jstl.version>1.2</jstl.version>
@@ -114,6 +116,12 @@
 		    <artifactId>mysql-connector-java</artifactId>
 		    <version>${mysql.connector.version}</version>
 		</dependency>
+
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
 
 		<dependency>
 		    <groupId>com.ibm.db2.jcc</groupId>

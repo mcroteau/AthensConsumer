@@ -22,7 +22,8 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
 
     public int count() {
-        String sql = "select count(*) from QGPL.KRNLOG";
+        //String sql = "select count(*) from QGPL.KRNLOG";
+        String sql = "select count(*) from KRNLOG";
         int count = 0;
         try{
             count = jdbcTemplate.queryForObject(sql, Integer.class, new Object[0]);
@@ -37,7 +38,9 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
         List<KronosQuartzIngestLog> krnwLogs = new ArrayList<KronosQuartzIngestLog>();
         try{
 
-            String sql = "select * from QGPL.KRNLOG order by kdate desc limit " + max + " offset " + offset;
+            //String sql = "select * from QGPL.KRNLOG order by kdate desc limit " + max + " offset " + offset;
+            String sql = "select * from KRNLOG order by kdate desc limit " + max + " offset " + offset;
+
             krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosQuartzIngestLog>(KronosQuartzIngestLog.class));
 
         }catch (Exception e){
@@ -49,7 +52,8 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
 
     public KronosQuartzIngestLog findById(BigDecimal id){
-        String findSql = "select * from QGPL.KRNLOG where id = " + id;
+        //String findSql = "select * from QGPL.KRNLOG where id = " + id;
+        String findSql = "select * from KRNLOG where id = " + id;
 
         KronosQuartzIngestLog kronosIngestLog = new KronosQuartzIngestLog();
 
@@ -67,7 +71,8 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
 
     public KronosQuartzIngestLog findByDate(BigDecimal date){
-        String findSql = "select * from QGPL.KRNLOG where kdate = " + date + " limit 1";
+        //String findSql = "select * from QGPL.KRNLOG where kdate = " + date + " limit 1";
+        String findSql = "select * from krnlog where kdate = " + date + " limit 1";//TODO:
 
         KronosQuartzIngestLog kronosIngestLog = null;
 
@@ -86,7 +91,8 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
         List<KronosQuartzIngestLog> krnwLogs = new ArrayList<KronosQuartzIngestLog>();
         try{
 
-            String sql = "select * from QGPL.KRNLOG where kstatus = '" + status + "'";
+            //String sql = "select * from QGPL.KRNLOG where kstatus = '" + status + "'";
+            String sql = "select * from krnlog where kstatus = '" + status + "'";//TODO:
             krnwLogs = jdbcTemplate.query(sql, new BeanPropertyRowMapper<KronosQuartzIngestLog>(KronosQuartzIngestLog.class));
 
         }catch (Exception e){
@@ -98,6 +104,7 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
     public KronosQuartzIngestLog save(KronosQuartzIngestLog kronosIngestLog){
 
+        /**
         String sql = "SELECT * FROM FINAL TABLE " +
                 "(insert into QGPL.KRNLOG ( kdate, kstatus, ktot, kadtcnt, kaudit, ktype, kproc ) " +
                 "values " +
@@ -109,12 +116,32 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
                 "'" + kronosIngestLog.getKtype() + "'," +
                 kronosIngestLog.getKproc() + "))";
 
+        **/
+
+        String sql = "insert into krnlog ( kdate, ktot, kproc, kadtcnt, ktype, kstatus, kaudit ) VALUES (?, ?, ?, ?, ?, ?, ?);";
+
 
         KronosQuartzIngestLog skronosIngestLog = new KronosQuartzIngestLog();
 
         try {
+
+            jdbcTemplate.update(sql, new Object[] {
+                    kronosIngestLog.getKdate(), kronosIngestLog.getKtot(), kronosIngestLog.getKproc(),
+                    kronosIngestLog.getKadtcnt(), kronosIngestLog.getKtype(), kronosIngestLog.getKstatus(),
+                    kronosIngestLog.getKaudit()
+            });
+
+            //String searchSql = "select * from krnlog where id = last_insert_id();";//TODO:
+            //String searchSql = "select * from krnlog where id = select currval(pg_get_serial_sequence('krnlog','id'));";
+            String searchSql = "select * from krnlog order by id desc limit 1;";
+
+            skronosIngestLog = (KronosQuartzIngestLog) jdbcTemplate.queryForObject(searchSql, new Object[]{},
+                    new BeanPropertyRowMapper(KronosQuartzIngestLog.class));
+
+            /**
             skronosIngestLog = (KronosQuartzIngestLog) jdbcTemplate.queryForObject(sql, new Object[]{},
                     new BeanPropertyRowMapper(KronosQuartzIngestLog.class));
+            **/
 
         }catch(Exception e){
             e.printStackTrace();
@@ -127,7 +154,8 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
     public KronosQuartzIngestLog update(KronosQuartzIngestLog kronosIngestLog){
 
-        String sql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc, ktype ) = (?, ?, ?, ?, ?, ?)  where id = ?";
+        //String sql = "update QGPL.KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc, ktype ) = (?, ?, ?, ?, ?, ?)  where id = ?";
+        String sql = "update KRNLOG set ( kstatus, ktot, kadtcnt, kaudit, kproc, ktype ) = (?, ?, ?, ?, ?, ?)  where id = ?";//TODO:
 
         jdbcTemplate.update(sql, new Object[] {
                 kronosIngestLog.getKstatus(), kronosIngestLog.getKtot(), kronosIngestLog.getKadtcnt(),
@@ -142,7 +170,8 @@ public class KronosQuartzIngestLogDaoImpl implements KronosQuartzIngestLogDao {
 
     public KronosQuartzIngestLog updateStatus(KronosQuartzIngestLog kronosIngestLog){
 
-        String sql = "update QGPL.KRNLOG set ( kstatus ) = (?)  where id = ?";
+        //String sql = "update QGPL.KRNLOG set ( kstatus ) = (?)  where id = ?";
+        String sql = "update KRNLOG set ( kstatus ) = (?)  where id = ?";
 
         log.info(sql);
         jdbcTemplate.update(sql, new Object[] {
